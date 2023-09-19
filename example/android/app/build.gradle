@@ -73,9 +73,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.casexample"
+    namespace "com.YOZHStudio.RailRoad"
     defaultConfig {
-        applicationId "com.casexample"
+        applicationId "com.YOZHStudio.RailRoad"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

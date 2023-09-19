@@ -19,3 +19,16 @@ buildscript {
         classpath("com.facebook.react:react-native-gradle-plugin")
     }
 }
+
+allprojects {
+  repositories {
+    google()
+    mavenCentral()
+    maven { url = "https://android-sdk.is.com/" } // IronSource
+    maven { url = "https://aa-sdk.s3-eu-west-1.amazonaws.com/android_repo" } // SuperAwesome
+    maven { url = "https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea" } // Mintegral
+    maven { url = "https://artifact.bytedance.com/repository/pangle" } // Pangle
+    maven { url = "https://sdk.tapjoy.com/" } // TapJoy
+    maven { url = "https://cboost.jfrog.io/artifactory/chartboost-ads/" } // Chartboost
+  }
+}

@@ -1,4 +1,4 @@
-package com.casexample;
+package com.YOZHStudio.RailRoad;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;

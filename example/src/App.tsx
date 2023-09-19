@@ -1,25 +1,32 @@
 import * as React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Setup } from './setup.component';
+import { Menu } from './menu.component';
+import { Banners } from './banners.component';
+import { Ads } from './ads.component';
+import { Settings } from './settings.component';
+import { CasProvider } from './cas.context';
+import { LoggerTerminal } from './logger-terminal.component';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { StyleSheet, View } from 'react-native';
-import { CasView } from 'react-native-cas';
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <CasView color="#32a852" style={styles.box} />
-    </View>
+    <SafeAreaProvider>
+      <CasProvider>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen name={'Setup'} component={Setup} />
+            <Stack.Screen name={'Menu'} component={Menu} />
+            <Stack.Screen name={'Ads'} component={Ads} />
+            <Stack.Screen name={'Banners'} component={Banners} />
+            <Stack.Screen name={'Settings'} component={Settings} />
+          </Stack.Navigator>
+        </NavigationContainer>
+        <LoggerTerminal />
+      </CasProvider>
+    </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  box: {
-    width: 60,
-    height: 60,
-    marginVertical: 20,
-  },
-});

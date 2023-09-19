@@ -1,6 +1,8 @@
-package com.casexample;
+package com.YOZHStudio.RailRoad;
 
 import android.app.Application;
+import android.os.Build;
+
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactNativeHost;
