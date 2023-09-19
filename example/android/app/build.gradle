@@ -107,6 +107,27 @@ dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 
+    implementation('com.cleveradssolutions:cas-families:3.2.5')
+    implementation('com.cleveradssolutions:cas-sdk:3.2.5')
+    implementation('com.cleveradssolutions:google:22.3.0.0')
+    implementation('com.cleveradssolutions:unity:4.8.0.0')
+    implementation('com.cleveradssolutions:ironsource:7.5.0.0')
+    implementation('com.cleveradssolutions:adcolony:4.8.0.12')
+    implementation('com.cleveradssolutions:kidoz:8.9.9.0')
+    implementation('com.cleveradssolutions:superawesome:9.1.0.2')
+    implementation('com.cleveradssolutions:vungle:6.12.1.7')
+    implementation('com.cleveradssolutions:inmobi:10.1.4.4')
+    implementation('com.cleveradssolutions:chartboost:9.4.1.0')
+    implementation('com.cleveradssolutions:fyber:8.2.3.4')
+    implementation('com.cleveradssolutions:facebook:6.16.0.0')
+    implementation('com.cleveradssolutions:mintegral:16.4.91.0')
+    implementation('com.cleveradssolutions:applovin:11.11.3.0')
+    implementation('com.cleveradssolutions:mytarget:5.17.0.1')
+    implementation('com.cleveradssolutions:yandex:25.10.0.0')
+    implementation('com.cleveradssolutions:pangle:5.3.0.5')
+    implementation('com.cleveradssolutions:cas-promo:3.2.5')
+
+
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
     debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
         exclude group:'com.squareup.okhttp3', module:'okhttp'

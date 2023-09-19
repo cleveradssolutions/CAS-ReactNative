@@ -1,3 +1,5 @@
+import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency
+
 buildscript {
   // Buildscript is evaluated before everything else so we can't use getExtOrDefault
   def kotlin_version = rootProject.ext.has("kotlinVersion") ? rootProject.ext.get("kotlinVersion") : project.properties["Cas_kotlinVersion"]
@@ -66,15 +68,10 @@ android {
     minSdkVersion getExtOrIntegerDefault("minSdkVersion")
     targetSdkVersion getExtOrIntegerDefault("targetSdkVersion")
     buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
-    buildConfigField "boolean", "IS_FACEBOOK_INCLUDED", isLibProvided("facebook").toString()
   }
   buildTypes {
-    debug {
-      buildConfigField "boolean", "IS_FACEBOOK_INCLUDED", isLibProvided("facebook").toString()
-    }
     release {
       minifyEnabled false
-      buildConfigField "boolean", "IS_FACEBOOK_INCLUDED", isLibProvided("facebook").toString()
     }
   }
 
@@ -103,39 +100,14 @@ dependencies {
   implementation "com.facebook.react:react-native:+"
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-  def libs = getProvidedLibs()
-
-  libs.forEach {
-    implementation(it)
+  project(":app").configurations.getByName('implementation').getDependencies().withType(DefaultExternalModuleDependency).findAll {
+    if (it.group == 'com.cleveradssolutions') {
+      implementation(it)
+    }
   }
 
   implementation 'androidx.preference:preference-ktx:1.2.1'
   implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
-}
-
-def getProvidedLibs () {
-  try {
-    def libz = rootProject.extensions
-      .getByType(VersionCatalogsExtension).named("libs")
-
-    def deps = libz.getLibraryAliases()
-      .collect { libz.findLibrary(it).get().get() }
-      .findAll { it.getGroup() == "com.cleveradssolutions" }
-      .collect { it.toString() }
-
-    return deps
-  } catch(e) {
-    println(e)
-    return []
-  }
-}
-
-def isLibProvided (String lib) {
-  def libs = getProvidedLibs()
-
-  return libs.findAll {
-    it.contains(lib)
-  }.size() > 0
 }
 
 // always rebuild our build config
@@ -148,7 +120,7 @@ tasks.whenTaskAdded { task ->
 if (isNewArchitectureEnabled()) {
   react {
     jsRootDir = file("../src/")
-    libraryName = "CasView"
+    libraryName = "CasModule"
     codegenJavaPackageName = "com.cas"
   }
 }

@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { AdType, CAS } from 'react-native-cas';
+import { CAS } from 'react-native-cas';
 import { useCasContext } from './cas.context';
 import { Button } from 'react-native';
 import { styles } from './styles';
