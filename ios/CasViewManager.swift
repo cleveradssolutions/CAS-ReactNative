@@ -1,3 +1,5 @@
+import CleverAdsSolutions
+
 @objc(CasViewManager)
 class CasViewManager: RCTViewManager {
 

@@ -19,7 +19,13 @@ export class MediationManager {
 
   constructor() {
     this.eventEmitter.addListener('onShown', (e: GenericEvent) => {
-      this.showAdListeners[e.callbackId]?.onShown?.(e.data as AdImpression);
+      this.showAdListeners[e.callbackId]?.onShown?.();
+    });
+
+    this.eventEmitter.addListener('onAdRevenuePaid', (e: GenericEvent) => {
+      this.showAdListeners[e.callbackId]?.onImpression?.(
+        e.data as AdImpression
+      );
     });
 
     this.eventEmitter.addListener('onShowFailed', (e: GenericEvent) => {

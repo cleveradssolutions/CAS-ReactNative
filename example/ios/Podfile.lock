@@ -1,7 +1,139 @@
 PODS:
+  - AdColony (4.9.0)
+  - Ads-Global/BUAdSDK_Compatible (5.4.1.0):
+    - Ads-Global/BURelyAdSDK
+    - Ads-Global/Dep_Compatible
+  - Ads-Global/BURelyAdSDK (5.4.1.0)
+  - Ads-Global/Dep_Compatible (5.4.1.0):
+    - BURelyFoundation_Global/Pangle (~> 0.1.2.5)
+  - AppLovinSDK (11.11.3)
   - boost (1.76.0)
-  - CocoaAsyncSocket (7.6.5)
+  - BURelyFoundation_Global/AFNetworking (0.1.2.5)
+  - BURelyFoundation_Global/APM (0.1.2.5)
+  - BURelyFoundation_Global/Foundation (0.1.2.5):
+    - BURelyFoundation_Global/NETWork
+  - BURelyFoundation_Global/Gecko (0.1.2.5):
+    - BURelyFoundation_Global/Foundation
+  - BURelyFoundation_Global/Header (0.1.2.5)
+  - BURelyFoundation_Global/NETWork (0.1.2.5):
+    - BURelyFoundation_Global/AFNetworking
+  - BURelyFoundation_Global/Pangle (0.1.2.5):
+    - BURelyFoundation_Global/AFNetworking
+    - BURelyFoundation_Global/APM
+    - BURelyFoundation_Global/Foundation
+    - BURelyFoundation_Global/Gecko
+    - BURelyFoundation_Global/Header
+    - BURelyFoundation_Global/NETWork
+    - BURelyFoundation_Global/SDWebImage
+    - BURelyFoundation_Global/YYModel
+    - BURelyFoundation_Global/ZFPlayer
+    - BURelyFoundation_Global/Zip
+  - BURelyFoundation_Global/SDWebImage (0.1.2.5):
+    - BURelyFoundation_Global/Foundation
+  - BURelyFoundation_Global/YYModel (0.1.2.5)
+  - BURelyFoundation_Global/ZFPlayer (0.1.2.5):
+    - BURelyFoundation_Global/Foundation
+    - BURelyFoundation_Global/Zip
+  - BURelyFoundation_Global/Zip (0.1.2.5):
+    - BURelyFoundation_Global/Foundation
+  - ChartboostSDK (9.4.0)
+  - CleverAdsSolutions-Base (3.2.5)
+  - CleverAdsSolutions-SDK/AdColony (3.2.5):
+    - AdColony (= 4.9.0)
+    - CleverAdsSolutions-SDK/IronSource (= 3.2.5)
+  - CleverAdsSolutions-SDK/AppLovin (3.2.5):
+    - AppLovinSDK (~> 11.11.2)
+    - CleverAdsSolutions-Base
+  - CleverAdsSolutions-SDK/AudienceNetwork (3.2.5):
+    - CleverAdsSolutions-SDK/GoogleAds (= 3.2.5)
+    - FBAudienceNetwork (= 6.14.0)
+  - CleverAdsSolutions-SDK/Chartboost (3.2.5):
+    - ChartboostSDK (= 9.4.0)
+    - CleverAdsSolutions-Base
+  - CleverAdsSolutions-SDK/DigitalTurbine (3.2.5):
+    - CleverAdsSolutions-SDK/DTExchange (= 3.2.5)
+  - CleverAdsSolutions-SDK/DTExchange (3.2.5):
+    - CleverAdsSolutions-Base
+    - Fyber_Marketplace_SDK (= 8.2.4)
+  - CleverAdsSolutions-SDK/GoogleAds (3.2.5):
+    - CleverAdsSolutions-SDK/IronSource (= 3.2.5)
+    - Google-Mobile-Ads-SDK (~> 10.10.0)
+  - CleverAdsSolutions-SDK/InMobi (3.2.5):
+    - CleverAdsSolutions-SDK/IronSource (= 3.2.5)
+    - InMobiSDK/Core (= 10.1.4)
+  - CleverAdsSolutions-SDK/IronSource (3.2.5):
+    - CleverAdsSolutions-Base
+    - IronSourceSDK (= 7.5.0.0)
+  - CleverAdsSolutions-SDK/LiftoffMonetize (3.2.5):
+    - CleverAdsSolutions-SDK/IronSource (= 3.2.5)
+    - VungleAds (= 7.0.1)
+  - CleverAdsSolutions-SDK/Mintegral (3.2.5):
+    - CleverAdsSolutions-Base
+    - MintegralAdSDK (= 7.4.3)
+    - MintegralAdSDK/BidSplashAd (= 7.4.3)
+  - CleverAdsSolutions-SDK/MyTarget (3.2.5):
+    - CleverAdsSolutions-SDK/IronSource (= 3.2.5)
+    - myTargetSDK (= 5.18.0)
+  - CleverAdsSolutions-SDK/Optimal (3.2.5):
+    - CleverAdsSolutions-Base (= 3.2.5)
+    - CleverAdsSolutions-SDK/AdColony (= 3.2.5)
+    - CleverAdsSolutions-SDK/AppLovin (= 3.2.5)
+    - CleverAdsSolutions-SDK/AudienceNetwork (= 3.2.5)
+    - CleverAdsSolutions-SDK/Chartboost (= 3.2.5)
+    - CleverAdsSolutions-SDK/DigitalTurbine (= 3.2.5)
+    - CleverAdsSolutions-SDK/GoogleAds (= 3.2.5)
+    - CleverAdsSolutions-SDK/InMobi (= 3.2.5)
+    - CleverAdsSolutions-SDK/IronSource (= 3.2.5)
+    - CleverAdsSolutions-SDK/Mintegral (= 3.2.5)
+    - CleverAdsSolutions-SDK/MyTarget (= 3.2.5)
+    - CleverAdsSolutions-SDK/Pangle (= 3.2.5)
+    - CleverAdsSolutions-SDK/UnityAds (= 3.2.5)
+    - CleverAdsSolutions-SDK/Vungle (= 3.2.5)
+    - CleverAdsSolutions-SDK/YandexAds (= 3.2.5)
+  - CleverAdsSolutions-SDK/Pangle (3.2.5):
+    - Ads-Global/BUAdSDK_Compatible (= 5.4.1.0)
+    - CleverAdsSolutions-SDK/IronSource (= 3.2.5)
+  - CleverAdsSolutions-SDK/UnityAds (3.2.5):
+    - CleverAdsSolutions-SDK/IronSource (= 3.2.5)
+    - UnityAds (= 4.8.0)
+  - CleverAdsSolutions-SDK/Vungle (3.2.5):
+    - CleverAdsSolutions-SDK/LiftoffMonetize (= 3.2.5)
+  - CleverAdsSolutions-SDK/YandexAds (3.2.5):
+    - CleverAdsSolutions-Base
+    - YandexMobileAds (= 5.9.1)
+  - DivKit (24.2.0):
+    - DivKit_Base (= 24.2.0)
+    - DivKit_BaseTiny (= 24.2.0)
+    - DivKit_BaseUI (= 24.2.0)
+    - DivKit_CommonCore (= 24.2.0)
+    - DivKit_LayoutKit (= 24.2.0)
+    - DivKit_LayoutKitInterface (= 24.2.0)
+    - DivKit_Networking (= 24.2.0)
+    - DivKit_Serialization (= 24.2.0)
+  - DivKit_Base (24.2.0):
+    - DivKit_BaseTiny (= 24.2.0)
+    - DivKit_BaseUI (= 24.2.0)
+  - DivKit_BaseTiny (24.2.0)
+  - DivKit_BaseUI (24.2.0):
+    - DivKit_BaseTiny (= 24.2.0)
+  - DivKit_CommonCore (24.2.0):
+    - DivKit_Base (= 24.2.0)
+    - DivKit_BaseTiny (= 24.2.0)
+  - DivKit_LayoutKit (24.2.0):
+    - DivKit_BaseTiny (= 24.2.0)
+    - DivKit_BaseUI (= 24.2.0)
+    - DivKit_CommonCore (= 24.2.0)
+    - DivKit_LayoutKitInterface (= 24.2.0)
+  - DivKit_LayoutKitInterface (24.2.0):
+    - DivKit_Base (= 24.2.0)
+    - DivKit_BaseTiny (= 24.2.0)
+    - DivKit_BaseUI (= 24.2.0)
+  - DivKit_Networking (24.2.0):
+    - DivKit_Base (= 24.2.0)
+  - DivKit_Serialization (24.2.0):
+    - DivKit_CommonCore (= 24.2.0)
   - DoubleConversion (1.1.6)
+  - FBAudienceNetwork (6.14.0)
   - FBLazyVector (0.72.4)
   - FBReactNativeSpec (0.72.4):
     - RCT-Folly (= 2021.07.22.00)
@@ -10,71 +142,105 @@ PODS:
     - React-Core (= 0.72.4)
     - React-jsi (= 0.72.4)
     - ReactCommon/turbomodule/core (= 0.72.4)
-  - Flipper (0.182.0):
-    - Flipper-Folly (~> 2.6)
-  - Flipper-Boost-iOSX (1.76.0.1.11)
-  - Flipper-DoubleConversion (3.2.0.1)
-  - Flipper-Fmt (7.1.7)
-  - Flipper-Folly (2.6.10):
-    - Flipper-Boost-iOSX
-    - Flipper-DoubleConversion
-    - Flipper-Fmt (= 7.1.7)
-    - Flipper-Glog
-    - libevent (~> 2.1.12)
-    - OpenSSL-Universal (= 1.1.1100)
-  - Flipper-Glog (0.5.0.5)
-  - Flipper-PeerTalk (0.0.4)
-  - FlipperKit (0.182.0):
-    - FlipperKit/Core (= 0.182.0)
-  - FlipperKit/Core (0.182.0):
-    - Flipper (~> 0.182.0)
-    - FlipperKit/CppBridge
-    - FlipperKit/FBCxxFollyDynamicConvert
-    - FlipperKit/FBDefines
-    - FlipperKit/FKPortForwarding
-    - SocketRocket (~> 0.6.0)
-  - FlipperKit/CppBridge (0.182.0):
-    - Flipper (~> 0.182.0)
-  - FlipperKit/FBCxxFollyDynamicConvert (0.182.0):
-    - Flipper-Folly (~> 2.6)
-  - FlipperKit/FBDefines (0.182.0)
-  - FlipperKit/FKPortForwarding (0.182.0):
-    - CocoaAsyncSocket (~> 7.6)
-    - Flipper-PeerTalk (~> 0.0.4)
-  - FlipperKit/FlipperKitHighlightOverlay (0.182.0)
-  - FlipperKit/FlipperKitLayoutHelpers (0.182.0):
-    - FlipperKit/Core
-    - FlipperKit/FlipperKitHighlightOverlay
-    - FlipperKit/FlipperKitLayoutTextSearchable
-  - FlipperKit/FlipperKitLayoutIOSDescriptors (0.182.0):
-    - FlipperKit/Core
-    - FlipperKit/FlipperKitHighlightOverlay
-    - FlipperKit/FlipperKitLayoutHelpers
-    - YogaKit (~> 1.18)
-  - FlipperKit/FlipperKitLayoutPlugin (0.182.0):
-    - FlipperKit/Core
-    - FlipperKit/FlipperKitHighlightOverlay
-    - FlipperKit/FlipperKitLayoutHelpers
-    - FlipperKit/FlipperKitLayoutIOSDescriptors
-    - FlipperKit/FlipperKitLayoutTextSearchable
-    - YogaKit (~> 1.18)
-  - FlipperKit/FlipperKitLayoutTextSearchable (0.182.0)
-  - FlipperKit/FlipperKitNetworkPlugin (0.182.0):
-    - FlipperKit/Core
-  - FlipperKit/FlipperKitReactPlugin (0.182.0):
-    - FlipperKit/Core
-  - FlipperKit/FlipperKitUserDefaultsPlugin (0.182.0):
-    - FlipperKit/Core
-  - FlipperKit/SKIOSNetworkPlugin (0.182.0):
-    - FlipperKit/Core
-    - FlipperKit/FlipperKitNetworkPlugin
   - fmt (6.2.1)
+  - Fyber_Marketplace_SDK (8.2.4)
   - glog (0.3.5)
+  - Google-Mobile-Ads-SDK (10.10.0):
+    - GoogleAppMeasurement (< 11.0, >= 7.0)
+    - GoogleUserMessagingPlatform (>= 1.1)
+  - GoogleAppMeasurement (10.15.0):
+    - GoogleAppMeasurement/AdIdSupport (= 10.15.0)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.11)
+    - GoogleUtilities/MethodSwizzler (~> 7.11)
+    - GoogleUtilities/Network (~> 7.11)
+    - "GoogleUtilities/NSData+zlib (~> 7.11)"
+    - nanopb (< 2.30910.0, >= 2.30908.0)
+  - GoogleAppMeasurement/AdIdSupport (10.15.0):
+    - GoogleAppMeasurement/WithoutAdIdSupport (= 10.15.0)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.11)
+    - GoogleUtilities/MethodSwizzler (~> 7.11)
+    - GoogleUtilities/Network (~> 7.11)
+    - "GoogleUtilities/NSData+zlib (~> 7.11)"
+    - nanopb (< 2.30910.0, >= 2.30908.0)
+  - GoogleAppMeasurement/WithoutAdIdSupport (10.15.0):
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.11)
+    - GoogleUtilities/MethodSwizzler (~> 7.11)
+    - GoogleUtilities/Network (~> 7.11)
+    - "GoogleUtilities/NSData+zlib (~> 7.11)"
+    - nanopb (< 2.30910.0, >= 2.30908.0)
+  - GoogleUserMessagingPlatform (2.1.0)
+  - GoogleUtilities/AppDelegateSwizzler (7.11.5):
+    - GoogleUtilities/Environment
+    - GoogleUtilities/Logger
+    - GoogleUtilities/Network
+  - GoogleUtilities/Environment (7.11.5):
+    - PromisesObjC (< 3.0, >= 1.2)
+  - GoogleUtilities/Logger (7.11.5):
+    - GoogleUtilities/Environment
+  - GoogleUtilities/MethodSwizzler (7.11.5):
+    - GoogleUtilities/Logger
+  - GoogleUtilities/Network (7.11.5):
+    - GoogleUtilities/Logger
+    - "GoogleUtilities/NSData+zlib"
+    - GoogleUtilities/Reachability
+  - "GoogleUtilities/NSData+zlib (7.11.5)"
+  - GoogleUtilities/Reachability (7.11.5):
+    - GoogleUtilities/Logger
   - hermes-engine (0.72.4):
     - hermes-engine/Pre-built (= 0.72.4)
   - hermes-engine/Pre-built (0.72.4)
+  - InMobiSDK/Core (10.1.4)
+  - IronSourceSDK (7.5.0.0)
   - libevent (2.1.12)
-  - OpenSSL-Universal (1.1.1100)
+  - MintegralAdSDK (7.4.3):
+    - MintegralAdSDK/BannerAd (= 7.4.3)
+    - MintegralAdSDK/BidBannerAd (= 7.4.3)
+    - MintegralAdSDK/BidInterstitialVideoAd (= 7.4.3)
+    - MintegralAdSDK/BidNativeAd (= 7.4.3)
+    - MintegralAdSDK/BidNewInterstitialAd (= 7.4.3)
+    - MintegralAdSDK/BidRewardVideoAd (= 7.4.3)
+    - MintegralAdSDK/InterstitialVideoAd (= 7.4.3)
+    - MintegralAdSDK/NativeAd (= 7.4.3)
+    - MintegralAdSDK/NewInterstitialAd (= 7.4.3)
+    - MintegralAdSDK/RewardVideoAd (= 7.4.3)
+  - MintegralAdSDK/BannerAd (7.4.3):
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/BidBannerAd (7.4.3):
+    - MintegralAdSDK/BannerAd
+    - MintegralAdSDK/BidNativeAd
+  - MintegralAdSDK/BidInterstitialVideoAd (7.4.3):
+    - MintegralAdSDK/BidNativeAd
+    - MintegralAdSDK/InterstitialVideoAd
+  - MintegralAdSDK/BidNativeAd (7.4.3):
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/BidNewInterstitialAd (7.4.3):
+    - MintegralAdSDK/BidNativeAd
+    - MintegralAdSDK/NewInterstitialAd
+  - MintegralAdSDK/BidRewardVideoAd (7.4.3):
+    - MintegralAdSDK/BidNativeAd
+    - MintegralAdSDK/RewardVideoAd
+  - MintegralAdSDK/BidSplashAd (7.4.3):
+    - MintegralAdSDK/BidNativeAd
+    - MintegralAdSDK/SplashAd
+  - MintegralAdSDK/InterstitialVideoAd (7.4.3):
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/NativeAd (7.4.3)
+  - MintegralAdSDK/NewInterstitialAd (7.4.3):
+    - MintegralAdSDK/InterstitialVideoAd
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/RewardVideoAd (7.4.3):
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/SplashAd (7.4.3):
+    - MintegralAdSDK/NativeAd
+  - myTargetSDK (5.18.0):
+    - myTrackerSDK (~> 3.0.3)
+  - myTrackerSDK (3.0.8)
+  - nanopb (2.30909.0):
+    - nanopb/decode (= 2.30909.0)
+    - nanopb/encode (= 2.30909.0)
+  - nanopb/decode (2.30909.0)
+  - nanopb/encode (2.30909.0)
+  - PromisesObjC (2.3.1)
   - RCT-Folly (2021.07.22.00):
     - boost
     - DoubleConversion
@@ -376,7 +542,13 @@ PODS:
   - React-logger (0.72.4):
     - glog
   - react-native-cas (0.1.0):
+    - CleverAdsSolutions-Base (~> 3.2.5)
+    - CleverAdsSolutions-SDK/Optimal (~> 3.2.5)
     - RCT-Folly (= 2021.07.22.00)
+    - React-Core
+  - react-native-netinfo (9.4.1):
+    - React-Core
+  - react-native-safe-area-context (4.7.2):
     - React-Core
   - React-NativeModulesApple (0.72.4):
     - hermes-engine
@@ -488,40 +660,36 @@ PODS:
     - React-jsi (= 0.72.4)
     - React-logger (= 0.72.4)
     - React-perflogger (= 0.72.4)
+  - RNScreens (3.25.0):
+    - React-Core
+    - React-RCTImage
   - SocketRocket (0.6.1)
+  - UnityAds (4.8.0)
+  - VungleAds (7.0.1)
+  - YandexMobileAds (5.9.1):
+    - DivKit (~> 24.2)
+    - YandexMobileAds/Static (= 5.9.1)
+  - YandexMobileAds/Static (5.9.1):
+    - DivKit (~> 24.2)
+    - YandexMobileMetrica (< 5.0.0, >= 4.0.0)
+  - YandexMobileMetrica (4.5.2):
+    - YandexMobileMetrica/Static (= 4.5.2)
+  - YandexMobileMetrica/Static (4.5.2):
+    - YandexMobileMetrica/Static/Core (= 4.5.2)
+    - YandexMobileMetrica/Static/Crashes (= 4.5.2)
+  - YandexMobileMetrica/Static/Core (4.5.2)
+  - YandexMobileMetrica/Static/Crashes (4.5.2):
+    - YandexMobileMetrica/Static/Core
   - Yoga (1.14.0)
-  - YogaKit (1.18.1):
-    - Yoga (~> 1.14)
 
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native/React/FBReactNativeSpec`)
-  - Flipper (= 0.182.0)
-  - Flipper-Boost-iOSX (= 1.76.0.1.11)
-  - Flipper-DoubleConversion (= 3.2.0.1)
-  - Flipper-Fmt (= 7.1.7)
-  - Flipper-Folly (= 2.6.10)
-  - Flipper-Glog (= 0.5.0.5)
-  - Flipper-PeerTalk (= 0.0.4)
-  - FlipperKit (= 0.182.0)
-  - FlipperKit/Core (= 0.182.0)
-  - FlipperKit/CppBridge (= 0.182.0)
-  - FlipperKit/FBCxxFollyDynamicConvert (= 0.182.0)
-  - FlipperKit/FBDefines (= 0.182.0)
-  - FlipperKit/FKPortForwarding (= 0.182.0)
-  - FlipperKit/FlipperKitHighlightOverlay (= 0.182.0)
-  - FlipperKit/FlipperKitLayoutPlugin (= 0.182.0)
-  - FlipperKit/FlipperKitLayoutTextSearchable (= 0.182.0)
-  - FlipperKit/FlipperKitNetworkPlugin (= 0.182.0)
-  - FlipperKit/FlipperKitReactPlugin (= 0.182.0)
-  - FlipperKit/FlipperKitUserDefaultsPlugin (= 0.182.0)
-  - FlipperKit/SKIOSNetworkPlugin (= 0.182.0)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
-  - OpenSSL-Universal (= 1.1.1100)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
@@ -529,7 +697,6 @@ DEPENDENCIES:
   - React-callinvoker (from `../node_modules/react-native/ReactCommon/callinvoker`)
   - React-Codegen (from `build/generated/ios`)
   - React-Core (from `../node_modules/react-native/`)
-  - React-Core/DevSupport (from `../node_modules/react-native/`)
   - React-Core/RCTWebSocket (from `../node_modules/react-native/`)
   - React-CoreModules (from `../node_modules/react-native/React/CoreModules`)
   - React-cxxreact (from `../node_modules/react-native/ReactCommon/cxxreact`)
@@ -540,6 +707,8 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-cas (from `../..`)
+  - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
+  - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -557,24 +726,48 @@ DEPENDENCIES:
   - React-runtimescheduler (from `../node_modules/react-native/ReactCommon/react/renderer/runtimescheduler`)
   - React-utils (from `../node_modules/react-native/ReactCommon/react/utils`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - RNScreens (from `../node_modules/react-native-screens`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
+  https://github.com/cleveradssolutions/CAS-Specs.git:
+    - CleverAdsSolutions-Base
+    - CleverAdsSolutions-SDK
   trunk:
-    - CocoaAsyncSocket
-    - Flipper
-    - Flipper-Boost-iOSX
-    - Flipper-DoubleConversion
-    - Flipper-Fmt
-    - Flipper-Folly
-    - Flipper-Glog
-    - Flipper-PeerTalk
-    - FlipperKit
+    - AdColony
+    - Ads-Global
+    - AppLovinSDK
+    - BURelyFoundation_Global
+    - ChartboostSDK
+    - DivKit
+    - DivKit_Base
+    - DivKit_BaseTiny
+    - DivKit_BaseUI
+    - DivKit_CommonCore
+    - DivKit_LayoutKit
+    - DivKit_LayoutKitInterface
+    - DivKit_Networking
+    - DivKit_Serialization
+    - FBAudienceNetwork
     - fmt
+    - Fyber_Marketplace_SDK
+    - Google-Mobile-Ads-SDK
+    - GoogleAppMeasurement
+    - GoogleUserMessagingPlatform
+    - GoogleUtilities
+    - InMobiSDK
+    - IronSourceSDK
     - libevent
-    - OpenSSL-Universal
+    - MintegralAdSDK
+    - myTargetSDK
+    - myTrackerSDK
+    - nanopb
+    - PromisesObjC
     - SocketRocket
-    - YogaKit
+    - UnityAds
+    - VungleAds
+    - YandexMobileAds
+    - YandexMobileMetrica
 
 EXTERNAL SOURCES:
   boost:
@@ -622,6 +815,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   react-native-cas:
     :path: "../.."
+  react-native-netinfo:
+    :path: "../node_modules/@react-native-community/netinfo"
+  react-native-safe-area-context:
+    :path: "../node_modules/react-native-safe-area-context"
   React-NativeModulesApple:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios"
   React-perflogger:
@@ -656,65 +853,92 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/react/utils"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  RNScreens:
+    :path: "../node_modules/react-native-screens"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
+  AdColony: 4f3738dc633d7aaa8ec60729df973076cc8e97ed
+  Ads-Global: 24fa0f3d464b2d0b45a3ed2afee1a2fd753fab6d
+  AppLovinSDK: 623ef78363c0dd2c3ff5446cde37e4920a96b7e0
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
-  CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
+  BURelyFoundation_Global: cd9e09f6c9c1fc42944af4fdaef0b60a24a0bc39
+  ChartboostSDK: 53079774b4cd6aefd0805ec54a74f1ffd75b1317
+  CleverAdsSolutions-Base: 175abc70f6a41043e3a0737b37cd941c9a3720b9
+  CleverAdsSolutions-SDK: d5f0a17875650e437d9d0e97feb6e15356fa06f7
+  DivKit: f2151bd0bfc67e0b4ad949e8cd1caa7379253bef
+  DivKit_Base: 263499ebc77c217314d4bee1b374781c3643c8a9
+  DivKit_BaseTiny: 42535fa725058957129f231b4b52d394ed4d7ea9
+  DivKit_BaseUI: cb86da6096de4a3bb670b4196ddeed0334acd671
+  DivKit_CommonCore: dd26a3f7dcc9010ec3a4ed3c5c3718e7a882536a
+  DivKit_LayoutKit: cdcfa56dd6a88495703350bb63f410dde426435c
+  DivKit_LayoutKitInterface: f0dae7b2e7a024d0340914490b1c06c0e6a926ae
+  DivKit_Networking: cd028559a160baa76c43fda52174f2f83c87b747
+  DivKit_Serialization: b4d8a4672de9134889c5f92f5f7e04e04112e660
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
+  FBAudienceNetwork: 4d6223a9a88a22e9dca8c9e6c1829a8745b86228
   FBLazyVector: 5d4a3b7f411219a45a6d952f77d2c0a6c9989da5
   FBReactNativeSpec: 3fc2d478e1c4b08276f9dd9128f80ec6d5d85c1f
-  Flipper: 6edb735e6c3e332975d1b17956bcc584eccf5818
-  Flipper-Boost-iOSX: fd1e2b8cbef7e662a122412d7ac5f5bea715403c
-  Flipper-DoubleConversion: 2dc99b02f658daf147069aad9dbd29d8feb06d30
-  Flipper-Fmt: 60cbdd92fc254826e61d669a5d87ef7015396a9b
-  Flipper-Folly: 584845625005ff068a6ebf41f857f468decd26b3
-  Flipper-Glog: 70c50ce58ddaf67dc35180db05f191692570f446
-  Flipper-PeerTalk: 116d8f857dc6ef55c7a5a75ea3ceaafe878aadc9
-  FlipperKit: 2efad7007d6745a3f95e4034d547be637f89d3f6
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
+  Fyber_Marketplace_SDK: c51474f63c016c9ff7eb32e3542528d08d456bc5
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
+  Google-Mobile-Ads-SDK: 509e53bd31c6accb2d9c33b0eb66df1d54dda622
+  GoogleAppMeasurement: 722db6550d1e6d552b08398b69a975ac61039338
+  GoogleUserMessagingPlatform: dce302b8f1b84d6e945812ee7a15c3f65a102cbf
+  GoogleUtilities: 13e2c67ede716b8741c7989e26893d151b2b2084
   hermes-engine: 81191603c4eaa01f5e4ae5737a9efcf64756c7b2
+  InMobiSDK: 285be689e0e92f68d436f0486ddc476f086d60c8
+  IronSourceSDK: e1fdf5a47699558742d0baaa70ca6f508e0fa786
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
+  MintegralAdSDK: 854dad88ab3cc937c30e1100773c0b44899ac759
+  myTargetSDK: 9750993948a04c3793836dbfb4c690aafe624f00
+  myTrackerSDK: df675bf18db63d9a426bd00d6c3dec4ba4bea57e
+  nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
+  PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
   RCTRequired: c0569ecc035894e4a68baecb30fe6a7ea6e399f9
   RCTTypeSafety: e90354072c21236e0bcf1699011e39acd25fea2f
   React: a1be3c6dc0a6e949ccd3e659781aa47bbae1868f
   React-callinvoker: 1020b33f6cb1a1824f9ca2a86609fbce2a73c6ed
-  React-Codegen: a0a26badf098d4a779acda922caf74f6ecabed28
-  React-Core: 52075b80f10c26f62219d7b5d13d7d8089f027b3
-  React-CoreModules: 21abab85d7ad9038ce2b1c33d39e3baaf7dc9244
+  React-Codegen: d3cabb5a8b9de7b0fc5928c0cf478e73a178d728
+  React-Core: 34da8c952844e21f5a69bf46438fb6bf063900d0
+  React-CoreModules: 621243df8863055ff30f3bb2ff71573ffa7b16c8
   React-cxxreact: 4ad1cc861e32fb533dad6ff7a4ea25680fa1c994
-  React-debug: 17366a3d5c5d2f5fc04f09101a4af38cb42b54ae
+  React-debug: f37689056bd01d81513b66b3f4630ed521831768
   React-hermes: 37377d0a56aa0cf55c65248271866ce3268cde3f
   React-jsi: 6de8b0ccc6b765b58e4eee9ee38049dbeaf5c221
   React-jsiexecutor: c7f826e40fa9cab5d37cab6130b1af237332b594
   React-jsinspector: aaed4cf551c4a1c98092436518c2d267b13a673f
   React-logger: da1ebe05ae06eb6db4b162202faeafac4b435e77
-  react-native-cas: d48b59b95d11ad92e92277b62fa2baba20314a73
-  React-NativeModulesApple: edb5ace14f73f4969df6e7b1f3e41bef0012740f
+  react-native-cas: 7360ff361124084474089dcbe8093a8e260d90a6
+  react-native-netinfo: fefd4e98d75cbdd6e85fc530f7111a8afdf2b0c5
+  react-native-safe-area-context: 7aa8e6d9d0f3100a820efb1a98af68aa747f9284
+  React-NativeModulesApple: 22266f59e2cf8774b6cb49287d7934a9f5552c09
   React-perflogger: 496a1a3dc6737f964107cb3ddae7f9e265ddda58
   React-RCTActionSheet: 02904b932b50e680f4e26e7a686b33ebf7ef3c00
-  React-RCTAnimation: 88feaf0a85648fb8fd497ce749829774910276d6
-  React-RCTAppDelegate: 5792ac0f0feccb584765fdd7aa81ea320c4d9b0b
-  React-RCTBlob: 0dbc9e2a13d241b37d46b53e54630cbad1f0e141
-  React-RCTImage: b111645ab901f8e59fc68fbe31f5731bdbeef087
-  React-RCTLinking: 3d719727b4c098aad3588aa3559361ee0579f5de
-  React-RCTNetwork: b44d3580be05d74556ba4efbf53570f17e38f734
-  React-RCTSettings: c0c54b330442c29874cd4dae6e94190dc11a6f6f
+  React-RCTAnimation: e44fe5053708c5be762943087c78dc5a6a3c645c
+  React-RCTAppDelegate: 75566e142d0c325f603790943a38f0e297bcbab3
+  React-RCTBlob: 5577c3542fafbd9241f505bda541f6762996b0eb
+  React-RCTImage: f48859ae6a1e5c2c8659f860efdfcb8b0cb60cde
+  React-RCTLinking: 9b145f380c6b5910e3219bef73e1d7024381ad54
+  React-RCTNetwork: 179f50a80c01fa7d6a515552a24ad2e294f341a1
+  React-RCTSettings: cdc9f538f0f8e72e6f3de7c971fb4fb2f49caff9
   React-RCTText: 9b9f5589d9b649d7246c3f336e116496df28cfe6
-  React-RCTVibration: 691c67f3beaf1d084ceed5eb5c1dddd9afa8591e
-  React-rncore: 142268f6c92e296dc079aadda3fade778562f9e4
+  React-RCTVibration: 35eec7201c8ffdaccdd908a5ec874b7055f975f3
+  React-rncore: 46133d523155fc84572338bd6a7c461c1d873efc
   React-runtimeexecutor: d465ba0c47ef3ed8281143f59605cacc2244d5c7
-  React-runtimescheduler: 4941cc1b3cf08b792fbf666342c9fc95f1969035
-  React-utils: b79f2411931f9d3ea5781404dcbb2fa8a837e13a
-  ReactCommon: 4b2bdcb50a3543e1c2b2849ad44533686610826d
+  React-runtimescheduler: 8278ba86e84bec81c95e14186dc7d41730231a73
+  React-utils: 8fa092738150b6f9aa00a0010c6d73fd42193d24
+  ReactCommon: d8c03cc96b03918886e959a720eb84c0e5f0efca
+  RNScreens: 85d3880b52d34db7b8eeebe2f1a0e807c05e69fa
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
+  UnityAds: 390144b2029ac9ce2ec81c3cfd0007686b59236a
+  VungleAds: 49e2cbb981c1efa0086029d2dcec8a7322105809
+  YandexMobileAds: b4c8789fb2cc1540fc16bc94f2c18ce2d031ccc7
+  YandexMobileMetrica: f5368ee93f286c793d73b58da00929babfc897c1
   Yoga: 3efc43e0d48686ce2e8c60f99d4e6bd349aff981
-  YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: a4379bc4c3a7a580840c9c69f3011eb5ccea075e
+PODFILE CHECKSUM: 8a818c418e86ec74dc057e7f91ccb3e74584dd92
 
 COCOAPODS: 1.12.0

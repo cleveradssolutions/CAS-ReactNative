@@ -142,8 +142,8 @@ export const Ads = () => {
 const delay = async (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 const createCallbacks = (adType: string, logger: (...data: any[]) => void) => ({
-  onShown: (ad: AdImpression) => {
-    logger(adType + ' shown, impression: ', JSON.stringify(ad));
+  onShown: () => {
+    logger(adType + ' shown');
   },
   onShowFailed: (message: string) => {
     logger(adType + ' shown failed, error: ', message);
@@ -156,5 +156,8 @@ const createCallbacks = (adType: string, logger: (...data: any[]) => void) => ({
   },
   onClosed: () => {
     logger(adType + ' shown closed');
+  },
+  onImpression: (ad: AdImpression) => {
+    logger(adType + ' shown, impression: ', JSON.stringify(ad));
   },
 });

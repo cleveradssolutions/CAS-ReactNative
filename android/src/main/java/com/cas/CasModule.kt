@@ -100,6 +100,27 @@ class CasModule(context: ReactApplicationContext, private val managerWrapper: Me
 
   @ReactMethod
   @Suppress("unused")
+  fun showConsentFlow(privacyPolicy: String, callback: Callback) {
+    val flow = ConsentFlow()
+
+    if (privacyPolicy.isNotEmpty()) {
+      flow.withPrivacyPolicy(privacyPolicy)
+    }
+
+    flow
+      .withDismissListener { status ->
+        val dismissMap = WritableNativeMap()
+        dismissMap.putMap("settings", CAS.settings.toReadableMap())
+        dismissMap.putInt("status", status)
+
+        callback.invoke(dismissMap)
+      }
+      .withUIContext(reactApplicationContext.currentActivity)
+      .show()
+  }
+
+  @ReactMethod
+  @Suppress("unused")
   fun getSDKVersion(promise: Promise) {
     promise.resolve(CAS.getSDKVersion())
   }

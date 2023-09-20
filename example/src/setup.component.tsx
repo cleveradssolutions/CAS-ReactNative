@@ -37,9 +37,19 @@ export const Setup = () => {
     navigation.navigate('Menu' as never);
   }, [context, navigation]);
 
+  const showFlow = useCallback(() => {
+    return CAS.showConsentFlow(null, (params) => {
+      context.logCasInfo(
+        'Consent flow was released with status: ',
+        params.status
+      );
+    });
+  }, [context]);
+
   return (
     <SafeAreaView style={styles.screen}>
       <Button title={'Initialize CAS'} onPress={initCas} />
+      <Button title={'Show Consent Flow'} onPress={showFlow} />
     </SafeAreaView>
   );
 };

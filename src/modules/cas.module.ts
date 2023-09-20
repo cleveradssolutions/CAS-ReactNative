@@ -30,6 +30,11 @@ class Cas {
     };
   };
 
+  showConsentFlow = async (
+    privacyPolicy: string | null,
+    cb: onDismissConsentFlowListener
+  ) => CasModule.showConsentFlow(privacyPolicy ?? '', cb);
+
   getSDKVersion = async (): Promise<string> => CasModule.getSDKVersion();
 
   getTargetingOptions = async (): Promise<TargetingOptions> =>

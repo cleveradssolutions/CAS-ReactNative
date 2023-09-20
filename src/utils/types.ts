@@ -179,7 +179,8 @@ export type BannerAdRef = {
 };
 
 export type ShowAdCallbacks = {
-  onShown?: (ad: AdImpression) => void;
+  onImpression?: (ad: AdImpression) => void;
+  onShown?: () => void;
   onShowFailed?: (message: string) => void;
   onClicked?: () => void;
   onComplete?: () => void;

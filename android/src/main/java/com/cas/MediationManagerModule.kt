@@ -152,12 +152,12 @@ class MediationManagerModule(context: ReactApplicationContext, private val manag
     }
   }
 
-  private fun createJSAdCallback(module: String, callbackId: String): AdCallback {
-    return object : AdCallback {
+  private fun createJSAdCallback(module: String, callbackId: String): AdPaidCallback {
+    return object : AdPaidCallback {
       override fun onShown(ad: AdImpression) {
         val map = WritableNativeMap()
         map.putString("callbackId", callbackId)
-        map.putMap("data", ad.toReadableMap())
+        //map.putMap("data", ad.toReadableMap())
 
         reactApplicationContext
           .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
@@ -172,6 +172,16 @@ class MediationManagerModule(context: ReactApplicationContext, private val manag
         reactApplicationContext
           .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
           .emit("onShowFailed", map)
+      }
+
+      override fun onAdRevenuePaid(ad: AdImpression) {
+        val map = WritableNativeMap()
+        map.putString("callbackId", callbackId)
+        map.putMap("data", ad.toReadableMap())
+
+        reactApplicationContext
+          .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+          .emit("onAdRevenuePaid", map)
       }
 
       override fun onClicked() {
