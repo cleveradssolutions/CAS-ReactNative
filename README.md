@@ -5,7 +5,7 @@
 [![App-ads.txt](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/cleveradssolutions/App-ads.txt/master/Shield.json)](https://github.com/cleveradssolutions/App-ads.txt)
 
 ## Documentation
-Check out our [developers wiki](https://github.com/cleveradssolutions/CAS-ReactNative/wiki/Project-Setup) for documentation on using the CAS.AI SDK.
+Check out our [developers wiki](https://github.com/cleveradssolutions/CAS-ReactNative/wiki) for documentation on using the CAS.AI SDK.
 
 ## Examples
 This repository contains open source examples and developer resources for React Nativr implementations of the CAS.AI SDK.
