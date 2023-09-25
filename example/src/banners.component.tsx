@@ -1,10 +1,9 @@
 import React, { useCallback, useRef } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from './styles';
 import { BannerAd, BannerAdSize } from 'react-native-cas';
 import type { BannerAdRef } from 'react-native-cas';
 import { useCasContext } from './cas.context';
-import { Button } from 'react-native';
+import { Button, View } from 'react-native';
 
 export const Banners = () => {
   const context = useCasContext();
@@ -15,7 +14,7 @@ export const Banners = () => {
   }, []);
 
   return (
-    <SafeAreaView style={styles.screen}>
+    <View style={styles.screen}>
       <Button title={'Next ad'} onPress={nextAd} />
       <BannerAd
         size={BannerAdSize.Banner}
@@ -34,7 +33,6 @@ export const Banners = () => {
         size={BannerAdSize.MediumRectangle}
       />
       <BannerAd size={BannerAdSize.Leaderboard} refreshInterval={20} />
-      <BannerAd size={BannerAdSize.Smart} />
-    </SafeAreaView>
+    </View>
   );
 };

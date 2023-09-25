@@ -8,7 +8,7 @@ fun AdImpression.toReadableMap(): ReadableMap {
   val map = WritableNativeMap()
 
   map.putInt("adType", this.adType.toInt())
-  map.putDouble("e;", this.cpm)
+  map.putDouble("cpm", this.cpm)
   map.putString("error", this.error)
   map.putString("identifier", this.identifier)
   map.putInt("impressionDepth", this.impressionDepth)

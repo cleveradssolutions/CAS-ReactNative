@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
-import { CAS } from 'react-native-cas';
+import { AdType, CAS } from 'react-native-cas';
 import { useCasContext } from './cas.context';
-import { Button } from 'react-native';
+import { Button, Platform } from 'react-native';
 import { styles } from './styles';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,9 +17,17 @@ export const Setup = () => {
       {
         consentFlow: {
           enabled: true,
+          requestATT: true,
         },
         testMode: false,
         userId: 'user_id',
+        adTypes: [
+          AdType.Interstitial,
+          AdType.Banner,
+          AdType.Rewarded,
+          AdType.AppOpen,
+        ],
+        casId: Platform.OS === 'ios' ? '1058803540' : undefined,
       },
       (params) => {
         context.logCasInfo(
@@ -38,12 +46,17 @@ export const Setup = () => {
   }, [context, navigation]);
 
   const showFlow = useCallback(() => {
-    return CAS.showConsentFlow(null, (params) => {
-      context.logCasInfo(
-        'Consent flow was released with status: ',
-        params.status
-      );
-    });
+    return CAS.showConsentFlow(
+      {
+        requestATT: true,
+      },
+      (params) => {
+        context.logCasInfo(
+          'Consent flow was released with status: ',
+          params.status
+        );
+      }
+    );
   }, [context]);
 
   return (

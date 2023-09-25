@@ -14,6 +14,7 @@
 		1BB0721A787DD8301DF4C03B /* Pods_CasExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66F8072689BD8747E6BBE0E8 /* Pods_CasExample.framework */; };
 		2613DBF1EF0F8FB797D3E887 /* Pods_CasExample_CasExampleTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63BD90A427D9E25F43939244 /* Pods_CasExample_CasExampleTests.framework */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		CD4C4B825B03CB4BDE872FF0 /* cas_settings100.json in Resources */ = {isa = PBXBuildFile; fileRef = B8C4D80F58FE77A0E3D0852B /* cas_settings100.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +45,7 @@
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = CasExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-CasExample-CasExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CasExample-CasExampleTests.release.xcconfig"; path = "Target Support Files/Pods-CasExample-CasExampleTests/Pods-CasExample-CasExampleTests.release.xcconfig"; sourceTree = "<group>"; };
 		8F4207232AB9FCCD001499AB /* CasExample-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CasExample-Bridging-Header.h"; sourceTree = "<group>"; };
+		B8C4D80F58FE77A0E3D0852B /* cas_settings100.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; path = cas_settings100.json; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -94,6 +96,7 @@
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				8F4207232AB9FCCD001499AB /* CasExample-Bridging-Header.h */,
+				B8C4D80F58FE77A0E3D0852B /* cas_settings100.json */,
 			);
 			name = CasExample;
 			sourceTree = "<group>";
@@ -246,6 +249,7 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				CD4C4B825B03CB4BDE872FF0 /* cas_settings100.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -488,8 +492,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = NO;
+				DEVELOPMENT_TEAM = HHG8FBH3HK;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = CasExample/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -516,7 +523,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = NO;
+				DEVELOPMENT_TEAM = HHG8FBH3HK;
 				INFOPLIST_FILE = CasExample/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

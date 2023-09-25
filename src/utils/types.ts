@@ -4,6 +4,8 @@ import type { StyleProp, ViewStyle } from 'react-native';
 export type ConsentFlowParams = {
   enabled?: boolean;
   privacyPolicy?: string;
+  requestGDPR?: boolean;
+  requestATT?: boolean;
 };
 
 export type MediationExtraParams = {
@@ -83,8 +85,8 @@ export type TargetingOptions = {
 };
 
 export type AudienceNetworkDataProcessingOptions = {
-  country: number;
-  state: number;
+  country?: number;
+  state?: number;
   options: Array<string>;
 };
 
@@ -99,6 +101,7 @@ export type CASSettings = {
   mutedAdSounds: boolean;
   userConsent: ConsentStatus;
   deprecated_analyticsCollectionEnabled: boolean;
+  trackLocation?: boolean; // iOS Only
   testDeviceIDs: Array<string>;
 };
 

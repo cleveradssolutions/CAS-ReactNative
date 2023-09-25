@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useCasContext } from './cas.context';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Button, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export const LoggerTerminal = () => {
   const [logs, setLogs] = useState<Array<string>>([]);
@@ -30,7 +30,10 @@ export const LoggerTerminal = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Logger terminal: </Text>
+      <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+        <Text style={styles.text}>Logger terminal: </Text>
+        <Button title={'clear'} onPress={() => setLogs([])} />
+      </View>
       <ScrollView ref={ref} contentContainerStyle={styles.scroll}>
         {logs.map((log, i) => (
           <Text key={i} style={styles.text}>{log}</Text>

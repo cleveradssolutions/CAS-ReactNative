@@ -16,7 +16,7 @@ import type {
 import {
   Dimensions,
   findNodeHandle,
-  PixelRatio,
+  PixelRatio, Platform,
   StyleSheet,
   UIManager,
   View,
@@ -75,21 +75,23 @@ export const BannerAd = forwardRef(
 
     const onAdViewLoaded = useCallback(
       (e) => {
-        let width = e.nativeEvent.width / pr;
-        const height = layout.current?.height
-          ? layout.current.height
-          : e.nativeEvent.height / pr;
+        if (Platform.OS === 'android') {
+          let width = e.nativeEvent.width / pr;
+          const height = layout.current?.height
+            ? layout.current.height
+            : e.nativeEvent.height / pr;
 
-        if (Math.floor(width) % 2) {
-          width += 1;
-        } else {
-          width -= 1;
+          if (Math.floor(width) % 2) {
+            width += 1;
+          } else {
+            width -= 1;
+          }
+
+          setSize({
+            height,
+            width,
+          });
         }
-
-        setSize({
-          height,
-          width,
-        });
 
         props.onAdViewLoaded?.();
       },

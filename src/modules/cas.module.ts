@@ -6,9 +6,10 @@ import type {
   AudienceNetworkDataProcessingOptions,
   CASSettings,
   onDismissConsentFlowListener,
+  ConsentFlowParams,
 } from '../utils/types';
 import { MediationManager } from './mediation-manager.module';
-import { NativeEventEmitter } from 'react-native';
+import { NativeEventEmitter, Platform } from 'react-native';
 
 class Cas {
   private eventEmitter = new NativeEventEmitter(CasModule);
@@ -31,9 +32,9 @@ class Cas {
   };
 
   showConsentFlow = async (
-    privacyPolicy: string | null,
+    params: Omit<ConsentFlowParams, 'enabled'>,
     cb: onDismissConsentFlowListener
-  ) => CasModule.showConsentFlow(privacyPolicy ?? '', cb);
+  ) => CasModule.showConsentFlow(params, cb);
 
   getSDKVersion = async (): Promise<string> => CasModule.getSDKVersion();
 
@@ -58,8 +59,12 @@ class Cas {
     params: AudienceNetworkDataProcessingOptions
   ) => CasModule.setAudienceNetworkDataProcessingOptions(params);
 
+  setAdvertiserTrackingEnabled = async (enable: boolean) =>
+    Platform.OS === 'ios' && CasModule.setAdvertiserTrackingEnabled(enable);
+
   // Google specific
   setGoogleAdsConsentForCookies = async (enabled: boolean) =>
+    Platform.OS === 'android' &&
     CasModule.setGoogleAdsConsentForCookies(enabled);
 }
 

@@ -100,8 +100,9 @@ class CasModule(context: ReactApplicationContext, private val managerWrapper: Me
 
   @ReactMethod
   @Suppress("unused")
-  fun showConsentFlow(privacyPolicy: String, callback: Callback) {
+  fun showConsentFlow(params: ReadableMap, callback: Callback) {
     val flow = ConsentFlow()
+    val privacyPolicy = params.getStringOrEmpty("privacyPolicy")
 
     if (privacyPolicy.isNotEmpty()) {
       flow.withPrivacyPolicy(privacyPolicy)
@@ -180,10 +181,8 @@ class CasModule(context: ReactApplicationContext, private val managerWrapper: Me
   @ReactMethod
   @Suppress("unused")
   fun debugValidateIntegration() {
-    if (BuildConfig.DEBUG) {
-      reactApplicationContext.currentActivity?.let {
-        CAS.validateIntegration(it)
-      }
+    reactApplicationContext.currentActivity?.let {
+      CAS.validateIntegration(it)
     }
   }
 
