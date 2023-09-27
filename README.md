@@ -1,7 +1,5 @@
 # CAS.AI SDK for React Native
-[![maven](https://img.shields.io/maven-central/v/com.cleveradssolutions/cas-sdk)](https://github.com/cleveradssolutions/CAS-Android/releases)
-[![Cocoapods](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/cleveradssolutions/CAS-Specs/master/CAS.json)](https://github.com/cleveradssolutions/CAS-Specs/tree/master/Specs/CleverAdsSolutions-SDK)
-[![SKAdNetworksID](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/cleveradssolutions/CAS-iOS/master/SKAdNetowrksShield.json)](https://github.com/cleveradssolutions/CAS-iOS/blob/master/SKAdNetworkItems.xml)
+[![NPM](https://img.shields.io/npm/v/react-native-cas)](https://img.shields.io/npm/l/react-native-cas)
 [![App-ads.txt](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/cleveradssolutions/App-ads.txt/master/Shield.json)](https://github.com/cleveradssolutions/App-ads.txt)
 
 ## Documentation

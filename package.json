@@ -1,6 +1,6 @@
 {
   "name": "react-native-cas",
-  "version": "3.2.5",
+  "version": "3.2.6",
   "description": "CAS module for RN",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -43,13 +43,13 @@
     "ios",
     "android"
   ],
-  "repository": "https://github.com/TheLonelyAstronaut/react-native-cas",
+  "repository": "https://github.com/cleveradssolutions/CAS-ReactNative",
   "author": "孤独な 宇宙飛行士 <thelonelyastronaut1337@gmail.com> (https://github.com/TheLonelyAstronaut)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/TheLonelyAstronaut/react-native-cas/issues"
+    "url": "https://github.com/cleveradssolutions/CAS-ReactNative/issues"
   },
-  "homepage": "https://github.com/TheLonelyAstronaut/react-native-cas#readme",
+  "homepage": "https://github.com/cleveradssolutions/CAS-ReactNative#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
