@@ -7,6 +7,9 @@ import com.cas.extensions.toReadableMap
 import com.cleversolutions.ads.*
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class MediationManagerModule(context: ReactApplicationContext, private val managerWrapper: MediationManagerWrapper): ReactContextBaseJavaModule(context), AdLoadCallback,
@@ -17,7 +20,7 @@ class MediationManagerModule(context: ReactApplicationContext, private val manag
   private var appOpenAd: CASAppOpen? = null
 
   companion object {
-    private val APP_OPEN_AD_TYPE = 5
+    private val APP_OPEN_AD_TYPE = 3
   }
 
   override fun invalidate() {
@@ -111,7 +114,8 @@ class MediationManagerModule(context: ReactApplicationContext, private val manag
   @ReactMethod
   @Suppress("unused")
   fun loadAppOpenAd(isLandscape: Boolean) {
-    appOpenAd?.loadAd(reactApplicationContext, isLandscape, object : LoadAdCallback {
+    CoroutineScope(Dispatchers.Main).launch {
+      appOpenAd?.loadAd(reactApplicationContext, object : LoadAdCallback {
         override fun onAdFailedToLoad(error: AdError) {
           val map = WritableNativeMap()
 
@@ -132,7 +136,8 @@ class MediationManagerModule(context: ReactApplicationContext, private val manag
             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
             .emit("adLoaded", map)
         }
-    })
+      })
+    }
   }
 
   @ReactMethod

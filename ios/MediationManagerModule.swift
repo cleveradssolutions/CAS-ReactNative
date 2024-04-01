@@ -14,7 +14,7 @@ class MediationManagerModule: RCTEventEmitter, CASLoadDelegate {
     private var changeId = ""
     private var appOpenAd: CASAppOpen? = nil
     private var callbacks: Dictionary<String, JSAdCallback> = [:]
-    private static let APP_OPEN_AD_TYPE = 5
+    private static let APP_OPEN_AD_TYPE = 3
     
     override init() {
         super.init()
@@ -97,11 +97,11 @@ class MediationManagerModule: RCTEventEmitter, CASLoadDelegate {
     }
     
     @objc func loadAppOpenAd(_ isLandscape: Bool) {
-        appOpenAd?.loadAd(orientation: isLandscape ? .landscapeLeft : .portrait) {[weak self] ad, error in
+        appOpenAd?.loadAd() {[weak self] ad, error in
             if let error = error {
                 self?.sendEvent(withName: "adFailedToLoad", body: [
                     "type": MediationManagerModule.APP_OPEN_AD_TYPE,
-                    "error": error as Any
+                    "error": error.localizedDescription
                 ])
             } else {
                 self?.sendEvent(withName: "adLoaded", body: [

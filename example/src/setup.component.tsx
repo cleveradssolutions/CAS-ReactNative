@@ -19,7 +19,7 @@ export const Setup = () => {
           enabled: true,
           requestATT: true,
         },
-        testMode: false,
+        testMode: true,
         userId: 'user_id',
         adTypes: [
           AdType.Interstitial,

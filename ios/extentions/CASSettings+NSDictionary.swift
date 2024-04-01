@@ -30,6 +30,10 @@ extension CASSettings {
             setTestDevice(ids: testDeviceIDs)
         }
         
+        if let _trialAdFreeInterval = jsMap["trialAdFreeInterval"] as? Double {
+            trialAdFreeInterval = UInt64(_trialAdFreeInterval)
+        }
+        
         if let _taggedAudience = jsMap["taggedAudience"] as? Double {
             taggedAudience = CASAudience(rawValue: Int(_taggedAudience))!
         }

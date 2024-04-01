@@ -73,9 +73,11 @@ class CasModule(context: ReactApplicationContext, private val managerWrapper: Me
         }
 
         params.getArray("adTypes")?.let {
-          buildManager.withAdTypes(*it.toArrayList().mapNotNull { type ->
-            if (type is Int) type.toEnum<AdType>() else null
-          }.toTypedArray())
+          val arr = it.toArrayList().mapNotNull { type ->
+            if (type is Double) type.toInt().toEnum<AdType>() else null
+          }.toTypedArray()
+
+          buildManager.withAdTypes(*arr)
         }
 
         params.getMap("mediationExtra")?.let {
@@ -157,6 +159,14 @@ class CasModule(context: ReactApplicationContext, private val managerWrapper: Me
       map.has("location") {
         to.location = Location::class.fromReadableMap(map.getMap("location")!!)
       }
+
+      map.has("contentUrl") {
+        to.contentUrl = map.getString("contentUrl")
+      }
+
+      map.has("keywords") {
+        to.keywords = (map.getArray("keywords")?.toArrayList() as? ArrayList<String>)?.toSet()
+      }
     }
   }
 
@@ -202,7 +212,7 @@ class CasModule(context: ReactApplicationContext, private val managerWrapper: Me
         val country = map.getInt("country")
         val state = map.getInt("state")
 
-        clazz.getMethod("setDataProcessingOptions", Array<String>::class.java, Int::class.java, Int::class.java).invoke(null, options as Array<String>, country, state)
+        clazz.getMethod("setDataProcessingOptions", Array<String>::class.java, Int::class.java, Int::class.java).invoke(null, options, country, state)
       }
     } catch (e: Exception) {
       Log.e("RN CAS", e.message ?: e.toString())

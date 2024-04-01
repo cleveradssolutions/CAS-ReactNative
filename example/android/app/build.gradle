@@ -107,26 +107,28 @@ dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 
-    implementation('com.cleveradssolutions:cas-families:3.2.5')
-    implementation('com.cleveradssolutions:cas-sdk:3.2.5')
-    implementation('com.cleveradssolutions:google:22.3.0.0')
-    implementation('com.cleveradssolutions:unity:4.8.0.0')
-    implementation('com.cleveradssolutions:ironsource:7.5.0.0')
-    implementation('com.cleveradssolutions:adcolony:4.8.0.12')
-    implementation('com.cleveradssolutions:kidoz:8.9.9.0')
-    implementation('com.cleveradssolutions:superawesome:9.1.0.2')
-    implementation('com.cleveradssolutions:vungle:6.12.1.7')
-    implementation('com.cleveradssolutions:inmobi:10.1.4.4')
-    implementation('com.cleveradssolutions:chartboost:9.4.1.0')
-    implementation('com.cleveradssolutions:fyber:8.2.3.4')
-    implementation('com.cleveradssolutions:facebook:6.16.0.0')
-    implementation('com.cleveradssolutions:mintegral:16.4.91.0')
-    implementation('com.cleveradssolutions:applovin:11.11.3.0')
-    implementation('com.cleveradssolutions:mytarget:5.17.0.1')
-    implementation('com.cleveradssolutions:yandex:25.10.0.0')
-    implementation('com.cleveradssolutions:pangle:5.3.0.5')
-    implementation('com.cleveradssolutions:cas-promo:3.2.5')
-
+    //implementation("com.cleveradssolutions:cas:3.6.0")
+//    implementation("com.cleveradssolutions:cas-families:3.6.0")
+    implementation("com.cleveradssolutions:cas-sdk:3.6.0")
+//    implementation("com.cleveradssolutions:ironsource:7.9.0.0")   // IronSource
+    implementation("com.cleveradssolutions:google:23.0.0.0")      // Google Ads | Admob
+//    implementation("com.cleveradssolutions:unity:4.10.0.0")       // Unity Ads
+//    implementation("com.cleveradssolutions:kidoz:9.1.1.0")        // Kidoz
+//    implementation("com.cleveradssolutions:superawesome:9.3.2.0") // SuperAwesome
+//    implementation("com.cleveradssolutions:vungle:7.3.0.0")       // LiftoffMonetize
+//    implementation("com.cleveradssolutions:inmobi:10.6.7.0")      // InMobi
+//    implementation("com.cleveradssolutions:chartboost:9.7.0.0")   // Chartboost
+//    implementation("com.cleveradssolutions:fyber:8.2.6.0")        // DT Exchange
+//    implementation("com.cleveradssolutions:mintegral:16.6.61.0")  // Mintegral
+//    implementation("com.cleveradssolutions:applovin:12.3.1.0")    // AppLovin
+//    implementation("com.cleveradssolutions:facebook:6.17.0.0")    // Meta Audience Network
+//    implementation("com.cleveradssolutions:pangle:5.8.1.0")       // Pangle
+//    implementation("com.cleveradssolutions:bigo:4.6.1.0")         // Bigo
+//    implementation("com.cleveradssolutions:mytarget:5.20.1.0")    // MyTarget
+    implementation("com.cleveradssolutions:yandex:26.4.1.0")      // Yandex Ads
+//    implementation("com.cleveradssolutions:madex:1.2.2.0")        // Madex
+//    implementation("com.cleveradssolutions:hyprmx:6.2.3.1")       // HyprMX
+//    implementation("com.cleveradssolutions:smaato:22.0.2.1")      // Smaato
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
     debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {

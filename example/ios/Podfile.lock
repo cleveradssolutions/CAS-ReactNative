@@ -1,40 +1,12 @@
 PODS:
   - boost (1.76.0)
-  - CleverAdsSolutions-Base (3.2.5)
-  - CleverAdsSolutions-SDK/YandexAds (3.2.5):
+  - CleverAdsSolutions-Base (3.6.0)
+  - CleverAdsSolutions-SDK/GoogleAds (3.6.0):
+    - CleverAdsSolutions-SDK/IronSource (= 3.6.0)
+    - Google-Mobile-Ads-SDK (= 11.2.0)
+  - CleverAdsSolutions-SDK/IronSource (3.6.0):
     - CleverAdsSolutions-Base
-    - YandexMobileAds (= 5.9.1)
-  - DivKit (24.2.0):
-    - DivKit_Base (= 24.2.0)
-    - DivKit_BaseTiny (= 24.2.0)
-    - DivKit_BaseUI (= 24.2.0)
-    - DivKit_CommonCore (= 24.2.0)
-    - DivKit_LayoutKit (= 24.2.0)
-    - DivKit_LayoutKitInterface (= 24.2.0)
-    - DivKit_Networking (= 24.2.0)
-    - DivKit_Serialization (= 24.2.0)
-  - DivKit_Base (24.2.0):
-    - DivKit_BaseTiny (= 24.2.0)
-    - DivKit_BaseUI (= 24.2.0)
-  - DivKit_BaseTiny (24.2.0)
-  - DivKit_BaseUI (24.2.0):
-    - DivKit_BaseTiny (= 24.2.0)
-  - DivKit_CommonCore (24.2.0):
-    - DivKit_Base (= 24.2.0)
-    - DivKit_BaseTiny (= 24.2.0)
-  - DivKit_LayoutKit (24.2.0):
-    - DivKit_BaseTiny (= 24.2.0)
-    - DivKit_BaseUI (= 24.2.0)
-    - DivKit_CommonCore (= 24.2.0)
-    - DivKit_LayoutKitInterface (= 24.2.0)
-  - DivKit_LayoutKitInterface (24.2.0):
-    - DivKit_Base (= 24.2.0)
-    - DivKit_BaseTiny (= 24.2.0)
-    - DivKit_BaseUI (= 24.2.0)
-  - DivKit_Networking (24.2.0):
-    - DivKit_Base (= 24.2.0)
-  - DivKit_Serialization (24.2.0):
-    - DivKit_CommonCore (= 24.2.0)
+    - IronSourceSDK (= 7.9.1.0)
   - DoubleConversion (1.1.6)
   - FBLazyVector (0.72.4)
   - FBReactNativeSpec (0.72.4):
@@ -46,9 +18,13 @@ PODS:
     - ReactCommon/turbomodule/core (= 0.72.4)
   - fmt (6.2.1)
   - glog (0.3.5)
+  - Google-Mobile-Ads-SDK (11.2.0):
+    - GoogleUserMessagingPlatform (>= 1.1)
+  - GoogleUserMessagingPlatform (2.3.0)
   - hermes-engine (0.72.4):
     - hermes-engine/Pre-built (= 0.72.4)
   - hermes-engine/Pre-built (0.72.4)
+  - IronSourceSDK (7.9.1.0)
   - libevent (2.1.12)
   - RCT-Folly (2021.07.22.00):
     - boost
@@ -350,9 +326,9 @@ PODS:
   - React-jsinspector (0.72.4)
   - React-logger (0.72.4):
     - glog
-  - react-native-cas (0.1.0):
-    - CleverAdsSolutions-Base (~> 3.2.5)
-    - CleverAdsSolutions-SDK/YandexAds (~> 3.2.5)
+  - react-native-cas (3.6.0):
+    - CleverAdsSolutions-Base (~> 3.6.0)
+    - CleverAdsSolutions-SDK/GoogleAds (~> 3.6.0)
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - react-native-netinfo (9.4.1):
@@ -473,20 +449,6 @@ PODS:
     - React-Core
     - React-RCTImage
   - SocketRocket (0.6.1)
-  - YandexMobileAds (5.9.1):
-    - DivKit (~> 24.2)
-    - YandexMobileAds/Static (= 5.9.1)
-  - YandexMobileAds/Static (5.9.1):
-    - DivKit (~> 24.2)
-    - YandexMobileMetrica (< 5.0.0, >= 4.0.0)
-  - YandexMobileMetrica (4.5.2):
-    - YandexMobileMetrica/Static (= 4.5.2)
-  - YandexMobileMetrica/Static (4.5.2):
-    - YandexMobileMetrica/Static/Core (= 4.5.2)
-    - YandexMobileMetrica/Static/Crashes (= 4.5.2)
-  - YandexMobileMetrica/Static/Core (4.5.2)
-  - YandexMobileMetrica/Static/Crashes (4.5.2):
-    - YandexMobileMetrica/Static/Core
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -541,20 +503,12 @@ SPEC REPOS:
     - CleverAdsSolutions-Base
     - CleverAdsSolutions-SDK
   trunk:
-    - DivKit
-    - DivKit_Base
-    - DivKit_BaseTiny
-    - DivKit_BaseUI
-    - DivKit_CommonCore
-    - DivKit_LayoutKit
-    - DivKit_LayoutKitInterface
-    - DivKit_Networking
-    - DivKit_Serialization
     - fmt
+    - Google-Mobile-Ads-SDK
+    - GoogleUserMessagingPlatform
+    - IronSourceSDK
     - libevent
     - SocketRocket
-    - YandexMobileAds
-    - YandexMobileMetrica
 
 EXTERNAL SOURCES:
   boost:
@@ -647,23 +601,17 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
-  CleverAdsSolutions-Base: 175abc70f6a41043e3a0737b37cd941c9a3720b9
-  CleverAdsSolutions-SDK: d5f0a17875650e437d9d0e97feb6e15356fa06f7
-  DivKit: f2151bd0bfc67e0b4ad949e8cd1caa7379253bef
-  DivKit_Base: 263499ebc77c217314d4bee1b374781c3643c8a9
-  DivKit_BaseTiny: 42535fa725058957129f231b4b52d394ed4d7ea9
-  DivKit_BaseUI: cb86da6096de4a3bb670b4196ddeed0334acd671
-  DivKit_CommonCore: dd26a3f7dcc9010ec3a4ed3c5c3718e7a882536a
-  DivKit_LayoutKit: cdcfa56dd6a88495703350bb63f410dde426435c
-  DivKit_LayoutKitInterface: f0dae7b2e7a024d0340914490b1c06c0e6a926ae
-  DivKit_Networking: cd028559a160baa76c43fda52174f2f83c87b747
-  DivKit_Serialization: b4d8a4672de9134889c5f92f5f7e04e04112e660
+  CleverAdsSolutions-Base: fa825c3b2f3b65e6dc9aa1f5528bb903632192fe
+  CleverAdsSolutions-SDK: aa775800c67d9fcb3e3c9f2a6041a6c343118f24
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   FBLazyVector: 5d4a3b7f411219a45a6d952f77d2c0a6c9989da5
   FBReactNativeSpec: 3fc2d478e1c4b08276f9dd9128f80ec6d5d85c1f
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
+  Google-Mobile-Ads-SDK: 5a6d005a6cb5b5e8f4c7b69ca05cdea79c181139
+  GoogleUserMessagingPlatform: b1ad7bb1ee3ce64749d4fec24f667b36e45c396c
   hermes-engine: 81191603c4eaa01f5e4ae5737a9efcf64756c7b2
+  IronSourceSDK: 4c3c24265e83ca1e4e8fdc5a499d9a5772b5040c
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
   RCTRequired: c0569ecc035894e4a68baecb30fe6a7ea6e399f9
@@ -674,16 +622,16 @@ SPEC CHECKSUMS:
   React-Core: 34da8c952844e21f5a69bf46438fb6bf063900d0
   React-CoreModules: 621243df8863055ff30f3bb2ff71573ffa7b16c8
   React-cxxreact: 4ad1cc861e32fb533dad6ff7a4ea25680fa1c994
-  React-debug: f37689056bd01d81513b66b3f4630ed521831768
+  React-debug: 6d13f5d8e226c2578cf8f0dddc43fa08f84a0595
   React-hermes: 37377d0a56aa0cf55c65248271866ce3268cde3f
   React-jsi: 6de8b0ccc6b765b58e4eee9ee38049dbeaf5c221
   React-jsiexecutor: c7f826e40fa9cab5d37cab6130b1af237332b594
   React-jsinspector: aaed4cf551c4a1c98092436518c2d267b13a673f
   React-logger: da1ebe05ae06eb6db4b162202faeafac4b435e77
-  react-native-cas: 9b0666e2fc69937d32bf3595df8c64498db4c0ef
+  react-native-cas: b0aa588462813d4258dc7279ce6cb7b7fcf4ef7f
   react-native-netinfo: fefd4e98d75cbdd6e85fc530f7111a8afdf2b0c5
   react-native-safe-area-context: 7aa8e6d9d0f3100a820efb1a98af68aa747f9284
-  React-NativeModulesApple: 22266f59e2cf8774b6cb49287d7934a9f5552c09
+  React-NativeModulesApple: 697af5496caee34ef08f3e560305733f86be7754
   React-perflogger: 496a1a3dc6737f964107cb3ddae7f9e265ddda58
   React-RCTActionSheet: 02904b932b50e680f4e26e7a686b33ebf7ef3c00
   React-RCTAnimation: e44fe5053708c5be762943087c78dc5a6a3c645c
@@ -697,15 +645,13 @@ SPEC CHECKSUMS:
   React-RCTVibration: 35eec7201c8ffdaccdd908a5ec874b7055f975f3
   React-rncore: 46133d523155fc84572338bd6a7c461c1d873efc
   React-runtimeexecutor: d465ba0c47ef3ed8281143f59605cacc2244d5c7
-  React-runtimescheduler: 8278ba86e84bec81c95e14186dc7d41730231a73
-  React-utils: 8fa092738150b6f9aa00a0010c6d73fd42193d24
-  ReactCommon: d8c03cc96b03918886e959a720eb84c0e5f0efca
+  React-runtimescheduler: acbe611ba38f0136230a8767f5a48f5c191d0172
+  React-utils: 332bf5cdd2785fa281c4b8c60264a54345095716
+  ReactCommon: 83a15b0197831ecbf476f0cfd7edce60d10c0185
   RNScreens: 85d3880b52d34db7b8eeebe2f1a0e807c05e69fa
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  YandexMobileAds: b4c8789fb2cc1540fc16bc94f2c18ce2d031ccc7
-  YandexMobileMetrica: f5368ee93f286c793d73b58da00929babfc897c1
   Yoga: 3efc43e0d48686ce2e8c60f99d4e6bd349aff981
 
-PODFILE CHECKSUM: 8a818c418e86ec74dc057e7f91ccb3e74584dd92
+PODFILE CHECKSUM: a867d9d48c7e93f54a01a156ae108cf267f50579
 
-COCOAPODS: 1.12.0
+COCOAPODS: 1.14.3

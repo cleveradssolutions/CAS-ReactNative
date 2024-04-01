@@ -17,9 +17,9 @@ export enum AdType {
   Banner = 0,
   Interstitial,
   Rewarded,
+  AppOpen,
   Native,
   None,
-  AppOpen,
 }
 
 export enum Gender {
@@ -82,6 +82,8 @@ export type TargetingOptions = {
   age: number;
   gender: Gender;
   location?: Location;
+  contentUrl: string;
+  keywords: Array<string>;
 };
 
 export type AudienceNetworkDataProcessingOptions = {
@@ -93,6 +95,7 @@ export type AudienceNetworkDataProcessingOptions = {
 export type CASSettings = {
   taggedAudience: Audience;
   ccpaStatus: CCPAStatus;
+  trialAdFreeInterval: number;
   debugMode: boolean;
   allowInterstitialAdsWhenVideoCostAreLower: boolean;
   bannerRefreshInterval: number;

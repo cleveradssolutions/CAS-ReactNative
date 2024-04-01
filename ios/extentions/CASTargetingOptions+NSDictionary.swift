@@ -34,5 +34,13 @@ extension CASTargetingOptions {
                 self.setLocation(latitude: latitude, longitude: longitude)
             }
         }
+        
+        if let contentUrl = jsMap["contentUrl"] as? String {
+            self.setContentUrl(contentUrl)
+        }
+        
+        if let keywords = jsMap["keywords"] as? [String] {
+            self.setKeywords(keywords)
+        }
     }
 }

@@ -35,6 +35,10 @@ fun AdsSettings.fromReadableMap(map: ReadableMap) {
     this.taggedAudience = map.getInt("taggedAudience")
   }
 
+  map.has("trialAdFreeInterval") {
+    this.trialAdFreeInterval = map.getInt("trialAdFreeInterval")
+  }
+
   map.has("ccpaStatus") {
     this.ccpaStatus = map.getInt("ccpaStatus")
   }
