@@ -1,6 +1,6 @@
 {
   "name": "react-native-cas",
-  "version": "3.5.9",
+  "version": "3.6.-1",
   "description": "CAS module for RN",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
