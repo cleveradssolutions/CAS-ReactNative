@@ -82,21 +82,27 @@ class CasModule: RCTEventEmitter  {
     }
     
     @objc func showConsentFlow(_ params: NSDictionary, cb callback: @escaping RCTResponseSenderBlock) {
-        DispatchQueue.main.async {
-            CASConsentFlow(requestGDPR: params["requestGDPR"] as? Bool ?? false, requestATT: params["requestATT"] as? Bool ?? false)
-                .withPrivacyPolicy(params["privacyPolicy"] as? String)
-                .withViewControllerToPresent(UIApplication.shared.delegate?.window??.rootViewController)
-                .withCompletionHandler { result in
-                    let response: [String: Any] = [
-                        "status": result.rawValue,
-                        "settings": CAS.settings.toDictionary()
-                    ]
-                    
-                    callback([response])
-                }
-                .present()
-        }
+    let enabled = params["enabled"] as? Bool ?? true
+    if !enabled {
+        callback([["status": "disabled"]])
+        return
     }
+
+    DispatchQueue.main.async {
+        CASConsentFlow(requestGDPR: params["requestGDPR"] as? Bool ?? false, requestATT: params["requestATT"] as? Bool ?? false)
+            .withPrivacyPolicy(params["privacyPolicy"] as? String)
+            .withViewControllerToPresent(UIApplication.shared.delegate?.window??.rootViewController)
+            .withCompletionHandler { result in
+                let response: [String: Any] = [
+                    "status": result.rawValue,
+                    "settings": CAS.settings.toDictionary()
+                ]
+                
+                callback([response])
+            }
+            .present()
+    }
+}
 
     @objc func getSdkVersion(_ resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) {
         resolve(CAS.getSDKVersion())
