@@ -1,0 +1,116 @@
+{
+  "name": "react-native-cas",
+  "version": "4.3.1",
+  "description": "CAS.AI React Native Plugin for Android and iOS",
+  "author": "Clever Ads Solutions LTD <support@cas.ai> (https://cas.ai)",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cleveradssolutions/CAS-ReactNative.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cleveradssolutions/CAS-ReactNative/issues"
+  },
+  "homepage": "https://github.com/cleveradssolutions/CAS-ReactNative#readme",
+  "keywords": [
+    "react",
+    "react-native",
+    "ads",
+    "mobile",
+    "mediation",
+    "ios",
+    "android",
+    "admob"
+  ],
+  "main": "lib/commonjs/index.js",
+  "module": "lib/module/index.js",
+  "react-native": "src/index",
+  "source": "src/index",
+  "types": "lib/typescript/src/index.d.ts",
+  "files": [
+    "/lib/",
+    "/src/",
+    "/android/",
+    "/ios/",
+    "/package.json",
+    "/babel.config.js",
+    "/react-native-cas.podspec",
+    "/react-native.config.js",
+    "!ios/build",
+    "!android/app",
+    "!android/build",
+    "!android/gradle",
+    "!android/gradlew",
+    "!android/gradlew.bat",
+    "!android/local.properties"
+  ],
+  "scripts": {
+    "clean": "rimraf build && rimraf android/build && rimraf android/app/build && rimraf example/ios/build && rimraf lib && rimraf example/android/build",
+    "typecheck": "tsc",
+    "format": "prettier --write '**/*.{js,jsx,ts,tsx}'",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "codegen": "react-native codegen",
+    "android": "cd example/android && ./gradlew assembleDebug --no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a",
+    "ios": "cd example/ios && pod install",
+    "prepare": "bob build",
+    "release": "npm publish --access public"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.38.0",
+    "@evilmartians/lefthook": "^1.5.0",
+    "@react-native-community/cli": "latest",
+    "@types/react": "^18.2.44",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.26.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-react": "^7.31.10",
+    "globals": "^16.4.0",
+    "prettier": "^3.0.0",
+    "react": "19.0.0",
+    "react-native": "0.79.2",
+    "react-native-builder-bob": "^0.20.4",
+    "rimraf": "^3.0.2",
+    "typescript": "^5.2.2"
+  },
+  "resolutions": {
+    "@types/react": "^18.2.44"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "workspaces": [
+    "example"
+  ],
+  "packageManager": "yarn@3.6.1",
+  "react-native-builder-bob": {
+    "source": "src",
+    "output": "lib",
+    "targets": [
+      "commonjs",
+      "module",
+      "typescript"
+    ]
+  },
+  "codegenConfig": {
+    "name": "RNCASMobileAdsSpec",
+    "type": "all",
+    "jsSrcsDir": "./src/modules",
+    "ios": {
+      "libraryName": "CAS",
+      "podName": "react-native-cas",
+      "moduleName": "CASMobileAds",
+      "componentProvider": {
+        "CASAdView": "RNCASBannerAdView"
+      }
+    },
+    "android": {
+      "javaPackageName": "com.cleveradssolutions.plugin.reactnative"
+    }
+  }
+}
