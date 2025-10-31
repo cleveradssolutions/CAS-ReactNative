@@ -1,7 +1,7 @@
 import os
 
-_PLUGIN_VERSION = "4.4.1"
-_CAS_VERSION = "4.4.1"
+_PLUGIN_VERSION = "4.4.2"
+_CAS_VERSION = "4.4.2"
 
 # Plugin publishing flow (from the project root):
 # python3 version_updater.py
