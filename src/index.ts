@@ -1,4 +1,5 @@
 export * from './types';
+export * from './formats/native';
 export { default, CASMobileAds } from './CASMobileAds';
 export { InterstitialAd } from './formats/InterstitialAd';
 export { RewardedAd } from './formats/RewardedAd';
