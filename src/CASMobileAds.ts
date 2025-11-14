@@ -18,7 +18,7 @@ import CASMobileAdsNative from './modules/NativeCASMobileAdsModule';
 import type { InitializationStatus, InitializationParams } from './types/Initialization';
 import { ConsentFlowStatus } from './types/Initialization';
 import { version as reactNativeVersion } from 'react-native/Libraries/Core/ReactNativeVersion';
-import { MobileAds as MobileAdsModule } from './types/MobileAds';
+import { Gender, MobileAds as MobileAdsModule } from './types/MobileAds';
 
 class MobileAds implements MobileAdsModule {
   initialize(casId: string, options: InitializationParams = {}): Promise<InitializationStatus> {
@@ -63,8 +63,8 @@ class MobileAds implements MobileAdsModule {
     CASMobileAdsNative.setUserAge(age);
   }
 
-  setUserGender(gender: number): void {
-    CASMobileAdsNative.setUserGender(gender);
+  setUserGender(gender: Gender): void {
+    CASMobileAdsNative.setUserGender(Number(gender));
   }
 
   setAppContentUrl(contentUrl?: string): void {

@@ -1,6 +1,6 @@
 import os
 
-_PLUGIN_VERSION = "4.4.2"
+_PLUGIN_VERSION = "4.4.3"
 _CAS_VERSION = "4.4.2"
 
 # Plugin publishing flow (from the project root):

@@ -82,10 +82,8 @@ export interface MobileAds {
 
   /**
    * Set targeting to user’s gender.
-   *
-   * Limitation: `UNKNOWN`, `MALE`, `FEMALE`.
    */
-  setUserGender(gender: number): void;
+  setUserGender(gender: Gender): void;
 
   /**
    * Sets a list of keywords, interests, or intents related to your application.
@@ -107,9 +105,9 @@ export interface MobileAds {
    * Collect from the device the latitude and longitude coordinates truncated to the
    * hundredths decimal place.
    *
-   * * Collect only if your application already has the relevant end-user permissions.
-   * * Does not collect if the target audience is children.
-   * * Disabled by default.
+   * Collect only if your application already has the relevant end-user permissions.
+   * Does not collect if the target audience is children.
+   * Disabled by default.
    */
   setLocationCollectionEnabled(enabled: boolean): void;
 

@@ -58,7 +58,7 @@ export enum BannerAdSize {
  */
 export type BannerAdViewProps = {
   /**
-   * Represents the size of a banner ad. {@link BannerAdSize.SMART}.
+   * Represents the size of a banner ad. Default: {@link BannerAdSize.SMART}.
    */
   size?: BannerAdSize;
 

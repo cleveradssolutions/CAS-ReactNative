@@ -1,6 +1,6 @@
 {
   "name": "react-native-cas",
-  "version": "4.4.2",
+  "version": "4.4.3",
   "description": "CAS.AI React Native Plugin for Android and iOS",
   "author": "Clever Ads Solutions LTD <support@cas.ai> (https://cas.ai)",
   "license": "Apache-2.0",
@@ -11,7 +11,7 @@
   "bugs": {
     "url": "https://github.com/cleveradssolutions/CAS-ReactNative/issues"
   },
-  "homepage": "https://github.com/cleveradssolutions/CAS-ReactNative#readme",
+  "homepage": "https://docs.page/cleveradssolutions/docs/ReactNative",
   "keywords": [
     "react",
     "react-native",
@@ -26,7 +26,7 @@
   "module": "lib/module/index.js",
   "react-native": "src/index",
   "source": "src/index",
-  "types": "lib/typescript/src/index.d.ts",
+  "types": "lib/typescript/index.d.ts",
   "files": [
     "/lib/",
     "/src/",
