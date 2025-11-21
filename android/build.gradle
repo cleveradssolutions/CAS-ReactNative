@@ -73,5 +73,5 @@ repositories {
 dependencies {
   implementation "com.facebook.react:react-android"
 
-  implementation "com.cleveradssolutions:cas-sdk:4.4.2"
+  implementation "com.cleveradssolutions:cas-sdk:4.5.0"
 }
