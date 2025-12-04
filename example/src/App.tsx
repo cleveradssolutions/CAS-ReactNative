@@ -9,6 +9,8 @@ import InterstitialExample from './InterstitialExample';
 import RewardedExample from './RewardedExample';
 import AppOpenExample from './AppOpenExample';
 
+import NativeAdExample from './NativeAdExample';
+
 import NativeBannerExample from './BannerExample';
 import NativeMRecExample from './MRecExample';
 import AdaptiveBannerExample from './AdaptiveBannerExample';
@@ -20,6 +22,7 @@ export type RootStackParamList = {
   Interstitial: undefined;
   Rewarded: undefined;
   AppOpen: undefined;
+  Native: undefined;
   Banner: undefined;
   MREC: undefined;
   Adaptive: undefined;
@@ -39,10 +42,12 @@ export default function App() {
         <Stack.Screen name="Rewarded" component={RewardedExample} />
         <Stack.Screen name="AppOpen" component={AppOpenExample} />
 
+        <Stack.Screen name="Native" component={NativeAdExample} />                
+
         <Stack.Screen name="Banner" component={NativeBannerExample} />
         <Stack.Screen name="MREC" component={NativeMRecExample} />
         <Stack.Screen name="Adaptive" component={AdaptiveBannerExample} />
-        <Stack.Screen name="Scrolled" component={ScrolledAdViewExample} />
+        <Stack.Screen name="Scrolled" component={ScrolledAdViewExample} />        
       </Stack.Navigator>
     </NavigationContainer>
   );

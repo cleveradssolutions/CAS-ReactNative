@@ -18,6 +18,10 @@ export default function MenuScreen() {
           <AppButton title="App Open" onPress={go('AppOpen')} />
 
           <View style={S.divider} />
+          
+          <AppButton title="Native" onPress={go('Native')} />
+
+          <View style={S.divider} />
 
           <AppButton title="Banner (AdView)" onPress={go('Banner')} />
           <AppButton title="MREC (AdView)" onPress={go('MREC')} />
