@@ -1,6 +1,7 @@
 #import "UIKit/UIKit.h"
 #import "RNCASNativeAdView.h"
 #import "RNCASNativeAdHolder.h"
+#import <React/RCTConvert.h>
 #import <CleverAdsSolutions/CleverAdsSolutions-Swift.h>
 
 @implementation RNCASNativeAdView
@@ -122,19 +123,7 @@
 
 
 - (UIColor *)colorFromHexString:(NSString *)hex {
-  unsigned rgbValue = 0;
-  NSScanner *scanner = [NSScanner scannerWithString:hex];
-  
-  if ([hex hasPrefix:@"#"]) {
-    scanner.scanLocation = 1;
-  }
-  
-  [scanner scanHexInt:&rgbValue];
-  
-  return [UIColor colorWithRed:((rgbValue & 0xFF0000) >> 16)/255.0f
-                         green:((rgbValue & 0x00FF00) >> 8)/255.0f
-                          blue:(rgbValue & 0x0000FF)/255.0f
-                         alpha:1.0];
+  return [RCTConvert UIColor:hex];
 }
 
 

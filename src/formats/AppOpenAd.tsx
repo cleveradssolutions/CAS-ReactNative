@@ -18,7 +18,7 @@ import CASMobileAdsNative from '../modules/NativeCASMobileAdsModule';
 import type { AppOpenAdType } from '../types/FullscreenAds';
 import { addAdEventListener } from '../EventEmitter';
 
-enum AppOpenAdEvent {
+const enum AppOpenAdEvent {
   LOADED = 'onAppOpenLoaded',
   FAILED_TO_LOAD = 'onAppOpenFailedToLoad',
   FAILED_TO_SHOW = 'onAppOpenFailedToShow',

@@ -13,6 +13,8 @@
 @interface CASMobileAds : RCTEventEmitter <RCTBridgeModule, CASScreenContentDelegate, CASImpressionDelegate>
 #endif
 
+@property(class, nonatomic, strong, readonly) CASMobileAds *shared;
+
 @property (class, readonly, copy) NSString *casIdendifier;
 
 @end

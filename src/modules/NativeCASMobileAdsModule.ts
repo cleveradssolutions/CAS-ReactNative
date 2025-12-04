@@ -73,10 +73,10 @@ export interface Spec extends TurboModule {
   destroyAppOpen(): void;
 
   // Native
-  loadNativeAd(): void;  
+  loadNativeAd(maxNumberOfAds: Int32): void;
   setNativeMutedEnabled(enabled: boolean): void;
   setNativeAdChoisesPlacement(adChoicesPlacement: Int32): void;
-  destroyNative(): void;
+  destroyNative(instanceId: Int32): void;
 
   // EventEmitter bridge
   addListener(eventName: string): void;

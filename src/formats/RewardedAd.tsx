@@ -18,7 +18,7 @@ import CASMobileAdsNative from '../modules/NativeCASMobileAdsModule';
 import type { RewardedAdType } from '../types/FullscreenAds';
 import { addAdEventListener } from '../EventEmitter';
 
-enum RewardedAdEvent {
+const enum RewardedAdEvent {
   LOADED = 'onRewardedLoaded',
   FAILED_TO_LOAD = 'onRewardedFailedToLoad',
   FAILED_TO_SHOW = 'onRewardedFailedToShow',

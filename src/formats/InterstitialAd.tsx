@@ -18,7 +18,7 @@ import CASMobileAdsNative from '../modules/NativeCASMobileAdsModule';
 import type { InterstitialAdType } from '../types/FullscreenAds';
 import { addAdEventListener } from '../EventEmitter';
 
-enum InterstitialAdEvent {
+const enum InterstitialAdEvent {
   LOADED = 'onInterstitialLoaded',
   FAILED_TO_LOAD = 'onInterstitialFailedToLoad',
   FAILED_TO_SHOW = 'onInterstitialFailedToShow',

@@ -8,9 +8,14 @@ export default function NativeAdExample() {
   const [muted, setMuted] = useState(false);
   const [placement, setPlacement] = useState(AdChoicesPlacement.topRightCorner);
 
+
+  const [loadedAd, setLoadedAd] = useState();
+  var ad;
+
   useEffect(() => {
-    const unsubscribeLoaded = NativeAd.addAdLoadedEventListener(() => {
+    const unsubscribeLoaded = NativeAd.addAdLoadedEventListener((ad) => {
       console.log('Native Ad loaded');
+      this.ad = ad;
       setLoaded(true);      
     });
 

@@ -9,8 +9,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)shared;
 
-- (void)setAd:(CASNativeAdContent *)ad;
-- (nullable CASNativeAdContent *)getAd;
+- (NSNumber*)saveNativeAd:(CASNativeAdContent *)ad;
+- (nullable CASNativeAdContent *)findNativeAdWithId:(NSNumber*)instanceId;
+- (nullable CASNativeAdContent *)removeNativeAdWithId:(NSNumber*)instanceId;
 
 @end
 
