@@ -3,6 +3,7 @@
 #import <CleverAdsSolutions/CleverAdsSolutions-Swift.h>
 #import <CleverAdsSolutions/CleverAdsSolutions.h>
 #import "CASMobileAds.h"
+#import "RNCASNativeAdHolder.h"
 
 #ifdef RCT_NEW_ARCH_ENABLED
 #import <React/RCTConversions.h>
@@ -16,6 +17,9 @@ using namespace facebook::react;
 @property (nonatomic, strong, nullable) CASInterstitial *interstitialAds;
 @property (nonatomic, strong, nullable) CASRewarded *rewardedAds;
 @property (nonatomic, strong, nullable) CASAppOpen *appOpenAds;
+
+@property (nonatomic, strong, nullable) CASNativeLoader *nativeLoader;
+@property (nonatomic, strong, nullable) CASNativeAdContent *nativeAdContent;
 
 @property (nonatomic, assign) BOOL hasListeners;
 @end
@@ -126,6 +130,10 @@ RCT_EXPORT_METHOD(initialize:(NSString *)casId
     appOpen.impressionDelegate = self;
     self.appOpenAds = appOpen;
 
+    CASNativeLoader *nativeLoader = [[CASNativeLoader alloc] initWithCasID:casId];
+    nativeLoader.delegate = self;
+    self.nativeLoader = nativeLoader;
+
     CASManagerBuilder *builder = [CAS buildManager];
 
     [builder withTestAdMode:[options[@"forceTestAds"] boolValue]];
@@ -206,7 +214,11 @@ RCT_EXPORT_METHOD(getSDKVersion:(RCTPromiseResolveBlock)resolve
         kOnRewardedFailedToShow,
         kOnRewardedHidden,
         kOnRewardedCompleted,
-        kOnRewardedImpression
+        kOnRewardedImpression,
+        kOnNativeAdLoaded,
+        kOnNativeAdFailedToLoad,
+        kOnNativeAdImpression,
+        kOnNativeAdClicked,
     ];
 }
 
@@ -478,6 +490,44 @@ RCT_EXPORT_METHOD(destroyRewarded) {
     [self sendEventWithName:event body:@{ @"code": @(error.code), @"message": error.description }];
 }
 
+#pragma mark - Native
+
+
+RCT_EXPORT_METHOD(loadNativeAd) {
+    if (!self.nativeLoader) {
+        [self sendAdEvent:kOnNativeAdFailedToLoad withError:CASError.notInitialized];
+        return;
+    }
+    self.nativeLoader.delegate = self;
+  
+    [self.nativeLoader loadAd];
+}
+
+RCT_EXPORT_METHOD(setNativeMutedEnabled:(BOOL)enabled) {
+    if (self.nativeLoader) {
+        self.nativeLoader.isStartVideoMuted = enabled;
+    }
+}
+
+RCT_EXPORT_METHOD(setNativeAdChoisesPlacement:(long)adChoicesPlacement) {
+    if (self.nativeLoader) {
+        self.nativeLoader.adChoicesPlacement = RNCASChoicesPlacementFromLong(adChoicesPlacement);
+    }
+}
+
+RCT_EXPORT_METHOD(destroyNative) {
+    if (self.nativeAdContent) {
+        [self.nativeAdContent destroy];
+        self.nativeAdContent = nil;
+    }
+  
+    if (self.nativeLoader) {
+        self.nativeLoader = nil;
+        self.nativeLoader = [[CASNativeLoader alloc] initWithCasID:_casIdentifier];
+        self.nativeLoader.delegate = self;
+    }
+}
+
 #pragma mark - CASScreenContentDelegate
 
 - (void)screenAdDidLoadContent:(id<CASScreenContent>)ad {
@@ -564,6 +614,35 @@ RCT_EXPORT_METHOD(destroyRewarded) {
     }
 }
 
+#pragma mark - CASNativeAdDelegate
+
+- (void)nativeAdDidLoadContent:(CASNativeAdContent * _Nonnull)ad {
+    if (!self.hasListeners) {
+      return;
+    }
+    ad.delegate = self;
+    ad.impressionDelegate = self;
+    self.nativeAdContent = ad;
+  
+    [[RNCASNativeAdHolder shared] setAd:ad];
+
+    [self sendEventWithName:kOnNativeAdLoaded body:nil];
+}
+
+- (void)nativeAd:(CASNativeAdContent *)ad didFailToLoadWithError:(CASError *)error {
+    if (!self.hasListeners) {
+      return;
+    }
+    [self sendAdEvent:kOnNativeAdFailedToLoad withError:error];
+}
+
+- (void)nativeAdDidClick:(CASNativeAdContent *)ad {
+    if (!self.hasListeners) {
+      return;
+    }    
+    [self sendEventWithName:kOnNativeAdClicked body:nil];
+}
+
 #pragma mark - CASImpressionDelegate
 
 - (void)adDidRecordImpressionWithInfo:(CASContentInfo *_Nonnull)info {
@@ -579,6 +658,8 @@ RCT_EXPORT_METHOD(destroyRewarded) {
         [self sendEventWithName:kOnRewardedImpression body:impressionData];
     } else if ([info.format isEqual:CASFormat.appOpen]) {
         [self sendEventWithName:kOnAppOpenImpression body:impressionData];
+    } else if ([info.format isEqual:CASFormat.native]) {
+        [self sendEventWithName:kOnNativeAdImpression body:impressionData];
     }
 }
 
@@ -632,5 +713,19 @@ CASSize * RNCASSizeWithType(unichar sizeType, CGFloat maxWidth, CGFloat maxHeigh
                                                  maxHeight:maxHeight];
 
         default: return CASSize.banner;
+    }
+}
+
+CASChoicesPlacement RNCASChoicesPlacementFromLong(long value) {
+    switch (value) {
+        case 0: return CASChoicesPlacementTopLeft;
+        
+        case 1: return CASChoicesPlacementTopRight;
+        
+        case 2: return CASChoicesPlacementBottomRight;
+        
+        case 3: return CASChoicesPlacementBottomLeft;
+        
+        default: return CASChoicesPlacementTopRight;
     }
 }
