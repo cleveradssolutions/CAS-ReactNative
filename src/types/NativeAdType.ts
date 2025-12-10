@@ -25,7 +25,7 @@ export type NativeAdLoaderType = {
    * - `addAdLoadedEventListener` on success
    * - `addAdFailedToLoadEventListener` on failure
    */
-  loadAd: (maxNumberOfAds: number) => void;
+  loadAds: (maxNumberOfAds: number) => void;
 
   /**
    * Enables or disables native ad muting (UI and audio behavior).
@@ -134,7 +134,7 @@ export type NativeTemplateFontStyle = 'normal' | 'bold' | 'italic' | 'monospace'
  * to control how the native ad is displayed on the screen.
  */
 export interface NativeAdViewProps {
-  instanceId: number;
+  ad: NativeAdType;
   /**
    * Desired width of the native ad view.
    * If not provided, the view will attempt to size itself based on template or parent layout.

@@ -11,7 +11,7 @@ const enum NativeAdEvent {
 }
 
 export const NativeAdLoader: NativeAdLoaderType = {
-  loadAd: CASMobileAdsNative.loadNativeAd,
+  loadAds: CASMobileAdsNative.loadNativeAd,
   setNativeMutedEnabled: CASMobileAdsNative.setNativeMutedEnabled,
   setNativeAdChoicesPlacement: (placement: AdChoicesPlacement) => {
     CASMobileAdsNative.setNativeAdChoicesPlacement(Number(placement));

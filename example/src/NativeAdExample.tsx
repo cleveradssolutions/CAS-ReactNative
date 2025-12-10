@@ -31,7 +31,7 @@ export default function NativeAdExample() {
     });
     
     // Auto Load
-    NativeAdLoader.loadAd(1);
+    NativeAdLoader.loadAds(1);
 
     return () => {
       unsubscribeLoaded();
@@ -75,7 +75,7 @@ export default function NativeAdExample() {
         {loadedAd ? (
           <NativeAdView
             ref={nativeRef}
-            instanceId={loadedAd.instanceId}
+            ad={loadedAd}
             width={320}
             height={320}
             backgroundColor ={'#ffffffff'}
