@@ -1,87 +1,90 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import AppButton from './components/AppButton';
-import { NativeAd, type AdError, type AdContentInfo, NativeAdView, AdChoicesPlacement } from 'react-native-cas';
+import { NativeAdLoader, NativeAdView, AdChoicesPlacement, NativeAdViewRef, NativeAdType, AdError, AdContentInfo } from 'react-native-cas';
 
 export default function NativeAdExample() {
-  const [loaded, setLoaded] = useState(false);  
+  const [loadedAd, setLoadedAd] = useState<NativeAdType | null>(null);
   const [muted, setMuted] = useState(false);
-  const [placement, setPlacement] = useState(AdChoicesPlacement.topRightCorner);
+  const [placement, setPlacement] = useState<AdChoicesPlacement>(AdChoicesPlacement.topRightCorner);
 
+  const nativeRef = useRef<NativeAdViewRef>(null);
 
-  const [loadedAd, setLoadedAd] = useState();
-  var ad;
-
-  useEffect(() => {
-    const unsubscribeLoaded = NativeAd.addAdLoadedEventListener((ad) => {
-      console.log('Native Ad loaded');
-      this.ad = ad;
-      setLoaded(true);      
+  useEffect(() => {    
+    // Events
+    const unsubscribeLoaded = NativeAdLoader.addAdLoadedEventListener((ad: NativeAdType) => {
+      console.log('Native Ad loaded', ad.instanceId);
+      setLoadedAd(ad);
     });
 
-    const unsubscribeLoadFailed = NativeAd.addAdFailedToLoadEventListener((e: AdError) => {
+    const unsubscribeLoadFailed = NativeAdLoader.addAdFailedToLoadEventListener((e: AdError) => {
       console.log('Native Ad failed to load', e);
-      setLoaded(false);      
+      setLoadedAd(null);
     });
 
-    const unsubscribeClicked = NativeAd.addAdClickedEventListener(() => {
+    const unsubscribeClicked = NativeAdLoader.addAdClickedEventListener(() => {
       console.log('Native Ad clicked');
     });
 
-    const unsubscribeImpression = NativeAd.addAdImpressionEventListener((info: AdContentInfo) => {
+    const unsubscribeImpression = NativeAdLoader.addAdImpressionEventListener((info: AdContentInfo) => {
       console.log('Native Ad impression', info);
-    });        
-
-    NativeAd.loadAd();
+    });
+    
+    // Auto Load
+    NativeAdLoader.loadAd(1);
 
     return () => {
       unsubscribeLoaded();
       unsubscribeLoadFailed();
       unsubscribeClicked();
-      unsubscribeImpression();      
+      unsubscribeImpression();
 
-      NativeAd.destroyAd();
+      if (loadedAd) {
+        loadedAd.destroyAd();        
+      }
     };
   }, []);
 
+  // Buttons
   const onPressLoadButton = () => {
-    NativeAd.loadAd();
+    NativeAdLoader.loadAd(1);
   };
 
   const onToggleMute = () => {
-    NativeAd.setNativeMutedEnabled(!muted);
+    NativeAdLoader.setNativeMutedEnabled(!muted);
     setMuted(!muted);
   };
 
   const onChangePlacement = () => {
     const next = (placement + 1) % 4;
-    NativeAd.setNativeAdChoisesPlacement(next);
+    NativeAdLoader.setNativeAdChoicesPlacement(next);
     setPlacement(next);
   };
-
 
   return (
     <View style={S.screen}>
       <View style={S.card}>
         <Text style={S.title}>Native Ad</Text>
-         <View style={S.row}>
+
+        <View style={S.row}>
           <AppButton title="Reload" onPress={onPressLoadButton} />
           <AppButton title={muted ? 'Unmute' : 'Mute'} onPress={onToggleMute} />
           <AppButton title="Change AdChoices" onPress={onChangePlacement} />
         </View>
-        {loaded ? (
+
+        {loadedAd ? (
           <NativeAdView
+            ref={nativeRef}
+            instanceId={loadedAd.instanceId}
             width={320}
-            height={320}            
-            templateStyle={{
-              backgroundColor: '#ffffffff',
-              primaryColor: '#ff0000ff',
-              primaryTextColor: '#0066FF',
-              headlineTextColor: '#84ff00ff',
-              headlineFontStyle: 'bold',
-              secondaryTextColor: '#cccccc',
-              secondaryFontStyle: 'medium', // normal | bold | italic | monospace
-            }}
+            height={320}
+            backgroundColor ={'#ffffffff'}
+            primaryColor={'#ff0000ff'}
+            primaryTextColor={'#0066FF'}
+            headlineTextColor={'#84ff00ff'}
+            headlineFontStyle={'bold'}
+            secondaryTextColor={'#cccccc'}
+            secondaryFontStyle={'medium'} // normal | bold | italic | monospace            
           />
         ) : (
           <Text style={S.info}>Loading native ad...</Text>
