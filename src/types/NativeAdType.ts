@@ -19,8 +19,10 @@ import type { AdError, AdContentInfo } from './AdContent';
 
 export type NativeAdLoaderType = {
   /**
-   * Manually retries loading the native ad.
-   *
+   * Manually retries loading multiple native ads with a specified maximum number.
+   * This method allows you to request multiple native ads in one load operation. It is not guaranteed that the exact
+   * number of ads requested will be returned. 
+   * 
    * The ad view will try to fetch a new ad and will trigger:
    * - `addAdLoadedEventListener` on success
    * - `addAdFailedToLoadEventListener` on failure
@@ -73,7 +75,7 @@ export type NativeAdLoaderType = {
   addAdImpressionEventListener(l: (info: AdContentInfo) => void): () => void;
 
   /**
-   * Fired when show a native ad fails.
+   * Fired when showing a native ad fails.
    *
    * @param error - detailed error object.
    * @returns a disposer function to remove the listener.
@@ -128,32 +130,12 @@ export enum AdChoicesPlacement {
 export type NativeTemplateFontStyle = 'normal' | 'bold' | 'italic' | 'monospace';
 
 /**
- * Props for the NativeAdView component.
+ * Defines customizable appearance options for native ad templates.
+ * You can use these values to match the ad appearance to your application's theme.
  *
- * Defines size constraints and optional template styling
- * to control how the native ad is displayed on the screen.
+ * Colors are expected in hex string format (e.g., `#RRGGBB` or `#RRGGBBAA`).
  */
-export interface NativeAdViewProps {
-  ad: NativeAdType;
-  /**
-   * Desired width of the native ad view.
-   * If not provided, the view will attempt to size itself based on template or parent layout.
-   */
-  width?: number;
-
-  /**
-   * Desired height of the native ad view.
-   * If not provided, height will match the internal template layout.
-   */
-  height?: number;
-
-
-  /**
-   * Defines customizable appearance options for native ad templates.
-   * You can use these values to match the ad appearance to your application's theme.
-   *
-   * Colors are expected in hex string format (e.g., `#RRGGBB` or `#RRGGBBAA`).
-  */
+export interface NativeTemplateStyle {
   /**
    * Background color of the entire native ad container.
    */
@@ -188,6 +170,39 @@ export interface NativeAdViewProps {
    * Font style applied to secondary text elements.
    */
   secondaryFontStyle?: NativeTemplateFontStyle;
+}
+
+/**
+ * Props for the NativeAdView component.
+ *
+ * Defines size constraints and optional template styling
+ * to control how the native ad is displayed on the screen.
+ */
+export interface NativeAdViewProps {
+  ad: NativeAdType;
+  /**
+   * Desired width of the native ad view.
+   * If not provided, the view will attempt to size itself based on template or parent layout.
+   */
+  width?: number;
+
+  /**
+   * Desired height of the native ad view.
+   * If not provided, height will match the internal template layout.
+   */
+  height?: number;
+
+  /**
+   * Template configuration passed to native platforms.
+   *
+   * Can define:
+   * - background colors
+   * - text styles
+   * - CTA button style
+   * - optional rounded corners
+   * - predefined layout presets
+   */
+  templateStyle?: NativeTemplateStyle;
 
   /**
    * Optional React Native style for wrapping layout.

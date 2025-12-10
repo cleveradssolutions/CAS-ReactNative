@@ -15,7 +15,7 @@
  */
 
 import type { ColorValue, HostComponent, ViewProps } from 'react-native';
-import type { Int32 } from 'react-native/Libraries/Types/CodegenTypes';
+import type { Int32, WithDefault } from 'react-native/Libraries/Types/CodegenTypes';
 import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
 
 export interface NativeProps extends ViewProps {
@@ -25,10 +25,10 @@ export interface NativeProps extends ViewProps {
   backgroundColor?: ColorValue;
   primaryColor?: ColorValue;
   primaryTextColor?: ColorValue;
-  headlineTextColor?: ColorValue;
-  headlineFontStyle?: string;
-  secondaryTextColor?: ColorValue;
-  secondaryFontStyle?: string;
+  headlineTextColor?: ColorValue;  
+  secondaryTextColor?: ColorValue; 
+  headlineFontStyle?: WithDefault<string, ''>;
+  secondaryFontStyle?: WithDefault<string, ''>;
 }
 
 /**
