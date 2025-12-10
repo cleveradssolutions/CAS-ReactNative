@@ -728,27 +728,8 @@ CASChoicesPlacement RNCASChoicesPlacementFromLong(long value) {
   }
 }
 
-CASSize *RNCASResolveAdSize(CGFloat width, CGFloat height) {
-  CGFloat w = width ? width : 0;
-  CGFloat h = height ? height : 0;
-  
-  // 1: width + height
-  if (w > 0 && h > 0) {
-    return [CASSize getInlineBannerWithWidth:w maxHeight:h];
-  }
-  
-  // 2: width
-  if (w > 0) {
-    // Adaptive minimal 300
-    if (w < 300) w = 300;
-    return [CASSize getAdaptiveBannerForMaxWidth:w];
-  }
-  
-  // 3: (no width, no height)
-  return CASSize.mediumRectangle;
-}
-
-UIFont *RNCASFontForStyle(NSString *style, CGFloat size) {
+UIFont *RNCASFontForStyle(NSString *style, UILabel *label) {
+  CGFloat size = label.font.pointSize;
   if (!style) return [UIFont systemFontOfSize:size];
   
   NSString *s = style.lowercaseString;

@@ -7,8 +7,9 @@
 #import "RNCASNativeAdViewComponent.h"
 
 
-@interface RNCASNativeAdViewComponent ()
+@interface RNCASNativeAdViewComponent () 
 @property (nonatomic, strong, nullable) CASNativeView *nativeView;
+@property (nonatomic, assign) int appliedInstanceId;
 @end
 
 @implementation RNCASNativeAdViewComponent
@@ -20,31 +21,35 @@
 }
 
 - (void)didSetProps:(NSArray<NSString *> *)changedProps {
-        
-  if (self.nativeView != nil) return;
-  
-  CASNativeAdContent *ad = [[RNCASNativeAdStore shared] findNativeAdWithId:@(self.instanceId)];
 
-  if (!ad) return;
-  
-  self.nativeView = [[CASNativeView alloc] initWithFrame:CGRectZero];
-  
-  // Set size
-  CASSize *adSize = RNCASResolveAdSize(self.width, self.height);
+  // Create Native View if nedded
+  if (!self.nativeView) {
+    self.nativeView = [[CASNativeView alloc] initWithFrame:CGRectZero];
+
+    self.nativeView.translatesAutoresizingMaskIntoConstraints = YES;
+    [self addSubview:_nativeView];
+  }
+
+  // Refresh template Size
+  // setAdTemplateSize can be called multiple times for same ad size with zero performance
+  // drop
+  CASSize *adSize = [CASSize getInlineBannerWithWidth:self.width maxHeight:self.height];
   [self.nativeView setAdTemplateSize:adSize];
-  
-  // Add view
-  self.nativeView.translatesAutoresizingMaskIntoConstraints = YES;
-  [self addSubview:self.nativeView];
 
-  // Set ad
-  [self.nativeView setNativeAd:ad];
-  
+  // Refresh Native Ad if changed only
+  if (self.appliedInstanceId != self.instanceId) {
+    self.appliedInstanceId = self.instanceId;
+    CASNativeAdContent *ad =
+        [[RNCASNativeAdStore shared] findNativeAdWithId:@(self.instanceId)];
+
+    [self.nativeView setNativeAd:ad];
+  }
+
   // Set styles
-  [self applyTemplateStyle:self.nativeView];
+  [self applyTemplateStyleToView:self.nativeView];
 }
 
-- (void)applyTemplateStyle:(CASNativeView *)nativeView {
+- (void)applyTemplateStyleToView:(CASNativeView *)nativeView {
   if (self.backgroundColor) {
     nativeView.backgroundColor = self.backgroundColor;
   }
@@ -62,45 +67,56 @@
     if (nativeView.priceView) nativeView.priceView.textColor = self.secondaryTextColor;
     if (nativeView.reviewCountView) nativeView.reviewCountView.textColor = self.secondaryTextColor;
   }
-  
+
   // Primary text: call to action (CTA)
-  if (self.primaryTextColor && nativeView.callToActionView) {
-    [nativeView.callToActionView setTitleColor: self.primaryTextColor forState:UIControlStateNormal];
-  }
-  
-  // Primary background — CTA background color
-  if (self.primaryColor && nativeView.callToActionView && nativeView.callToActionView) {
-    UIButtonConfiguration *config = nativeView.callToActionView.configuration;
-    if (!config) {
-      config = [UIButtonConfiguration filledButtonConfiguration];
+  UIButton *button = self.nativeView.callToActionView;
+  if (button) {
+    if (@available(iOS 15.0, *)) {
+      UIButtonConfiguration *config = button.configuration;
+      if (config) {
+        if (self.primaryColor != nil) {
+          config.baseBackgroundColor = self.primaryColor;
+        }
+        if (self.primaryTextColor != nil) {
+          config.baseForegroundColor = self.primaryTextColor;
+        }
+
+        button.configuration = config;
+        [button setNeedsUpdateConfiguration];
+      }
+    } else {
+      if (self.primaryColor != nil) {
+        button.backgroundColor = self.primaryColor;
+      }
+      if (self.primaryTextColor != nil) {
+        [button setTitleColor:self.primaryTextColor forState:UIControlStateNormal];
+      }
     }
-    config.baseBackgroundColor = self.primaryColor;
-    nativeView.callToActionView.configuration = config;
   }
-  
+
   // Fonts // bold | italic | monospace | medium etc
   NSString *headlineFontStyle = self.headlineFontStyle;
   NSString *secondaryFontStyle = self.secondaryFontStyle;
   
   if (headlineFontStyle && nativeView.headlineView) {
-    nativeView.headlineView.font = RNCASFontForStyle(headlineFontStyle, nativeView.headlineView.font.pointSize);
+    nativeView.headlineView.font = RNCASFontForStyle(headlineFontStyle, nativeView.headlineView);
   }
   
   if (secondaryFontStyle) {
     if (nativeView.bodyView) {
-      nativeView.bodyView.font = RNCASFontForStyle(secondaryFontStyle, nativeView.bodyView.font.pointSize);
+      nativeView.bodyView.font = RNCASFontForStyle(secondaryFontStyle, nativeView.bodyView);
     }
     if (nativeView.storeView) {
-      nativeView.storeView.font = RNCASFontForStyle(secondaryFontStyle, nativeView.storeView.font.pointSize);
+      nativeView.storeView.font = RNCASFontForStyle(secondaryFontStyle, nativeView.storeView);
     }
     if (nativeView.priceView) {
-      nativeView.priceView.font = RNCASFontForStyle(secondaryFontStyle, nativeView.priceView.font.pointSize);
+      nativeView.priceView.font = RNCASFontForStyle(secondaryFontStyle, nativeView.priceView);
     }
     if (nativeView.advertiserView) {
-      nativeView.advertiserView.font = RNCASFontForStyle(secondaryFontStyle, nativeView.advertiserView.font.pointSize);
+      nativeView.advertiserView.font = RNCASFontForStyle(secondaryFontStyle, nativeView.advertiserView);
     }
     if (nativeView.reviewCountView) {
-      nativeView.reviewCountView.font = RNCASFontForStyle(secondaryFontStyle, nativeView.reviewCountView.font.pointSize);
+      nativeView.reviewCountView.font = RNCASFontForStyle(secondaryFontStyle, nativeView.reviewCountView);
     }
   }
 }

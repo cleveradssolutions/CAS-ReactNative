@@ -12,8 +12,8 @@ RCT_EXPORT_MODULE(CASNativeAdView)
 
 // Export props
 RCT_EXPORT_VIEW_PROPERTY(instanceId, NSInteger)
-RCT_EXPORT_VIEW_PROPERTY(width, NSInteger)
-RCT_EXPORT_VIEW_PROPERTY(height, NSInteger)
+RCT_EXPORT_VIEW_PROPERTY(width, CGFloat)
+RCT_EXPORT_VIEW_PROPERTY(height, CGFloat)
 
 // Export types
 RCT_EXPORT_VIEW_PROPERTY(backgroundColor, UIColor)
