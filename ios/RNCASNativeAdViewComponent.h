@@ -15,8 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) NSInteger instanceId;
 
 // ad view size
-@property (nonatomic, assign) NSInteger width;
-@property (nonatomic, assign) NSInteger height;
+@property (nonatomic, assign) CGFloat width;
+@property (nonatomic, assign) CGFloat height;
 
 // Colors
 @property (nonatomic, strong, nullable) UIColor *backgroundColor;

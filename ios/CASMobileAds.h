@@ -21,8 +21,7 @@ NSDictionary * RNCASNSDictionaryFromContentInfo(CASContentInfo *info);
 NSString * RNCASNSStringFromRevenuePresision(CASRevenuePrecision precision);
 CASSize * RNCASSizeWithType(unichar sizeType, CGFloat maxWidth, CGFloat maxHeight);
 CASChoicesPlacement RNCASChoicesPlacementFromLong(long value);
-CASSize *RNCASResolveAdSize(CGFloat width, CGFloat height);
-UIFont *RNCASFontForStyle(NSString *style, CGFloat size);
+UIFont *RNCASFontForStyle(NSString *style, UILabel *label);
 
 #define kOnAppOpenLoaded            @"onAppOpenLoaded"
 #define kOnAppOpenLoadFailed        @"onAppOpenFailedToLoad"
