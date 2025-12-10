@@ -106,7 +106,8 @@
       "podName": "react-native-cas",
       "moduleName": "CASMobileAds",
       "componentProvider": {
-        "CASAdView": "RNCASBannerAdView"
+        "CASAdView": "RNCASBannerAdView",
+        "CASNativeAdView": "RNCASNativeAdView"
       }
     },
     "android": {

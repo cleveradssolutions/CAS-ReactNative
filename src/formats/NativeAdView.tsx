@@ -1,5 +1,5 @@
 import React, { forwardRef, useRef } from 'react';
-import { useWindowDimensions, NativeSyntheticEvent, ViewProps, PlatformColor } from 'react-native';
+import { useWindowDimensions, ViewProps } from 'react-native';
 
 import type { NativeAdViewProps, NativeAdViewRef } from '../types/NativeAdType';
 
@@ -12,23 +12,23 @@ import CASNativeAdViewComponent from '../modules/NativeCASNativeAdViewComponent'
  * to the underlying native component instance.
  */
 export const NativeAdView = forwardRef<NativeAdViewRef, NativeAdViewProps & ViewProps>(
-  function NativeAdView({ ad, width, height, templateStyle, style, ...otherProps }, ref) {
+  function NativeAdView({ instanceId, width, height, backgroundColor, primaryColor, primaryTextColor, headlineTextColor, headlineFontStyle, secondaryTextColor, secondaryFontStyle, style}, _) {
     const adViewRef = useRef(null);
     const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
     return (
       <CASNativeAdViewComponent
         ref={adViewRef}
-        instanceId={ad.instanceId}
+        instanceId={instanceId}
         width={Math.min(width ?? screenWidth, screenWidth)}
         height={Math.min(height ?? screenHeight, screenHeight)}
-        backgroundColor={templateStyle?.backgroundColor}
-        primaryColor={templateStyle?.primaryColor}
-        primaryTextColor={templateStyle?.primaryTextColor}
-        headlineTextColor={templateStyle?.headlineTextColor}
-        headlineFontStyle={templateStyle?.headlineFontStyle}
-        secondaryTextColor={templateStyle?.secondaryTextColor}
-        secondaryFontStyle={templateStyle?.secondaryFontStyle}
+        backgroundColor={backgroundColor}
+        primaryColor={primaryColor}
+        primaryTextColor={primaryTextColor}
+        headlineTextColor={headlineTextColor}
+        headlineFontStyle={headlineFontStyle}
+        secondaryTextColor={secondaryTextColor}
+        secondaryFontStyle={secondaryFontStyle}
         style={style}
       />
     );

@@ -7,13 +7,14 @@ const enum NativeAdEvent {
   FAILED_TO_LOAD = 'onNativeAdFailedToLoad',
   CLICKED = 'onNativeAdClicked',
   IMPRESSION = 'onNativeAdImpression',
+  FAILED_TO_SHOW = 'onNativeAdFailedToShow',
 }
 
 export const NativeAdLoader: NativeAdLoaderType = {
   loadAd: CASMobileAdsNative.loadNativeAd,
   setNativeMutedEnabled: CASMobileAdsNative.setNativeMutedEnabled,
-  setNativeAdChoisesPlacement: (placement: AdChoicesPlacement) => {
-    CASMobileAdsNative.setNativeAdChoisesPlacement(Number(placement));
+  setNativeAdChoicesPlacement: (placement: AdChoicesPlacement) => {
+    CASMobileAdsNative.setNativeAdChoicesPlacement(Number(placement));
   },
 
   addAdLoadedEventListener: l =>
@@ -27,4 +28,5 @@ export const NativeAdLoader: NativeAdLoaderType = {
   addAdFailedToLoadEventListener: l => addAdEventListener(NativeAdEvent.FAILED_TO_LOAD, l),
   addAdClickedEventListener: l => addAdEventListener(NativeAdEvent.CLICKED, l),
   addAdImpressionEventListener: l => addAdEventListener(NativeAdEvent.IMPRESSION, l),
+  addAdFailedToShowEventListener: l => addAdEventListener(NativeAdEvent.FAILED_TO_SHOW, l),
 };

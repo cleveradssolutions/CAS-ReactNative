@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import type * as React from 'react';
 import type { ColorValue, HostComponent, ViewProps } from 'react-native';
 import type { Int32 } from 'react-native/Libraries/Types/CodegenTypes';
 import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
