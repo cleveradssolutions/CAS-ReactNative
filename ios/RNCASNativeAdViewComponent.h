@@ -1,0 +1,36 @@
+#import <CleverAdsSolutions/CleverAdsSolutions-Swift.h>
+#import <Foundation/Foundation.h>
+#import <React/RCTView.h>
+#import <UIKit/UIKit.h>
+
+#ifndef RNCASNativeAdViewComponent_h
+#define RNCASNativeAdViewComponent_h
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface RNCASNativeAdViewComponent : RCTView
+
+// MARK: - Properties are updated from RN layer via the view manager
+
+@property (nonatomic, assign) NSInteger instanceId;
+
+// ad view size
+@property (nonatomic, assign) NSInteger width;
+@property (nonatomic, assign) NSInteger height;
+
+// Colors
+@property (nonatomic, strong, nullable) UIColor *backgroundColor;
+@property (nonatomic, strong, nullable) UIColor *primaryColor;
+@property (nonatomic, strong, nullable) UIColor *primaryTextColor;
+@property (nonatomic, strong, nullable) UIColor *headlineTextColor;
+@property (nonatomic, strong, nullable) UIColor *secondaryTextColor;
+
+// Font style
+@property (nonatomic, copy, nullable) NSString *headlineFontStyle;
+@property (nonatomic, copy, nullable) NSString *secondaryFontStyle;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif /* RNCASNativeAdViewComponent_h */

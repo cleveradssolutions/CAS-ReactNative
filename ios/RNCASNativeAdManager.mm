@@ -1,0 +1,37 @@
+#ifndef RCT_NEW_ARCH_ENABLED
+#import "RNCASNativeAdView.h"
+#import <React/RCTViewManager.h>
+#import "RNCASNativeAdViewComponent.h"
+
+@interface RNCASNativeAdManager : RCTViewManager
+@end
+
+@implementation RNCASNativeAdManager
+
+RCT_EXPORT_MODULE(CASNativeAdView)
+
+// Export props
+RCT_EXPORT_VIEW_PROPERTY(instanceId, NSInteger)
+RCT_EXPORT_VIEW_PROPERTY(width, NSInteger)
+RCT_EXPORT_VIEW_PROPERTY(height, NSInteger)
+
+// Export types
+RCT_EXPORT_VIEW_PROPERTY(backgroundColor, UIColor)
+RCT_EXPORT_VIEW_PROPERTY(primaryColor, UIColor)
+RCT_EXPORT_VIEW_PROPERTY(primaryTextColor, UIColor)
+RCT_EXPORT_VIEW_PROPERTY(headlineTextColor, UIColor)
+RCT_EXPORT_VIEW_PROPERTY(headlineFontStyle, NSString)
+RCT_EXPORT_VIEW_PROPERTY(secondaryTextColor, UIColor)
+RCT_EXPORT_VIEW_PROPERTY(secondaryFontStyle, NSString)
+
+- (UIView *)view {
+  RNCASNativeAdViewComponent *view = [RNCASNativeAdViewComponent new];
+  return view;
+}
+
+- (dispatch_queue_t)methodQueue {
+  return dispatch_get_main_queue();
+}
+
+@end
+#endif

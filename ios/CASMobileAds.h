@@ -13,8 +13,6 @@
 @interface CASMobileAds : RCTEventEmitter <RCTBridgeModule, CASScreenContentDelegate, CASImpressionDelegate>
 #endif
 
-@property(class, nonatomic, strong, readonly) CASMobileAds *shared;
-
 @property (class, readonly, copy) NSString *casIdendifier;
 
 @end
@@ -23,6 +21,8 @@ NSDictionary * RNCASNSDictionaryFromContentInfo(CASContentInfo *info);
 NSString * RNCASNSStringFromRevenuePresision(CASRevenuePrecision precision);
 CASSize * RNCASSizeWithType(unichar sizeType, CGFloat maxWidth, CGFloat maxHeight);
 CASChoicesPlacement RNCASChoicesPlacementFromLong(long value);
+CASSize *RNCASResolveAdSize(CGFloat width, CGFloat height);
+UIFont *RNCASFontForStyle(NSString *style, CGFloat size);
 
 #define kOnAppOpenLoaded            @"onAppOpenLoaded"
 #define kOnAppOpenLoadFailed        @"onAppOpenFailedToLoad"
@@ -53,3 +53,4 @@ CASChoicesPlacement RNCASChoicesPlacementFromLong(long value);
 #define kOnNativeAdFailedToLoad     @"onNativeAdFailedToLoad"
 #define kOnNativeAdImpression       @"onNativeAdImpression"
 #define kOnNativeAdClicked          @"onNativeAdClicked"
+#define kOnNativeAdFailedToShow     @"onNativeAdFailedToShow"

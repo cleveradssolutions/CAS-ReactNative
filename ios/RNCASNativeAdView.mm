@@ -1,151 +1,176 @@
-#import "UIKit/UIKit.h"
+#ifdef RCT_NEW_ARCH_ENABLED
+#import "CASMobileAds.h"
 #import "RNCASNativeAdView.h"
-#import "RNCASNativeAdHolder.h"
-#import <React/RCTConvert.h>
+#import "RNCASNativeAdStore.h"
 #import <CleverAdsSolutions/CleverAdsSolutions-Swift.h>
+
+#import <React/RCTConversions.h>
+#import "RCTFabricComponentsPlugins.h"
+
+#import <react/renderer/components/RNCASMobileAdsSpec/ComponentDescriptors.h>
+#import <react/renderer/components/RNCASMobileAdsSpec/Props.h>
+#import <react/renderer/components/RNCASMobileAdsSpec/RCTComponentViewHelpers.h>
+
+using namespace facebook::react;
+
+@interface RNCASNativeAdView () <RCTCASNativeAdViewViewProtocol>
+@property (nonatomic, strong, nullable) CASNativeView *nativeView;
+@end
 
 @implementation RNCASNativeAdView
 
-- (void)didMoveToWindow {
-  [super didMoveToWindow];
++ (ComponentDescriptorProvider)componentDescriptorProvider {
+    return concreteComponentDescriptorProvider<CASNativeAdViewComponentDescriptor>();
 }
 
-- (void)layoutSubviews {
-  [super layoutSubviews];
-  [self loadAdIntoView];
+/// Order of function calls
+/// 1. `initWithFrame` – creation of the container
+/// 2. `updateProps` – updating parameters when ``CASNativeAdViewProps`` change
+/// 3. `prepareForRecycle` – when the view is unmounted
+/// 4. After that, the same container can be reused for another mount, starting from step 2.
+/// Recycle enabled by default and can be disabled by function:
+/// ```
+/// + (BOOL)shouldBeRecycled {
+///   return NO;
+/// }
+/// ```
+- (instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
+        static const auto defaultProps = std::make_shared<const CASNativeAdViewProps>();
+        _props = defaultProps;
+    }
+  
+    return self;
 }
 
-- (void)loadAdIntoView {
-  CASNativeAdContent *ad = [[RNCASNativeAdHolder shared] getAd];
+- (void)updateProps:(const Props::Shared &)props oldProps:(const Props::Shared &)oldProps {
+  const auto &newProps = *std::static_pointer_cast<CASNativeAdViewProps const>(props);
+
+  if (self.nativeView != nil) return;
+  
+  CASNativeAdContent *ad = [[RNCASNativeAdStore shared] findNativeAdWithId:@(newProps.instanceId)];
+  
   if (!ad) return;
   
-  CASNativeView *nativeView = [[CASNativeView alloc] initWithFrame:CGRectZero];
+  self.nativeView = [[CASNativeView alloc] initWithFrame:CGRectZero];
   
   // Set size
-  CASSize *adSize = [self resolveAdSize];
-  [nativeView setAdTemplateSize:adSize];
+  NSInteger width = static_cast<NSInteger>(newProps.width);
+  NSInteger height = static_cast<NSInteger>(newProps.height);
+  CASSize *adSize = RNCASResolveAdSize(width, height);
+  [self.nativeView setAdTemplateSize:adSize];
   
-  [self addSubview:nativeView];
-  nativeView.translatesAutoresizingMaskIntoConstraints = NO;
-  
-  [NSLayoutConstraint activateConstraints:@[
-    [nativeView.topAnchor constraintEqualToAnchor:self.topAnchor],
-    [nativeView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor],
-    [nativeView.leadingAnchor constraintEqualToAnchor:self.leadingAnchor],
-    [nativeView.trailingAnchor constraintEqualToAnchor:self.trailingAnchor]
-  ]];
+  // Add view
+  self.nativeView.translatesAutoresizingMaskIntoConstraints = YES;
+  [self addSubview:_nativeView];
   
   // Set ad
-  [nativeView setNativeAd:ad];
+  [self.nativeView setNativeAd:ad];
   
-  [self applyTemplateStyle:self.templateStyle to:nativeView];
-}
-
-- (CASSize *)resolveAdSize {
-  CGFloat w = self.width ? self.width.floatValue : 0;
-  CGFloat h = self.height ? self.height.floatValue : 0;
+  // Set styles
   
-  // 1: width + height
-  if (w > 0 && h > 0) {
-    return [CASSize getInlineBannerWithWidth:w maxHeight:h];
-  }
-  
-  // 2: width
-  if (w > 0) {
-    // Adaptive minimal 300
-    if (w < 300) w = 300;
-    return [CASSize getAdaptiveBannerForMaxWidth:w];
-  }
-  
-  // 3: (no width, no height)
-  return CASSize.mediumRectangle;
-}
-
-- (void)applyTemplateStyle:(NSDictionary *)style to:(CASNativeView *)nativeView {
-  if (!style) return;
-  
-  // Colors
-  UIColor *backgroundColor = [self colorFromHexString: style[@"backgroundColor"]];
-  UIColor *primaryColor = [self colorFromHexString: style[@"primaryColor"]];
-  UIColor *primaryTextColor = [self colorFromHexString: style[@"primaryTextColor"]];
-  UIColor *headlineTextColor = [self colorFromHexString: style[@"headlineTextColor"]];
-  UIColor *secondaryTextColor = [self colorFromHexString: style[@"secondaryTextColor"]];
-  
-  if (backgroundColor) {
-    nativeView.backgroundColor = backgroundColor;
+  // Background
+  if (newProps.backgroundColor) {
+    self.nativeView.backgroundColor = RCTUIColorFromSharedColor(newProps.backgroundColor);
   }
   
   // Headline
-  if (headlineTextColor && nativeView.headlineView) {
-    nativeView.headlineView.textColor = headlineTextColor;
+  if (newProps.headlineTextColor && self.nativeView.headlineView) {
+    self.nativeView.headlineView.textColor = RCTUIColorFromSharedColor(newProps.headlineTextColor);
   }
   
   // Secondary text: body, advertiser, store, price, reviewCount
-  if (secondaryTextColor) {
-    if (nativeView.bodyView) nativeView.bodyView.textColor = secondaryTextColor;
-    if (nativeView.advertiserView) nativeView.advertiserView.textColor = secondaryTextColor;
-    if (nativeView.storeView) nativeView.storeView.textColor = secondaryTextColor;
-    if (nativeView.priceView) nativeView.priceView.textColor = secondaryTextColor;
-    if (nativeView.reviewCountView) nativeView.reviewCountView.textColor = secondaryTextColor;
+  if (newProps.secondaryTextColor) {
+    if (self.nativeView.bodyView) {
+      self.nativeView.bodyView.textColor = RCTUIColorFromSharedColor(newProps.secondaryTextColor);
+    }
+    if (self.nativeView.advertiserView) {
+      self.nativeView.advertiserView.textColor = RCTUIColorFromSharedColor(newProps.secondaryTextColor);
+    }
+    if (self.nativeView.storeView) {
+      self.nativeView.storeView.textColor = RCTUIColorFromSharedColor(newProps.secondaryTextColor);
+    }
+    if (self.nativeView.priceView) {
+      self.nativeView.priceView.textColor = RCTUIColorFromSharedColor(newProps.secondaryTextColor);
+    }
+    if (self.nativeView.reviewCountView) {
+      self.nativeView.reviewCountView.textColor = RCTUIColorFromSharedColor(newProps.secondaryTextColor);
+    }
   }
   
   // Primary text: call to action (CTA)
-  if (primaryTextColor && nativeView.callToActionView) {
-    [nativeView.callToActionView setTitleColor:primaryTextColor forState:UIControlStateNormal];
+  if (newProps.primaryTextColor && self.nativeView.callToActionView) {
+    [self.nativeView.callToActionView setTitleColor: RCTUIColorFromSharedColor(newProps.primaryTextColor) forState:UIControlStateNormal];
   }
   
   // Primary background — CTA background color
-  if (primaryColor && nativeView.callToActionView && nativeView.callToActionView) {
-    UIButtonConfiguration *config = nativeView.callToActionView.configuration;
+  if (newProps.primaryColor && self.nativeView.callToActionView && self.nativeView.callToActionView) {
+    UIButtonConfiguration *config = self.nativeView.callToActionView.configuration;
     if (!config) {
       config = [UIButtonConfiguration filledButtonConfiguration];
     }
-    config.baseBackgroundColor = primaryColor;
-    nativeView.callToActionView.configuration = config;
+    config.baseBackgroundColor = RCTUIColorFromSharedColor(newProps.primaryColor);
+    self.nativeView.callToActionView.configuration = config;
   }
   
-  // Fonts
-  NSString *headlineFontStyle = style[@"headlineFontStyle"]; // bold | italic | monospace | medium etc
-  NSString *secondaryFontStyle = style[@"secondaryFontStyle"];
-  
-  if (headlineFontStyle && nativeView.headlineView) {
-    nativeView.headlineView.font = [self fontForStyle:headlineFontStyle baseSize:nativeView.headlineView.font.pointSize];
+  // Fonts // bold | italic | monospace | medium etc
+  // Convert std::string to NSString*
+  NSString *headlineFontStyle = newProps.headlineFontStyle.length() > 0
+    ? [NSString stringWithUTF8String:newProps.headlineFontStyle.c_str()]
+    : nil;
+
+  NSString *secondaryFontStyle = newProps.secondaryFontStyle.length() > 0
+    ? [NSString stringWithUTF8String:newProps.secondaryFontStyle.c_str()]
+    : nil;
+
+  // HEADLINE
+  if (headlineFontStyle && self.nativeView.headlineView) {
+      self.nativeView.headlineView.font =
+          RNCASFontForStyle(headlineFontStyle, self.nativeView.headlineView.font.pointSize);
   }
-  
+
+  // SECONDARY
   if (secondaryFontStyle) {
-    if (nativeView.bodyView) nativeView.bodyView.font = [self fontForStyle:secondaryFontStyle baseSize:nativeView.bodyView.font.pointSize];
-    if (nativeView.storeView) nativeView.storeView.font = [self fontForStyle:secondaryFontStyle baseSize:nativeView.storeView.font.pointSize];
-    if (nativeView.priceView) nativeView.priceView.font = [self fontForStyle:secondaryFontStyle baseSize:nativeView.priceView.font.pointSize];;
-    if (nativeView.advertiserView) nativeView.advertiserView.font = [self fontForStyle:secondaryFontStyle baseSize:nativeView.advertiserView.font.pointSize];;
-    if (nativeView.reviewCountView) nativeView.reviewCountView.font =  [self fontForStyle:secondaryFontStyle baseSize:nativeView.reviewCountView.font.pointSize];;
+      if (self.nativeView.bodyView) {
+          self.nativeView.bodyView.font =
+              RNCASFontForStyle(secondaryFontStyle, self.nativeView.bodyView.font.pointSize);
+      }
+      if (self.nativeView.storeView) {
+          self.nativeView.storeView.font =
+              RNCASFontForStyle(secondaryFontStyle, self.nativeView.storeView.font.pointSize);
+      }
+      if (self.nativeView.priceView) {
+          self.nativeView.priceView.font =
+              RNCASFontForStyle(secondaryFontStyle, self.nativeView.priceView.font.pointSize);
+      }
+      if (self.nativeView.advertiserView) {
+          self.nativeView.advertiserView.font =
+              RNCASFontForStyle(secondaryFontStyle, self.nativeView.advertiserView.font.pointSize);
+      }
+      if (self.nativeView.reviewCountView) {
+          self.nativeView.reviewCountView.font =
+              RNCASFontForStyle(secondaryFontStyle, self.nativeView.reviewCountView.font.pointSize);
+      }
   }
+    
+  // Update Props
+  [super updateProps:props oldProps:oldProps];
 }
 
+- (void)prepareForRecycle {
+    [self.nativeView removeFromSuperview];
+    self.nativeView = nil;
 
-- (UIColor *)colorFromHexString:(NSString *)hex {
-  return [RCTConvert UIColor:hex];
-}
-
-
-- (UIFont *)fontForStyle:(NSString *)style baseSize:(CGFloat)size {
-  if (!style) return [UIFont systemFontOfSize:size];
-  
-  NSString *s = style.lowercaseString;
-  
-  if ([s isEqualToString:@"bold"]) {
-    return [UIFont boldSystemFontOfSize:size];
-  }
-  if ([s isEqualToString:@"italic"]) {
-    return [UIFont italicSystemFontOfSize:size];
-  }
-  if ([s isEqualToString:@"medium"]) {
-    return [UIFont systemFontOfSize:size weight:UIFontWeightMedium];
-  }
-  if ([s isEqualToString:@"monospace"]) {
-    return [UIFont monospacedSystemFontOfSize:size weight:UIFontWeightRegular];
-  }
-  
-  return [UIFont systemFontOfSize:size];
+    [super prepareForRecycle];
 }
 
 @end
+
+
+#pragma mark - RNCASNativeAdViewCls
+
+Class<RCTComponentViewProtocol> RNCASNativeAdViewCls(void) {
+    return RNCASNativeAdView.class;
+}
+
+#endif /* ifdef RCT_NEW_ARCH_ENABLED */

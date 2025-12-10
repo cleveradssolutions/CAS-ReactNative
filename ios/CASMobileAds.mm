@@ -1,5 +1,5 @@
 #import "CASMobileAds.h"
-#import "RNCASNativeAdHolder.h"
+#import "RNCASNativeAdStore.h"
 #import <CleverAdsSolutions/CASInternalUtils.h>
 #import <CleverAdsSolutions/CASTypeFlags.h>
 #import <CleverAdsSolutions/CleverAdsSolutions-Swift.h>
@@ -30,14 +30,9 @@ using namespace facebook::react;
 RCT_EXPORT_MODULE();
 
 static NSString *_casIdentifier = @"";
-static CASMobileAds *_sharedInstance = nil;
 
 + (NSString *)casIdendifier {
   return _casIdentifier;
-}
-
-+ (CASMobileAds *)shared {
-    return _sharedInstance;
 }
 
 #pragma mark - Initialization
@@ -101,9 +96,7 @@ RCT_EXPORT_METHOD(initialize : (NSString *)casId options : (NSDictionary *)
 - (void)internalInitWithCASID:(NSString *)casId
                       options:(NSDictionary *)options
                      resolver:(RCTPromiseResolveBlock)resolve
-                     rejecter:(RCTPromiseRejectBlock)reject {
-  _sharedInstance = self;
-  
+                     rejecter:(RCTPromiseRejectBlock)reject {  
   if (self.casInitConfig && _casIdentifier == casId) {
     resolve(self.casInitConfig);
     return;
@@ -205,7 +198,7 @@ RCT_EXPORT_METHOD(getSDKVersion : (RCTPromiseResolveBlock)
     kOnRewardedLoadFailed,   kOnRewardedClicked,        kOnRewardedShowed,
     kOnRewardedFailedToShow, kOnRewardedHidden,         kOnRewardedCompleted,
     kOnRewardedImpression,   kOnNativeAdLoaded,         kOnNativeAdFailedToLoad,
-    kOnNativeAdImpression,   kOnNativeAdClicked,
+    kOnNativeAdImpression,   kOnNativeAdClicked,        kOnNativeAdFailedToShow
   ];
 }
 
@@ -490,7 +483,7 @@ RCT_EXPORT_METHOD(setNativeMutedEnabled : (BOOL)enabled) {
   }
 }
 
-RCT_EXPORT_METHOD(setNativeAdChoisesPlacement : (long)adChoicesPlacement) {
+RCT_EXPORT_METHOD(setNativeAdChoicesPlacement : (long)adChoicesPlacement) {
   if (self.nativeLoader) {
     self.nativeLoader.adChoicesPlacement =
         RNCASChoicesPlacementFromLong(adChoicesPlacement);
@@ -499,9 +492,11 @@ RCT_EXPORT_METHOD(setNativeAdChoisesPlacement : (long)adChoicesPlacement) {
 
 RCT_EXPORT_METHOD(destroyNative : (long)instanceId) {
   NSNumber *instanceNumber = @(instanceId);
-  CASNativeAdContent *content = [self.nativeAdContents objectForKey:instanceNumber];
+
+  CASNativeAdContent *content =
+    [[RNCASNativeAdStore shared] removeNativeAdWithId:instanceNumber];
+
   if (content) {
-    [self.nativeAdContents removeObjectForKey:instanceNumber];
     content.delegate = nil;
     content.impressionDelegate = nil;
     [content destroy];
@@ -601,14 +596,11 @@ RCT_EXPORT_METHOD(destroyNative : (long)instanceId) {
     return;
   }
 
-  NSNumber *instanceId = @(self.nativeAdCount);
-  self.nativeAdCount++;
-  [self.nativeAdContents setObject:ad forKey:instanceId];
+  NSNumber *instanceId = [[RNCASNativeAdStore shared] saveNativeAd:ad];
 
   ad.delegate = self;
   ad.impressionDelegate = self;
 
-  [[RNCASNativeAdHolder shared] setAd:ad];
   [self sendEventWithName:kOnNativeAdLoaded body:instanceId];
 }
 
@@ -620,7 +612,10 @@ RCT_EXPORT_METHOD(destroyNative : (long)instanceId) {
 }
 
 - (void)nativeAd:(CASNativeAdContent *)ad didFailToPresentWithError:(CASError *)error{
-  
+  if (!self.hasListeners) {
+    return;
+  }
+  [self sendAdEvent:kOnNativeAdFailedToShow withError:error];
 }
 
 - (void)nativeAdDidClick:(CASNativeAdContent *)ad {
@@ -731,4 +726,45 @@ CASChoicesPlacement RNCASChoicesPlacementFromLong(long value) {
   default:
     return CASChoicesPlacementTopRight;
   }
+}
+
+CASSize *RNCASResolveAdSize(CGFloat width, CGFloat height) {
+  CGFloat w = width ? width : 0;
+  CGFloat h = height ? height : 0;
+  
+  // 1: width + height
+  if (w > 0 && h > 0) {
+    return [CASSize getInlineBannerWithWidth:w maxHeight:h];
+  }
+  
+  // 2: width
+  if (w > 0) {
+    // Adaptive minimal 300
+    if (w < 300) w = 300;
+    return [CASSize getAdaptiveBannerForMaxWidth:w];
+  }
+  
+  // 3: (no width, no height)
+  return CASSize.mediumRectangle;
+}
+
+UIFont *RNCASFontForStyle(NSString *style, CGFloat size) {
+  if (!style) return [UIFont systemFontOfSize:size];
+  
+  NSString *s = style.lowercaseString;
+  
+  if ([s isEqualToString:@"bold"]) {
+    return [UIFont boldSystemFontOfSize:size];
+  }
+  if ([s isEqualToString:@"italic"]) {
+    return [UIFont italicSystemFontOfSize:size];
+  }
+  if ([s isEqualToString:@"medium"]) {
+    return [UIFont systemFontOfSize:size weight:UIFontWeightMedium];
+  }
+  if ([s isEqualToString:@"monospace"]) {
+    return [UIFont monospacedSystemFontOfSize:size weight:UIFontWeightRegular];
+  }
+  
+  return [UIFont systemFontOfSize:size];
 }
