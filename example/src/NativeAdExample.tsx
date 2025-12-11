@@ -78,13 +78,15 @@ export default function NativeAdExample() {
             ad={loadedAd}
             width={320}
             height={320}
-            backgroundColor ={'#ffffffff'}
-            primaryColor={'#ff0000ff'}
-            primaryTextColor={'#0066FF'}
-            headlineTextColor={'#84ff00ff'}
-            headlineFontStyle={'bold'}
-            secondaryTextColor={'#cccccc'}
-            secondaryFontStyle={'medium'} // normal | bold | italic | monospace            
+            templateStyle = {{
+            backgroundColor: '#ffffffff',
+            primaryColor: '#ff0000ff',
+            primaryTextColor:'#0066FF',
+            headlineTextColor:'#84ff00ff',
+            headlineFontStyle:'bold',
+            secondaryTextColor:'#cccccc',
+            secondaryFontStyle:'medium' // normal | bold | italic | monospace            
+            }}
           />
         ) : (
           <Text style={S.info}>Loading native ad...</Text>
