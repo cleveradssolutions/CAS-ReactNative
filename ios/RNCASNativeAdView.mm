@@ -80,10 +80,14 @@ using namespace facebook::react;
     [self addSubview:self.nativeView];
   }
 
-  // 2. Update template size
-  CASSize *adSize = [CASSize getInlineBannerWithWidth:newProps.width
-                                            maxHeight:newProps.height];
-  [self.nativeView setAdTemplateSize:adSize];
+  // 2. Update template size or bind assets
+  if (newProps.usesTemplate) {
+    CASSize *adSize = [CASSize getInlineBannerWithWidth:newProps.width
+                                              maxHeight:newProps.height];
+    [self.nativeView setAdTemplateSize:adSize];
+  } else {
+    [self bindAssetsIfPossible];
+  }
 
   // 3. Update native ad only if changed
   if (self.appliedInstanceId != newProps.instanceId) {
@@ -93,48 +97,106 @@ using namespace facebook::react;
 
     [self.nativeView setNativeAd:ad];
   }
+  
+  // Headline
+  if (newProps.usesTemplate) {
+    // 4. Apply styles
+    if (newProps.backgroundColor) {
+      self.nativeView.backgroundColor = RCTUIColorFromSharedColor(newProps.backgroundColor);
+    }
+    
+    if (newProps.headlineTextColor && self.nativeView.headlineView) {
+      self.nativeView.headlineView.textColor =
+          RCTUIColorFromSharedColor(newProps.headlineTextColor);
+    }
 
-  // 4. Apply styles
-  if (newProps.backgroundColor) {
-    self.nativeView.backgroundColor = RCTUIColorFromSharedColor(newProps.backgroundColor);
+    // Secondary text: body, advertiser, store, price, reviewCount
+    if (newProps.secondaryTextColor) {
+      UIColor *color = RCTUIColorFromSharedColor(newProps.secondaryTextColor);
+      if (self.nativeView.bodyView) {
+        self.nativeView.bodyView.textColor = color;
+      }
+      if (self.nativeView.advertiserView) {
+        self.nativeView.advertiserView.textColor = color;
+      }
+      if (self.nativeView.storeView) {
+        self.nativeView.storeView.textColor = color;
+      }
+      if (self.nativeView.priceView) {
+        self.nativeView.priceView.textColor = color;
+      }
+      if (self.nativeView.reviewCountView) {
+        self.nativeView.reviewCountView.textColor = color;
+      }
+    }
+
+    // Primary text: call to action (CTA)
+    UIButton *button = self.nativeView.callToActionView;
+    if (button) {
+      UIColor *primaryColor = RCTUIColorFromSharedColor(newProps.primaryColor);
+      UIColor *callToActionTextColor = RCTUIColorFromSharedColor(newProps.primaryTextColor);
+      if (@available(iOS 15.0, *)) {
+        UIButtonConfiguration *config = button.configuration;
+        if (config) {
+          if (primaryColor != nil) {
+            config.baseBackgroundColor = primaryColor;
+          }
+          if (callToActionTextColor != nil) {
+            config.baseForegroundColor = callToActionTextColor;
+          }
+
+          button.configuration = config;
+          [button setNeedsUpdateConfiguration];
+        }
+      } else {
+        if (primaryColor != nil) {
+          button.backgroundColor = primaryColor;
+        }
+        if (callToActionTextColor != nil) {
+          [button setTitleColor:callToActionTextColor forState:UIControlStateNormal];
+        }
+      }
+    }
+
+    // Fonts // bold | italic | monospace | medium etc
+    // Convert std::string to NSString*
+
+    // HEADLINE
+
+    NSString *headlineFontStyle = RCTNSStringFromString(newProps.headlineFontStyle);
+
+    if (headlineFontStyle && self.nativeView.headlineView) {
+      self.nativeView.headlineView.font =
+        RNCASFontForStyle(headlineFontStyle,
+                          self.nativeView.headlineView);
+    }
+
+    NSString *secondaryFontStyle = RCTNSStringFromString(newProps.secondaryFontStyle);
+
+    if (secondaryFontStyle) {
+      if (self.nativeView.bodyView) {
+        self.nativeView.bodyView.font =
+            RNCASFontForStyle(secondaryFontStyle, self.nativeView.bodyView);
+      }
+      if (self.nativeView.storeView) {
+        self.nativeView.storeView.font =
+            RNCASFontForStyle(secondaryFontStyle, self.nativeView.storeView);
+      }
+      if (self.nativeView.priceView) {
+        self.nativeView.priceView.font =
+            RNCASFontForStyle(secondaryFontStyle, self.nativeView.priceView);
+      }
+      if (self.nativeView.advertiserView) {
+        self.nativeView.advertiserView.font =
+            RNCASFontForStyle(secondaryFontStyle, self.nativeView.advertiserView);
+      }
+      if (self.nativeView.reviewCountView) {
+        self.nativeView.reviewCountView.font =
+            RNCASFontForStyle(secondaryFontStyle, self.nativeView.reviewCountView);
+      }
+    }
   }
-
-  NSString *headlineFontStyle = RCTNSStringFromString(newProps.headlineFontStyle);
-
-  if (headlineFontStyle && self.nativeView.headlineView) {
-    self.nativeView.headlineView.font =
-      RNCASFontForStyle(headlineFontStyle,
-                        self.nativeView.headlineView);
-  }
-
-  NSString *secondaryFontStyle = RCTNSStringFromString(newProps.secondaryFontStyle);
-
-  if (secondaryFontStyle) {
-    if (self.nativeView.bodyView) {
-      self.nativeView.bodyView.font =
-          RNCASFontForStyle(secondaryFontStyle, self.nativeView.bodyView);
-    }
-    if (self.nativeView.storeView) {
-      self.nativeView.storeView.font =
-          RNCASFontForStyle(secondaryFontStyle, self.nativeView.storeView);
-    }
-    if (self.nativeView.priceView) {
-      self.nativeView.priceView.font =
-          RNCASFontForStyle(secondaryFontStyle, self.nativeView.priceView);
-    }
-    if (self.nativeView.advertiserView) {
-      self.nativeView.advertiserView.font =
-          RNCASFontForStyle(secondaryFontStyle, self.nativeView.advertiserView);
-    }
-    if (self.nativeView.reviewCountView) {
-      self.nativeView.reviewCountView.font =
-          RNCASFontForStyle(secondaryFontStyle, self.nativeView.reviewCountView);
-    }
-  }
-
-  // 5. Re-bind assets every time
-  [self bindAssetsIfPossible];
-
+ 
   [super updateProps:props oldProps:oldProps];
 }
 
@@ -149,23 +211,12 @@ using namespace facebook::react;
   if ([self isAssetTag:child.tag]) {
     self.assetPlaceholders[@(child.tag)] = child;
     [self bindAssetsIfPossible];
+    
     return;
   }
 
   [super mountChildComponentView:child index:index];
 }
-
-//- (void)unmountChildComponentView:(UIView *)child
-//                            index:(NSInteger)index {
-//
-//  if ([self isAssetTag:child.tag]) {
-//    [self.assetPlaceholders removeObjectForKey:@(child.tag)];
-//    [child removeFromSuperview];
-//    return;
-//  }
-//
-//  [super unmountChildComponentView:child index:index];
-//}
 
 - (void)unmountChildComponentView:(UIView *)child
                             index:(NSInteger)index {
@@ -190,31 +241,6 @@ using namespace facebook::react;
 
 #pragma mark - Asset binding
 
-//- (void)bindAssetsIfPossible {
-//  if (!self.nativeView || self.assetPlaceholders.count == 0) {
-//    return;
-//  }
-//
-//  for (NSNumber *key in self.assetPlaceholders) {
-//    UIView *placeholder = self.assetPlaceholders[key];
-//    
-//    if (placeholder.superview != self.nativeView) {
-//      [self.nativeView addSubview:placeholder];
-//    }
-//
-//    // create asset view, if is not exist
-//    UIView *assetView = [self createSDKAssetView:key.integerValue];
-//    if (assetView && assetView.superview == nil) {
-//      assetView.frame = placeholder.bounds;
-//      assetView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-//      [placeholder addSubview:assetView];
-//
-//      // register in CASNativeView
-//      [self registerAssetView:assetView forTag:key.integerValue];
-//    }
-//  }
-//}
-
 - (void)bindAssetsIfPossible {
   if (!self.nativeView) return;
 
@@ -230,22 +256,20 @@ using namespace facebook::react;
       assetView = [self createSDKAssetView:key.integerValue];
       if (!assetView) continue;
 
-      assetView.translatesAutoresizingMaskIntoConstraints = YES;
+      assetView.frame = placeholder.bounds;
       assetView.autoresizingMask =
         UIViewAutoresizingFlexibleWidth |
         UIViewAutoresizingFlexibleHeight;
 
       [placeholder addSubview:assetView];
       self.assetViews[key] = assetView;
-
+      
       [self registerAssetView:assetView forTag:key.integerValue];
     }
 
     assetView.frame = placeholder.bounds;
   }
 }
-
-
 
 - (UIView *)createSDKAssetView:(NSInteger)tag {
   switch(tag) {
@@ -281,16 +305,6 @@ using namespace facebook::react;
     case 112: self.nativeView.adChoicesView = (CASChoicesView *)view; break;
   }
 }
-
-//- (void)prepareForRecycle {
-//  [self.nativeView removeFromSuperview];
-//  [self.assetPlaceholders removeAllObjects];
-//  
-//  self.nativeView = nil;
-//  self.appliedInstanceId = -1;
-//  
-//  [super prepareForRecycle];
-//}
 
 - (void)prepareForRecycle {
   [self.nativeView removeFromSuperview];

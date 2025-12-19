@@ -29,13 +29,15 @@
     self.nativeView.translatesAutoresizingMaskIntoConstraints = YES;
     [self addSubview:_nativeView];
   }
-
-  // Refresh template Size
-  // setAdTemplateSize can be called multiple times for same ad size with zero performance
-  // drop
-  CASSize *adSize = [CASSize getInlineBannerWithWidth:self.width maxHeight:self.height];
-  [self.nativeView setAdTemplateSize:adSize];
-
+  
+  if (self.usesTemplate) {
+    // Refresh template Size
+    // setAdTemplateSize can be called multiple times for same ad size with zero performance
+    // drop
+    CASSize *adSize = [CASSize getInlineBannerWithWidth:self.width maxHeight:self.height];
+    [self.nativeView setAdTemplateSize:adSize];
+  }
+  
   // Refresh Native Ad if changed only
   if (self.appliedInstanceId != self.instanceId) {
     self.appliedInstanceId = self.instanceId;
@@ -46,7 +48,9 @@
   }
 
   // Set styles
-  [self applyTemplateStyleToView:self.nativeView];
+  if (self.usesTemplate) {
+    [self applyTemplateStyleToView:self.nativeView];
+  }
 }
 
 - (void)applyTemplateStyleToView:(CASNativeView *)nativeView {
@@ -57,6 +61,46 @@
   // Fonts // bold | italic | monospace | medium etc
   NSString *headlineFontStyle = self.headlineFontStyle;
   NSString *secondaryFontStyle = self.secondaryFontStyle;
+  
+  // Headline
+  if (self.headlineTextColor && nativeView.headlineView) {
+    nativeView.headlineView.textColor = self.headlineTextColor;
+  }
+  
+  // Secondary text: body, advertiser, store, price, reviewCount
+  if (self.secondaryTextColor) {
+    if (nativeView.bodyView) nativeView.bodyView.textColor = self.secondaryTextColor;
+    if (nativeView.advertiserView) nativeView.advertiserView.textColor = self.secondaryTextColor;
+    if (nativeView.storeView) nativeView.storeView.textColor = self.secondaryTextColor;
+    if (nativeView.priceView) nativeView.priceView.textColor = self.secondaryTextColor;
+    if (nativeView.reviewCountView) nativeView.reviewCountView.textColor = self.secondaryTextColor;
+  }
+
+  // Primary text: call to action (CTA)
+  UIButton *button = self.nativeView.callToActionView;
+  if (button) {
+    if (@available(iOS 15.0, *)) {
+      UIButtonConfiguration *config = button.configuration;
+      if (config) {
+        if (self.primaryColor != nil) {
+          config.baseBackgroundColor = self.primaryColor;
+        }
+        if (self.primaryTextColor != nil) {
+          config.baseForegroundColor = self.primaryTextColor;
+        }
+
+        button.configuration = config;
+        [button setNeedsUpdateConfiguration];
+      }
+    } else {
+      if (self.primaryColor != nil) {
+        button.backgroundColor = self.primaryColor;
+      }
+      if (self.primaryTextColor != nil) {
+        [button setTitleColor:self.primaryTextColor forState:UIControlStateNormal];
+      }
+    }
+  }
   
   if (headlineFontStyle && nativeView.headlineView) {
     nativeView.headlineView.font = RNCASFontForStyle(headlineFontStyle, nativeView.headlineView);

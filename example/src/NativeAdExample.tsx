@@ -79,60 +79,141 @@ export default function NativeAdExample() {
             width={320}
             height={320}
             templateStyle = {{
-              backgroundColor: '#ffffffff',
-              headlineFontStyle:'bold',
-              secondaryFontStyle:'medium' // normal | bold | italic | monospace            
+              backgroundColor: '#8c939eff',              
             }}
         >
+          
+        {/* HEADLINE */}
+        <NativeAdAssetView
+          assetType={NativeAdAssetType.HEADLINE}
+          style={{
+            width: '100%',
+            height: 48,
+            fontSize: 24,
+            fontWeight: '700',
+            color: '#222222',
+            marginBottom: 6,
+          }}
+        />
 
-<Text></Text>
-          {/* <NativeAsset assetType={NativeAssetType.HEADLINE} />
-          <NativeAsset assetType={NativeAssetType.ICON} style={{ width: 10, height: 10 }} />
-          <NativeAsset assetType={NativeAssetType.CALL_TO_ACTION} />
-          <NativeAsset assetType={NativeAssetType.MEDIA} style={{ width: 500, height: 500 }} />  */}
-
-          {/* Headline */}
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          {/* ICON */}
           <NativeAdAssetView
-            assetType={NativeAdAssetType.HEADLINE}
+            assetType={NativeAdAssetType.ICON}
             style={{
-              fontSize: 16,
-              fontWeight: '700',
-              color: '#222222',
-              marginBottom: 4,
+              width: 48,
+              height: 48,
+              borderRadius: 8,
+              marginRight: 8,
             }}
           />
 
-          {/* Icon */}
+          <View style={{ flex: 1 }}>
+            {/* ADVERTISER */}
+            <NativeAdAssetView
+              assetType={NativeAdAssetType.ADVERTISER}
+              style={{
+                fontSize: 12,
+                fontWeight: '600',
+                color: '#333333',
+              }}
+            />
+
+            {/* STAR RATING */}
+            <NativeAdAssetView
+              assetType={NativeAdAssetType.STAR_RATING}
+              style={{
+                width: 80,
+                height: 12,
+                marginTop: 2,
+              }}
+            />
+
+            {/* REVIEW COUNT */}
+            <NativeAdAssetView
+              assetType={NativeAdAssetType.REVIEW_COUNT}
+              style={{
+                fontSize: 10,
+                color: '#777777',
+              }}
+            />
+          </View>
+        </View>
+
+        {/* AD CHOICES */}
         <NativeAdAssetView
-          assetType={NativeAdAssetType.ICON}
+          assetType={NativeAdAssetType.AD_CHOICES}
           style={{
-            width: 150,
-            height: 150,
-            borderRadius: 8,
-            marginBottom: 8,
+            position: 'absolute',                        
+            width: 10,
+            height: 10,
           }}
         />
 
-        {/* Media */}
+        {/* AD LABEL */}
+        <NativeAdAssetView
+          assetType={NativeAdAssetType.AD_LABEL}
+          style={{
+            alignSelf: 'flex-start',
+            paddingHorizontal: 6,
+            paddingVertical: 2,
+            backgroundColor: '#eeeeee',
+            color: '#666666',
+            fontSize: 17,
+            borderRadius: 4,
+            marginBottom: 6,
+          }}
+        />
+        
+        {/* MEDIA */}
         <NativeAdAssetView
           assetType={NativeAdAssetType.MEDIA}
           style={{
-            width: 300,
+            width: '100%',
             height: 180,
-            borderRadius: 12,
+            borderRadius: 12,            
+            overflow: 'hidden',            
+          }}
+        />
+
+        {/* BODY */}
+        <NativeAdAssetView
+          assetType={NativeAdAssetType.BODY}
+          style={{
+            fontSize: 13,
+            color: '#444444',
+            marginVertical: 6,
+          }}
+        />
+
+        {/* PRICE */}
+        <NativeAdAssetView
+          assetType={NativeAdAssetType.PRICE}
+          style={{
+            fontSize: 12,
+            color: '#008800',
+            marginBottom: 2,
+          }}
+        />
+
+        {/* STORE */}
+        <NativeAdAssetView
+          assetType={NativeAdAssetType.STORE}
+          style={{
+            fontSize: 11,
+            color: '#666666',
             marginBottom: 8,
           }}
         />
 
-        {/* Call To Action */}
+        {/* CALL TO ACTION */}
         <NativeAdAssetView
           assetType={NativeAdAssetType.CALL_TO_ACTION}
           style={{
             backgroundColor: '#ff6600',
             color: '#ffffff',
-            paddingVertical: 8,
-            paddingHorizontal: 16,
-            borderRadius: 6,
+            paddingVertical: 10,
+            borderRadius: 8,
             textAlign: 'center',
             fontWeight: '600',
           }}
@@ -146,15 +227,6 @@ export default function NativeAdExample() {
     </View>
   );
 }
-
-/* children are just asset placeholders — native will fill them */
-/* 
-            <NativeAsset assetType={101} />
-            <NativeAsset assetType={104} style={{ width: 60, height: 60 }} />
-            <NativeAsset assetType={103} />
-            <NativeAsset assetType={102} style={{ height: 160 }} />  
-*/
-
 
 const S = StyleSheet.create({
   screen: {

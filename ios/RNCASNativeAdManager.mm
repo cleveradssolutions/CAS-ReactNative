@@ -15,9 +15,16 @@ RCT_EXPORT_VIEW_PROPERTY(instanceId, NSInteger)
 RCT_EXPORT_VIEW_PROPERTY(width, CGFloat)
 RCT_EXPORT_VIEW_PROPERTY(height, CGFloat)
 
+// Templates
+RCT_EXPORT_VIEW_PROPERTY(usesTemplate, Boolean)
+
 // Export types
 RCT_EXPORT_VIEW_PROPERTY(backgroundColor, UIColor)
+RCT_EXPORT_VIEW_PROPERTY(primaryColor, UIColor)
+RCT_EXPORT_VIEW_PROPERTY(primaryTextColor, UIColor)
+RCT_EXPORT_VIEW_PROPERTY(headlineTextColor, UIColor)
 RCT_EXPORT_VIEW_PROPERTY(headlineFontStyle, NSString)
+RCT_EXPORT_VIEW_PROPERTY(secondaryTextColor, UIColor)
 RCT_EXPORT_VIEW_PROPERTY(secondaryFontStyle, NSString)
 
 - (UIView *)view {

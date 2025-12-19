@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import type { ColorValue, HostComponent, ViewProps } from 'react-native';
+import type { HostComponent, ViewProps, ColorValue } from 'react-native';
 import type { Float, Int32 } from 'react-native/Libraries/Types/CodegenTypes';
 import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
 
@@ -22,8 +22,13 @@ export interface NativeProps extends ViewProps {
   instanceId: Int32;
   width: Float;
   height: Float;
+  usesTemplate: boolean,
   backgroundColor?: ColorValue;
+  primaryColor?: ColorValue;
+  primaryTextColor?: ColorValue;
+  headlineTextColor?: ColorValue;
   headlineFontStyle?: string;
+  secondaryTextColor?: ColorValue;
   secondaryFontStyle?: string;
 }
 

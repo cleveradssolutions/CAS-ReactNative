@@ -142,9 +142,29 @@ export interface NativeTemplateStyle {
   backgroundColor?: ColorValue;
 
   /**
+   * Accent color applied to elements such as the call-to-action button.
+   */
+  primaryColor?: ColorValue;
+
+  /**
+   * Color of the primary text elements, such as the main body text.
+   */
+  primaryTextColor?: ColorValue;
+
+  /**
+   * Text color for the headline (title) of the ad.
+   */
+  headlineTextColor?: ColorValue;
+
+  /**
    * Font style used for the headline text.
    */
   headlineFontStyle?: NativeTemplateFontStyle;
+
+  /**
+   * Text color for secondary descriptive elements, such as the ad body or advertiser name.
+   */
+  secondaryTextColor?: ColorValue;
 
   /**
    * Font style applied to secondary text elements.
@@ -183,9 +203,6 @@ export interface NativeAdViewProps {
    * - predefined layout presets
    */
   templateStyle?: NativeTemplateStyle;
-
-  // AssetViews
-  children?: React.ReactNode;
 
   /**
    * Optional React Native style for wrapping layout.

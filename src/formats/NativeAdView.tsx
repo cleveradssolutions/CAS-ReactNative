@@ -22,9 +22,14 @@ export const NativeAdView = forwardRef<NativeAdViewRef, NativeAdViewProps & View
         instanceId={ad.instanceId}
         width={Math.min(width ?? screenWidth, screenWidth)}
         height={Math.min(height ?? screenHeight, screenHeight)}
-        backgroundColor={templateStyle?.backgroundColor}                        
-        headlineFontStyle={templateStyle?.headlineFontStyle}        
-        secondaryFontStyle={templateStyle?.secondaryFontStyle}        
+        usesTemplate={React.Children.count(children) === 0}
+        backgroundColor={templateStyle?.backgroundColor}
+        primaryColor={templateStyle?.primaryColor}
+        primaryTextColor={templateStyle?.primaryTextColor}
+        headlineTextColor={templateStyle?.headlineTextColor}
+        headlineFontStyle={templateStyle?.headlineFontStyle}
+        secondaryTextColor={templateStyle?.secondaryTextColor}
+        secondaryFontStyle={templateStyle?.secondaryFontStyle}
         style={style}       
       >      
         {children}
