@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import AppButton from './components/AppButton';
-import { NativeAdLoader, NativeAdView, AdChoicesPlacement, NativeAdViewRef, NativeAsset, NativeAssetType, NativeAdType, AdError, AdContentInfo } from 'react-native-cas';
+import { NativeAdLoader, NativeAdView, AdChoicesPlacement, NativeAdViewRef, NativeAdAssetView, NativeAdAssetType, NativeAdType, AdError, AdContentInfo } from 'react-native-cas';
 
 export default function NativeAdExample() {
   const [loadedAd, setLoadedAd] = useState<NativeAdType | null>(null);
@@ -85,14 +85,15 @@ export default function NativeAdExample() {
             }}
         >
 
+<Text></Text>
           {/* <NativeAsset assetType={NativeAssetType.HEADLINE} />
           <NativeAsset assetType={NativeAssetType.ICON} style={{ width: 10, height: 10 }} />
           <NativeAsset assetType={NativeAssetType.CALL_TO_ACTION} />
           <NativeAsset assetType={NativeAssetType.MEDIA} style={{ width: 500, height: 500 }} />  */}
 
           {/* Headline */}
-          <NativeAsset
-            assetType={NativeAssetType.HEADLINE}
+          <NativeAdAssetView
+            assetType={NativeAdAssetType.HEADLINE}
             style={{
               fontSize: 16,
               fontWeight: '700',
@@ -102,8 +103,8 @@ export default function NativeAdExample() {
           />
 
           {/* Icon */}
-        <NativeAsset
-          assetType={NativeAssetType.ICON}
+        <NativeAdAssetView
+          assetType={NativeAdAssetType.ICON}
           style={{
             width: 150,
             height: 150,
@@ -113,8 +114,8 @@ export default function NativeAdExample() {
         />
 
         {/* Media */}
-        <NativeAsset
-          assetType={NativeAssetType.MEDIA}
+        <NativeAdAssetView
+          assetType={NativeAdAssetType.MEDIA}
           style={{
             width: 300,
             height: 180,
@@ -124,8 +125,8 @@ export default function NativeAdExample() {
         />
 
         {/* Call To Action */}
-        <NativeAsset
-          assetType={NativeAssetType.CALL_TO_ACTION}
+        <NativeAdAssetView
+          assetType={NativeAdAssetType.CALL_TO_ACTION}
           style={{
             backgroundColor: '#ff6600',
             color: '#ffffff',

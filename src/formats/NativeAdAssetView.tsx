@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-import React, { forwardRef } from 'react';
-import { NativeAssetProps } from '../types/NativeAdType';
-import CASNativeAssetView from '../modules/NativeCASNativeAssetComponent'
+import React, { forwardRef, useRef } from 'react';
+import { NativeAdAssetProps, NativeAdAssetRef } from '../types/NativeAdAssets';
+import CASNativeAdAssetView from '../modules/NativeCASNativeAssetComponent';
+import { ViewProps } from 'react-native';
 
-export const NativeAsset = forwardRef<any, NativeAssetProps>(({ assetType }, ref) => {
-  return (
-    <CASNativeAssetView
-      ref={ref}
-      assetType={assetType}      
-    />
-  );
-});
+export const NativeAdAssetView = forwardRef<NativeAdAssetRef, NativeAdAssetProps & ViewProps>(
+  function NativeAdAssetView({ assetType, style, ...otherProps }, _) {
+    const adAssetRef = useRef(null);
+    return (
+      <CASNativeAdAssetView ref={adAssetRef} assetType={assetType} style={style} {...otherProps} />
+    );
+  },
+);
