@@ -54,46 +54,6 @@
     nativeView.backgroundColor = self.backgroundColor;
   }
   
-  // Headline
-  if (self.headlineTextColor && nativeView.headlineView) {
-    nativeView.headlineView.textColor = self.headlineTextColor;
-  }
-  
-  // Secondary text: body, advertiser, store, price, reviewCount
-  if (self.secondaryTextColor) {
-    if (nativeView.bodyView) nativeView.bodyView.textColor = self.secondaryTextColor;
-    if (nativeView.advertiserView) nativeView.advertiserView.textColor = self.secondaryTextColor;
-    if (nativeView.storeView) nativeView.storeView.textColor = self.secondaryTextColor;
-    if (nativeView.priceView) nativeView.priceView.textColor = self.secondaryTextColor;
-    if (nativeView.reviewCountView) nativeView.reviewCountView.textColor = self.secondaryTextColor;
-  }
-
-  // Primary text: call to action (CTA)
-  UIButton *button = self.nativeView.callToActionView;
-  if (button) {
-    if (@available(iOS 15.0, *)) {
-      UIButtonConfiguration *config = button.configuration;
-      if (config) {
-        if (self.primaryColor != nil) {
-          config.baseBackgroundColor = self.primaryColor;
-        }
-        if (self.primaryTextColor != nil) {
-          config.baseForegroundColor = self.primaryTextColor;
-        }
-
-        button.configuration = config;
-        [button setNeedsUpdateConfiguration];
-      }
-    } else {
-      if (self.primaryColor != nil) {
-        button.backgroundColor = self.primaryColor;
-      }
-      if (self.primaryTextColor != nil) {
-        [button setTitleColor:self.primaryTextColor forState:UIControlStateNormal];
-      }
-    }
-  }
-
   // Fonts // bold | italic | monospace | medium etc
   NSString *headlineFontStyle = self.headlineFontStyle;
   NSString *secondaryFontStyle = self.secondaryFontStyle;

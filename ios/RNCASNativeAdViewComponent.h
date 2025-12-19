@@ -20,10 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Colors
 @property (nonatomic, strong, nullable) UIColor *backgroundColor;
-@property (nonatomic, strong, nullable) UIColor *primaryColor;
-@property (nonatomic, strong, nullable) UIColor *primaryTextColor;
-@property (nonatomic, strong, nullable) UIColor *headlineTextColor;
-@property (nonatomic, strong, nullable) UIColor *secondaryTextColor;
 
 // Font style
 @property (nonatomic, copy, nullable) NSString *headlineFontStyle;

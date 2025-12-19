@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import AppButton from './components/AppButton';
-import { NativeAdLoader, NativeAdView, AdChoicesPlacement, NativeAdViewRef, NativeAdType, AdError, AdContentInfo } from 'react-native-cas';
+import { NativeAdLoader, NativeAdView, AdChoicesPlacement, NativeAdViewRef, NativeAsset, NativeAssetType, NativeAdType, AdError, AdContentInfo } from 'react-native-cas';
 
 export default function NativeAdExample() {
   const [loadedAd, setLoadedAd] = useState<NativeAdType | null>(null);
@@ -79,15 +79,65 @@ export default function NativeAdExample() {
             width={320}
             height={320}
             templateStyle = {{
-            backgroundColor: '#ffffffff',
-            primaryColor: '#ff0000ff',
-            primaryTextColor:'#0066FF',
-            headlineTextColor:'#84ff00ff',
-            headlineFontStyle:'bold',
-            secondaryTextColor:'#cccccc',
-            secondaryFontStyle:'medium' // normal | bold | italic | monospace            
+              backgroundColor: '#ffffffff',
+              headlineFontStyle:'bold',
+              secondaryFontStyle:'medium' // normal | bold | italic | monospace            
+            }}
+        >
+
+          {/* <NativeAsset assetType={NativeAssetType.HEADLINE} />
+          <NativeAsset assetType={NativeAssetType.ICON} style={{ width: 10, height: 10 }} />
+          <NativeAsset assetType={NativeAssetType.CALL_TO_ACTION} />
+          <NativeAsset assetType={NativeAssetType.MEDIA} style={{ width: 500, height: 500 }} />  */}
+
+          {/* Headline */}
+          <NativeAsset
+            assetType={NativeAssetType.HEADLINE}
+            style={{
+              fontSize: 16,
+              fontWeight: '700',
+              color: '#222222',
+              marginBottom: 4,
             }}
           />
+
+          {/* Icon */}
+        <NativeAsset
+          assetType={NativeAssetType.ICON}
+          style={{
+            width: 150,
+            height: 150,
+            borderRadius: 8,
+            marginBottom: 8,
+          }}
+        />
+
+        {/* Media */}
+        <NativeAsset
+          assetType={NativeAssetType.MEDIA}
+          style={{
+            width: 300,
+            height: 180,
+            borderRadius: 12,
+            marginBottom: 8,
+          }}
+        />
+
+        {/* Call To Action */}
+        <NativeAsset
+          assetType={NativeAssetType.CALL_TO_ACTION}
+          style={{
+            backgroundColor: '#ff6600',
+            color: '#ffffff',
+            paddingVertical: 8,
+            paddingHorizontal: 16,
+            borderRadius: 6,
+            textAlign: 'center',
+            fontWeight: '600',
+          }}
+        />
+          
+        </NativeAdView>
         ) : (
           <Text style={S.info}>Loading native ad...</Text>
         )}
@@ -95,6 +145,15 @@ export default function NativeAdExample() {
     </View>
   );
 }
+
+/* children are just asset placeholders — native will fill them */
+/* 
+            <NativeAsset assetType={101} />
+            <NativeAsset assetType={104} style={{ width: 60, height: 60 }} />
+            <NativeAsset assetType={103} />
+            <NativeAsset assetType={102} style={{ height: 160 }} />  
+*/
+
 
 const S = StyleSheet.create({
   screen: {

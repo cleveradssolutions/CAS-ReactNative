@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-import type { ColorValue, HostComponent, ViewProps } from 'react-native';
-import type { Float, Int32 } from 'react-native/Libraries/Types/CodegenTypes';
-import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
+import React, { forwardRef } from 'react';
+import { NativeAssetProps } from '../types/NativeAdType';
+import CASNativeAssetView from '../modules/NativeCASNativeAssetComponent'
 
-export interface NativeProps extends ViewProps {
-  instanceId: Int32;
-  width: Float;
-  height: Float;
-  backgroundColor?: ColorValue;
-  headlineFontStyle?: string;
-  secondaryFontStyle?: string;
-}
-
-/**
- * Native view component for displaying a ad view.
- */
-export default codegenNativeComponent<NativeProps>('CASNativeAdView') as HostComponent<NativeProps>;
+export const NativeAsset = forwardRef<any, NativeAssetProps>(({ assetType }, ref) => {
+  return (
+    <CASNativeAssetView
+      ref={ref}
+      assetType={assetType}      
+    />
+  );
+});

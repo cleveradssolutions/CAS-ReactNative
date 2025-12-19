@@ -16,6 +16,11 @@ using namespace facebook::react;
 @interface RNCASNativeAdView () <RCTCASNativeAdViewViewProtocol>
 @property (nonatomic, strong, nullable) CASNativeView *nativeView;
 @property (nonatomic, assign) int appliedInstanceId;
+
+/// assetType(tag) -> sdk asset view
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, UIView *> *assetViews;
+/// assetType(tag) -> placeholder view
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, UIView *> *assetPlaceholders;
 @end
 
 @implementation RNCASNativeAdView
@@ -40,31 +45,47 @@ using namespace facebook::react;
         static const auto defaultProps = std::make_shared<const CASNativeAdViewProps>();
         _props = defaultProps;
         _appliedInstanceId = -1;
+        _assetViews = [NSMutableDictionary new];
+        _assetPlaceholders = [NSMutableDictionary new];
     }
   
     return self;
 }
 
+- (void)layoutSubviews {
+  [super layoutSubviews];
+
+  for (NSNumber *key in self.assetPlaceholders) {
+    UIView *placeholder = self.assetPlaceholders[key];
+    UIView *assetView = self.assetViews[key];
+
+    if (placeholder && assetView) {
+      assetView.frame = placeholder.bounds;
+    }
+  }
+}
+
+
+#pragma mark - Props update
+
 - (void)updateProps:(const Props::Shared &)props
            oldProps:(const Props::Shared &)oldProps {
-  const auto &newProps = *std::static_pointer_cast<CASNativeAdViewProps const>(props);
+  const auto &newProps = *std::static_pointer_cast<const CASNativeAdViewProps>(props);
 
-  // Create Native View if nedded
+  // 1. Ensure CASNativeView
   if (!self.nativeView) {
     self.nativeView = [[CASNativeView alloc] initWithFrame:CGRectZero];
 
     self.nativeView.translatesAutoresizingMaskIntoConstraints = YES;
-    [self addSubview:_nativeView];
+    [self addSubview:self.nativeView];
   }
 
-  // Refresh template Size
-  // setAdTemplateSize can be called multiple times for same ad size with zero performance
-  // drop
+  // 2. Update template size
   CASSize *adSize = [CASSize getInlineBannerWithWidth:newProps.width
                                             maxHeight:newProps.height];
   [self.nativeView setAdTemplateSize:adSize];
 
-  // Refresh Native Ad if changed only
+  // 3. Update native ad only if changed
   if (self.appliedInstanceId != newProps.instanceId) {
     self.appliedInstanceId = newProps.instanceId;
     CASNativeAdContent *ad =
@@ -73,79 +94,21 @@ using namespace facebook::react;
     [self.nativeView setNativeAd:ad];
   }
 
-  // Set styles
-
-  // Background
+  // 4. Apply styles
   if (newProps.backgroundColor) {
     self.nativeView.backgroundColor = RCTUIColorFromSharedColor(newProps.backgroundColor);
   }
 
-  // Headline
-  if (newProps.headlineTextColor && self.nativeView.headlineView) {
-    self.nativeView.headlineView.textColor =
-        RCTUIColorFromSharedColor(newProps.headlineTextColor);
-  }
-
-  // Secondary text: body, advertiser, store, price, reviewCount
-  if (newProps.secondaryTextColor) {
-    UIColor *color = RCTUIColorFromSharedColor(newProps.secondaryTextColor);
-    if (self.nativeView.bodyView) {
-      self.nativeView.bodyView.textColor = color;
-    }
-    if (self.nativeView.advertiserView) {
-      self.nativeView.advertiserView.textColor = color;
-    }
-    if (self.nativeView.storeView) {
-      self.nativeView.storeView.textColor = color;
-    }
-    if (self.nativeView.priceView) {
-      self.nativeView.priceView.textColor = color;
-    }
-    if (self.nativeView.reviewCountView) {
-      self.nativeView.reviewCountView.textColor = color;
-    }
-  }
-
-  // Primary text: call to action (CTA)
-  UIButton *button = self.nativeView.callToActionView;
-  if (button) {
-    UIColor *primaryColor = RCTUIColorFromSharedColor(newProps.primaryColor);
-    UIColor *callToActionTextColor = RCTUIColorFromSharedColor(newProps.primaryTextColor);
-    if (@available(iOS 15.0, *)) {
-      UIButtonConfiguration *config = button.configuration;
-      if (config) {
-        if (primaryColor != nil) {
-          config.baseBackgroundColor = primaryColor;
-        }
-        if (callToActionTextColor != nil) {
-          config.baseForegroundColor = callToActionTextColor;
-        }
-
-        button.configuration = config;
-        [button setNeedsUpdateConfiguration];
-      }
-    } else {
-      if (primaryColor != nil) {
-        button.backgroundColor = primaryColor;
-      }
-      if (callToActionTextColor != nil) {
-        [button setTitleColor:callToActionTextColor forState:UIControlStateNormal];
-      }
-    }
-  }
-
-  // Fonts // bold | italic | monospace | medium etc
-  // Convert std::string to NSString*
-
-  // HEADLINE
   NSString *headlineFontStyle = RCTNSStringFromString(newProps.headlineFontStyle);
+
   if (headlineFontStyle && self.nativeView.headlineView) {
     self.nativeView.headlineView.font =
-        RNCASFontForStyle(headlineFontStyle, self.nativeView.headlineView);
+      RNCASFontForStyle(headlineFontStyle,
+                        self.nativeView.headlineView);
   }
 
-  // SECONDARY
   NSString *secondaryFontStyle = RCTNSStringFromString(newProps.secondaryFontStyle);
+
   if (secondaryFontStyle) {
     if (self.nativeView.bodyView) {
       self.nativeView.bodyView.font =
@@ -169,16 +132,177 @@ using namespace facebook::react;
     }
   }
 
-  // Update Props
+  // 5. Re-bind assets every time
+  [self bindAssetsIfPossible];
+
   [super updateProps:props oldProps:oldProps];
 }
 
-- (void)prepareForRecycle {
-    [self.nativeView removeFromSuperview];
-    self.appliedInstanceId = -1;
 
-    [super prepareForRecycle];
+- (BOOL)isAssetTag:(NSInteger)tag {
+  return tag >= 101 && tag <= 112;
 }
+
+- (void)mountChildComponentView:(UIView *)child
+                          index:(NSInteger)index {
+
+  if ([self isAssetTag:child.tag]) {
+    self.assetPlaceholders[@(child.tag)] = child;
+    [self bindAssetsIfPossible];
+    return;
+  }
+
+  [super mountChildComponentView:child index:index];
+}
+
+//- (void)unmountChildComponentView:(UIView *)child
+//                            index:(NSInteger)index {
+//
+//  if ([self isAssetTag:child.tag]) {
+//    [self.assetPlaceholders removeObjectForKey:@(child.tag)];
+//    [child removeFromSuperview];
+//    return;
+//  }
+//
+//  [super unmountChildComponentView:child index:index];
+//}
+
+- (void)unmountChildComponentView:(UIView *)child
+                            index:(NSInteger)index {
+
+  if ([self isAssetTag:child.tag]) {
+    NSNumber *key = @(child.tag);
+
+    UIView *assetView = self.assetViews[key];
+    [assetView removeFromSuperview];
+
+    [self.assetViews removeObjectForKey:key];
+    [self.assetPlaceholders removeObjectForKey:key];
+
+    [child removeFromSuperview];
+    return;
+  }
+
+  [super unmountChildComponentView:child index:index];
+}
+
+
+
+#pragma mark - Asset binding
+
+//- (void)bindAssetsIfPossible {
+//  if (!self.nativeView || self.assetPlaceholders.count == 0) {
+//    return;
+//  }
+//
+//  for (NSNumber *key in self.assetPlaceholders) {
+//    UIView *placeholder = self.assetPlaceholders[key];
+//    
+//    if (placeholder.superview != self.nativeView) {
+//      [self.nativeView addSubview:placeholder];
+//    }
+//
+//    // create asset view, if is not exist
+//    UIView *assetView = [self createSDKAssetView:key.integerValue];
+//    if (assetView && assetView.superview == nil) {
+//      assetView.frame = placeholder.bounds;
+//      assetView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+//      [placeholder addSubview:assetView];
+//
+//      // register in CASNativeView
+//      [self registerAssetView:assetView forTag:key.integerValue];
+//    }
+//  }
+//}
+
+- (void)bindAssetsIfPossible {
+  if (!self.nativeView) return;
+
+  for (NSNumber *key in self.assetPlaceholders) {
+    UIView *placeholder = self.assetPlaceholders[key];
+
+    if (placeholder.superview != self.nativeView) {
+      [self.nativeView addSubview:placeholder];
+    }
+
+    UIView *assetView = self.assetViews[key];
+    if (!assetView) {
+      assetView = [self createSDKAssetView:key.integerValue];
+      if (!assetView) continue;
+
+      assetView.translatesAutoresizingMaskIntoConstraints = YES;
+      assetView.autoresizingMask =
+        UIViewAutoresizingFlexibleWidth |
+        UIViewAutoresizingFlexibleHeight;
+
+      [placeholder addSubview:assetView];
+      self.assetViews[key] = assetView;
+
+      [self registerAssetView:assetView forTag:key.integerValue];
+    }
+
+    assetView.frame = placeholder.bounds;
+  }
+}
+
+
+
+- (UIView *)createSDKAssetView:(NSInteger)tag {
+  switch(tag) {
+    case 101: return [[UILabel alloc] init]; // HEADLINE
+    case 102: return [[CASMediaView alloc] init]; // MEDIA
+    case 103: return [[UIButton alloc] init]; // CALL_TO_ACTION
+    case 104: return [[UIImageView alloc] init]; // ICON
+    case 105: return [[UILabel alloc] init]; // BODY
+    case 106: return [[UILabel alloc] init]; // PRICE
+    case 107: return [[UILabel alloc] init]; // ADVERTISER
+    case 108: return [[UILabel alloc] init]; // STORE
+    case 109: return [[UIView alloc] init]; // STAR RATING
+    case 110: return [[UILabel alloc] init]; // REVIEW COUNT
+    case 111: return [[UILabel alloc] init]; // AD LABEL
+    case 112: return [[CASChoicesView alloc] init]; // ADCHOICES
+    default: return nil;
+  }
+}
+
+- (void)registerAssetView:(UIView *)view forTag:(NSInteger)tag {
+  switch(tag) {
+    case 101: self.nativeView.headlineView = (UILabel *)view; break;
+    case 102: self.nativeView.mediaView = (CASMediaView *)view; break;
+    case 103: self.nativeView.callToActionView = (UIButton *)view; break;
+    case 104: self.nativeView.iconView = (UIImageView *)view; break;
+    case 105: self.nativeView.bodyView = (UILabel *)view; break;
+    case 106: self.nativeView.priceView = (UILabel *)view; break;
+    case 107: self.nativeView.advertiserView = (UILabel *)view; break;
+    case 108: self.nativeView.storeView = (UILabel *)view; break;
+    case 109: self.nativeView.starRatingView = view; break;
+    case 110: self.nativeView.reviewCountView = (UILabel *)view; break;
+    case 111: self.nativeView.adLabelView = (UILabel *)view; break;
+    case 112: self.nativeView.adChoicesView = (CASChoicesView *)view; break;
+  }
+}
+
+//- (void)prepareForRecycle {
+//  [self.nativeView removeFromSuperview];
+//  [self.assetPlaceholders removeAllObjects];
+//  
+//  self.nativeView = nil;
+//  self.appliedInstanceId = -1;
+//  
+//  [super prepareForRecycle];
+//}
+
+- (void)prepareForRecycle {
+  [self.nativeView removeFromSuperview];
+  [self.assetPlaceholders removeAllObjects];
+  [self.assetViews removeAllObjects];
+
+  self.nativeView = nil;
+  self.appliedInstanceId = -1;
+
+  [super prepareForRecycle];
+}
+
 
 @end
 

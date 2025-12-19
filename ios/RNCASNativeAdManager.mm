@@ -17,11 +17,7 @@ RCT_EXPORT_VIEW_PROPERTY(height, CGFloat)
 
 // Export types
 RCT_EXPORT_VIEW_PROPERTY(backgroundColor, UIColor)
-RCT_EXPORT_VIEW_PROPERTY(primaryColor, UIColor)
-RCT_EXPORT_VIEW_PROPERTY(primaryTextColor, UIColor)
-RCT_EXPORT_VIEW_PROPERTY(headlineTextColor, UIColor)
 RCT_EXPORT_VIEW_PROPERTY(headlineFontStyle, NSString)
-RCT_EXPORT_VIEW_PROPERTY(secondaryTextColor, UIColor)
 RCT_EXPORT_VIEW_PROPERTY(secondaryFontStyle, NSString)
 
 - (UIView *)view {
