@@ -50,9 +50,9 @@
     "format": "prettier --write '**/*.{js,jsx,ts,tsx}'",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "codegen": "react-native codegen",
-    "android": "cd example/android && ./gradlew assembleDebug --no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a",
-    "ios": "cd example/ios && pod install",
     "prepare": "bob build",
+    "test:android": "cd example/android && ./gradlew assembleDebug --no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a",
+    "test:ios": "cd example/ios && pod install && xcodebuild -workspace CASExample.xcworkspace -scheme CASExample -configuration Debug -sdk iphonesimulator CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ GCC_OPTIMIZATION_LEVEL=0 GCC_PRECOMPILE_PREFIX_HEADER=YES ASSETCATALOG_COMPILER_OPTIMIZATION=time DEBUG_INFORMATION_FORMAT=dwarf COMPILER_INDEX_STORE_ENABLE=NO",
     "release": "npm publish --access public"
   },
   "publishConfig": {

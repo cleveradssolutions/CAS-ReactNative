@@ -10,6 +10,8 @@ _CAS_VERSION = "4.5.2"
 # yarn lint
 # yarn codegen
 # yarn prepare
+# yarn test:android
+# yarn test:ios
 # yarn release
 
 def update_version_in_file(file_path, prefix, suffix):
