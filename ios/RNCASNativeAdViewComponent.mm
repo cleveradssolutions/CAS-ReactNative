@@ -4,20 +4,35 @@
 
 #import "CASMobileAds.h"
 #import "RNCASNativeAdStore.h"
+#import "RNCASNativeAdAssetBinder.h"
 #import "RNCASNativeAdViewComponent.h"
 
 
 @interface RNCASNativeAdViewComponent () 
 @property (nonatomic, strong, nullable) CASNativeView *nativeView;
 @property (nonatomic, assign) int appliedInstanceId;
+
+/// assetType(tag) -> sdk asset view
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, UIView *> *assetViews;
+/// assetType(tag) -> placeholder view
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, UIView *> *assetPlaceholders;
 @end
 
 @implementation RNCASNativeAdViewComponent
 
-- (void)dealloc {
-  if (self.nativeView) {
-    self.nativeView = nil;
+- (instancetype)initWithFrame:(CGRect)frame {
+  if (self = [super initWithFrame:frame]) {
+    _assetViews = [NSMutableDictionary new];
+    _assetPlaceholders = [NSMutableDictionary new];
+    _appliedInstanceId = -1;
   }
+  return self;
+}
+
+- (void)dealloc {
+  [self.assetViews removeAllObjects];
+  [self.assetPlaceholders removeAllObjects];
+  self.nativeView = nil;
 }
 
 - (void)didSetProps:(NSArray<NSString *> *)changedProps {
@@ -36,6 +51,10 @@
     // drop
     CASSize *adSize = [CASSize getInlineBannerWithWidth:self.width maxHeight:self.height];
     [self.nativeView setAdTemplateSize:adSize];
+  } else {
+    [RNCASNativeAdAssetBinder bindAssetsIfPossibleForNativeView:self.nativeView
+                                                    placeholders:self.assetPlaceholders
+                                                           views:self.assetViews];
   }
   
   // Refresh Native Ad if changed only

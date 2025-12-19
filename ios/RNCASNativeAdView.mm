@@ -2,6 +2,7 @@
 #import "CASMobileAds.h"
 #import "RNCASNativeAdView.h"
 #import "RNCASNativeAdStore.h"
+#import "RNCASNativeAdAssetBinder.h"
 #import <CleverAdsSolutions/CleverAdsSolutions-Swift.h>
 
 #import <React/RCTConversions.h>
@@ -86,7 +87,9 @@ using namespace facebook::react;
                                               maxHeight:newProps.height];
     [self.nativeView setAdTemplateSize:adSize];
   } else {
-    [self bindAssetsIfPossible];
+    [RNCASNativeAdAssetBinder bindAssetsIfPossibleForNativeView:self.nativeView
+                                                           placeholders:self.assetPlaceholders
+                                                                  views:self.assetViews];
   }
 
   // 3. Update native ad only if changed
@@ -200,120 +203,45 @@ using namespace facebook::react;
   [super updateProps:props oldProps:oldProps];
 }
 
+#pragma mark - Mount/unmount child
 
-- (BOOL)isAssetTag:(NSInteger)tag {
-  return tag >= 101 && tag <= 112;
-}
-
-- (void)mountChildComponentView:(UIView *)child
-                          index:(NSInteger)index {
-
-  if ([self isAssetTag:child.tag]) {
+- (void)mountChildComponentView:(UIView *)child index:(NSInteger)index {
+  if ([RNCASNativeAdAssetBinder isAssetTag:child.tag]) {
     self.assetPlaceholders[@(child.tag)] = child;
-    [self bindAssetsIfPossible];
-    
+    [RNCASNativeAdAssetBinder bindAssetsIfPossibleForNativeView:self.nativeView
+                                                   placeholders:self.assetPlaceholders
+                                                          views:self.assetViews];
     return;
   }
-
   [super mountChildComponentView:child index:index];
 }
 
-- (void)unmountChildComponentView:(UIView *)child
-                            index:(NSInteger)index {
-
-  if ([self isAssetTag:child.tag]) {
+- (void)unmountChildComponentView:(UIView *)child index:(NSInteger)index {
+  if ([RNCASNativeAdAssetBinder isAssetTag:child.tag]) {
     NSNumber *key = @(child.tag);
-
     UIView *assetView = self.assetViews[key];
     [assetView removeFromSuperview];
-
     [self.assetViews removeObjectForKey:key];
     [self.assetPlaceholders removeObjectForKey:key];
-
     [child removeFromSuperview];
     return;
   }
-
   [super unmountChildComponentView:child index:index];
 }
 
-
-
-#pragma mark - Asset binding
-
-- (void)bindAssetsIfPossible {
-  if (!self.nativeView) return;
-
-  for (NSNumber *key in self.assetPlaceholders) {
-    UIView *placeholder = self.assetPlaceholders[key];
-
-    if (placeholder.superview != self.nativeView) {
-      [self.nativeView addSubview:placeholder];
-    }
-
-    UIView *assetView = self.assetViews[key];
-    if (!assetView) {
-      assetView = [self createSDKAssetView:key.integerValue];
-      if (!assetView) continue;
-
-      assetView.frame = placeholder.bounds;
-      assetView.autoresizingMask =
-        UIViewAutoresizingFlexibleWidth |
-        UIViewAutoresizingFlexibleHeight;
-
-      [placeholder addSubview:assetView];
-      self.assetViews[key] = assetView;
-      
-      [self registerAssetView:assetView forTag:key.integerValue];
-    }
-
-    assetView.frame = placeholder.bounds;
-  }
-}
-
-- (UIView *)createSDKAssetView:(NSInteger)tag {
-  switch(tag) {
-    case 101: return [[UILabel alloc] init]; // HEADLINE
-    case 102: return [[CASMediaView alloc] init]; // MEDIA
-    case 103: return [[UIButton alloc] init]; // CALL_TO_ACTION
-    case 104: return [[UIImageView alloc] init]; // ICON
-    case 105: return [[UILabel alloc] init]; // BODY
-    case 106: return [[UILabel alloc] init]; // PRICE
-    case 107: return [[UILabel alloc] init]; // ADVERTISER
-    case 108: return [[UILabel alloc] init]; // STORE
-    case 109: return [[UIView alloc] init]; // STAR RATING
-    case 110: return [[UILabel alloc] init]; // REVIEW COUNT
-    case 111: return [[UILabel alloc] init]; // AD LABEL
-    case 112: return [[CASChoicesView alloc] init]; // ADCHOICES
-    default: return nil;
-  }
-}
-
-- (void)registerAssetView:(UIView *)view forTag:(NSInteger)tag {
-  switch(tag) {
-    case 101: self.nativeView.headlineView = (UILabel *)view; break;
-    case 102: self.nativeView.mediaView = (CASMediaView *)view; break;
-    case 103: self.nativeView.callToActionView = (UIButton *)view; break;
-    case 104: self.nativeView.iconView = (UIImageView *)view; break;
-    case 105: self.nativeView.bodyView = (UILabel *)view; break;
-    case 106: self.nativeView.priceView = (UILabel *)view; break;
-    case 107: self.nativeView.advertiserView = (UILabel *)view; break;
-    case 108: self.nativeView.storeView = (UILabel *)view; break;
-    case 109: self.nativeView.starRatingView = view; break;
-    case 110: self.nativeView.reviewCountView = (UILabel *)view; break;
-    case 111: self.nativeView.adLabelView = (UILabel *)view; break;
-    case 112: self.nativeView.adChoicesView = (CASChoicesView *)view; break;
-  }
-}
+#pragma mark - Recycle
 
 - (void)prepareForRecycle {
-  [self.nativeView removeFromSuperview];
-  [self.assetPlaceholders removeAllObjects];
+  [self.assetViews enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key, UIView * _Nonnull obj, BOOL * _Nonnull stop) {
+    [obj removeFromSuperview];
+  }];
   [self.assetViews removeAllObjects];
-
+  [self.assetPlaceholders removeAllObjects];
+  
+  [self.nativeView removeFromSuperview];
   self.nativeView = nil;
   self.appliedInstanceId = -1;
-
+  
   [super prepareForRecycle];
 }
 
@@ -324,7 +252,7 @@ using namespace facebook::react;
 #pragma mark - RNCASNativeAdViewCls
 
 Class<RCTComponentViewProtocol> RNCASNativeAdViewCls(void) {
-    return RNCASNativeAdView.class;
+  return RNCASNativeAdView.class;
 }
 
 #endif /* ifdef RCT_NEW_ARCH_ENABLED */
