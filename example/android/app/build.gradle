@@ -2,7 +2,7 @@ plugins {
   id 'com.android.application'
   id 'org.jetbrains.kotlin.android'
   id 'com.facebook.react'
-  id 'com.cleveradssolutions.gradle-plugin' version '4.5.2'
+  id 'com.cleveradssolutions.gradle-plugin' version '4.5.4'
 }
 
 react {

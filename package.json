@@ -1,6 +1,6 @@
 {
   "name": "react-native-cas",
-  "version": "4.5.2",
+  "version": "4.5.4",
   "description": "The CAS.AI React Native plugin allows you to easily monetize your apps for iOS and Android using lot of Ads SDKs in mediation.",
   "author": "Clever Ads Solutions LTD <support@cas.ai> (https://cas.ai)",
   "license": "Apache-2.0",
@@ -59,10 +59,11 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.5",
     "@eslint/js": "^9.38.0",
     "@evilmartians/lefthook": "^1.5.0",
     "@react-native-community/cli": "latest",
-    "@types/react": "^18.2.44",
+    "@types/react": "19.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.26.0",
@@ -72,13 +73,10 @@
     "globals": "^16.4.0",
     "prettier": "^3.0.0",
     "react": "19.0.0",
-    "react-native": "0.79.2",
+    "react-native": "0.79.5",
     "react-native-builder-bob": "^0.20.4",
     "rimraf": "^3.0.2",
     "typescript": "^5.2.2"
-  },
-  "resolutions": {
-    "@types/react": "^18.2.44"
   },
   "peerDependencies": {
     "react": "*",
