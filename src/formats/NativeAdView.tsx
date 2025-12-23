@@ -12,7 +12,7 @@ import CASNativeAdViewComponent from '../modules/NativeCASNativeAdViewComponent'
  * to the underlying native component instance.
  */
 export const NativeAdView = forwardRef<NativeAdViewRef, NativeAdViewProps & ViewProps>(
-  function NativeAdView({ ad, width, height, templateStyle, style}, _) {
+  function NativeAdView({ ad, width, height, templateStyle, children, style }, _) {  
     const adViewRef = useRef(null);
     const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
@@ -22,6 +22,7 @@ export const NativeAdView = forwardRef<NativeAdViewRef, NativeAdViewProps & View
         instanceId={ad.instanceId}
         width={Math.min(width ?? screenWidth, screenWidth)}
         height={Math.min(height ?? screenHeight, screenHeight)}
+        usesTemplate={React.Children.count(children) === 0}
         backgroundColor={templateStyle?.backgroundColor}
         primaryColor={templateStyle?.primaryColor}
         primaryTextColor={templateStyle?.primaryTextColor}
@@ -29,8 +30,10 @@ export const NativeAdView = forwardRef<NativeAdViewRef, NativeAdViewProps & View
         headlineFontStyle={templateStyle?.headlineFontStyle}
         secondaryTextColor={templateStyle?.secondaryTextColor}
         secondaryFontStyle={templateStyle?.secondaryFontStyle}
-        style={style}
-      />
+        style={style}       
+      >      
+        {children}
+      </CASNativeAdViewComponent>
     );
   },
 );

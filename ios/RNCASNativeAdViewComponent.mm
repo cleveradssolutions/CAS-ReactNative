@@ -4,20 +4,35 @@
 
 #import "CASMobileAds.h"
 #import "RNCASNativeAdStore.h"
+#import "RNCASNativeAdAssetBinder.h"
 #import "RNCASNativeAdViewComponent.h"
 
 
 @interface RNCASNativeAdViewComponent () 
 @property (nonatomic, strong, nullable) CASNativeView *nativeView;
 @property (nonatomic, assign) int appliedInstanceId;
+
+/// assetType(tag) -> sdk asset view
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, UIView *> *assetViews;
+/// assetType(tag) -> placeholder view
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, UIView *> *assetPlaceholders;
 @end
 
 @implementation RNCASNativeAdViewComponent
 
-- (void)dealloc {
-  if (self.nativeView) {
-    self.nativeView = nil;
+- (instancetype)initWithFrame:(CGRect)frame {
+  if (self = [super initWithFrame:frame]) {
+    _assetViews = [NSMutableDictionary new];
+    _assetPlaceholders = [NSMutableDictionary new];
+    _appliedInstanceId = -1;
   }
+  return self;
+}
+
+- (void)dealloc {
+  [self.assetViews removeAllObjects];
+  [self.assetPlaceholders removeAllObjects];
+  self.nativeView = nil;
 }
 
 - (void)didSetProps:(NSArray<NSString *> *)changedProps {
@@ -29,13 +44,19 @@
     self.nativeView.translatesAutoresizingMaskIntoConstraints = YES;
     [self addSubview:_nativeView];
   }
-
-  // Refresh template Size
-  // setAdTemplateSize can be called multiple times for same ad size with zero performance
-  // drop
-  CASSize *adSize = [CASSize getInlineBannerWithWidth:self.width maxHeight:self.height];
-  [self.nativeView setAdTemplateSize:adSize];
-
+  
+  if (self.usesTemplate) {
+    // Refresh template Size
+    // setAdTemplateSize can be called multiple times for same ad size with zero performance
+    // drop
+    CASSize *adSize = [CASSize getInlineBannerWithWidth:self.width maxHeight:self.height];
+    [self.nativeView setAdTemplateSize:adSize];
+  } else {
+    [RNCASNativeAdAssetBinder bindAssetsIfPossibleForNativeView:self.nativeView
+                                                    placeholders:self.assetPlaceholders
+                                                           views:self.assetViews];
+  }
+  
   // Refresh Native Ad if changed only
   if (self.appliedInstanceId != self.instanceId) {
     self.appliedInstanceId = self.instanceId;
@@ -46,13 +67,19 @@
   }
 
   // Set styles
-  [self applyTemplateStyleToView:self.nativeView];
+  if (self.usesTemplate) {
+    [self applyTemplateStyleToView:self.nativeView];
+  }
 }
 
 - (void)applyTemplateStyleToView:(CASNativeView *)nativeView {
   if (self.backgroundColor) {
     nativeView.backgroundColor = self.backgroundColor;
   }
+  
+  // Fonts // bold | italic | monospace | medium etc
+  NSString *headlineFontStyle = self.headlineFontStyle;
+  NSString *secondaryFontStyle = self.secondaryFontStyle;
   
   // Headline
   if (self.headlineTextColor && nativeView.headlineView) {
@@ -93,10 +120,6 @@
       }
     }
   }
-
-  // Fonts // bold | italic | monospace | medium etc
-  NSString *headlineFontStyle = self.headlineFontStyle;
-  NSString *secondaryFontStyle = self.secondaryFontStyle;
   
   if (headlineFontStyle && nativeView.headlineView) {
     nativeView.headlineView.font = RNCASFontForStyle(headlineFontStyle, nativeView.headlineView);

@@ -107,7 +107,8 @@
       "moduleName": "CASMobileAds",
       "componentProvider": {
         "CASAdView": "RNCASBannerAdView",
-        "CASNativeAdView": "RNCASNativeAdView"
+        "CASNativeAdView": "RNCASNativeAdView",
+        "CASNativeAssetView": "RNCASNativeAssetView"
       }
     },
     "android": {
