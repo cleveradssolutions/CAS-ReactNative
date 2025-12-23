@@ -2,8 +2,14 @@ package com.cleveradssolutions.plugin.reactnative
 
 import android.app.Activity
 import android.content.Context
+import com.cleveradssolutions.plugin.reactnative.native.NativeAdStore
+import com.cleveradssolutions.sdk.AdContentInfo
 import com.cleveradssolutions.sdk.AdFormat
+import com.cleveradssolutions.sdk.OnAdImpressionListener
 import com.cleveradssolutions.sdk.base.CASHandler
+import com.cleveradssolutions.sdk.nativead.CASNativeLoader
+import com.cleveradssolutions.sdk.nativead.NativeAdContent
+import com.cleveradssolutions.sdk.nativead.NativeAdContentCallback
 import com.cleveradssolutions.sdk.screen.CASAppOpen
 import com.cleveradssolutions.sdk.screen.CASInterstitial
 import com.cleveradssolutions.sdk.screen.CASRewarded
@@ -16,28 +22,35 @@ import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
 
 class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) {
+
   companion object {
     const val NAME = "CASMobileAds"
     var casIdentifier: String = ""
   }
 
   private var initConfig: WritableNativeMap? = null
+
   private var interstitialAd: CASInterstitial? = null
   private var rewardedAd: CASRewarded? = null
   private var appOpenAd: CASAppOpen? = null
 
-  private fun appCtx(): Context = reactContext.applicationContext
-  private fun curActivity(): Activity? = reactContext.currentActivity
+  private var nativeLoader: CASNativeLoader? = null
+  private val nativeCallback = NativeCallback()
+  private var nativeMutedEnabled: Boolean? = null
+  private var nativeAdChoicesPlacement: Int? = null
+
+  private fun appContext(): Context = reactContext.applicationContext
+  private fun currentActivity(): Activity? = reactContext.currentActivity
 
   private fun emitError(finalEvent: String) {
     val error = AdError.NOT_INITIALIZED
-    val map = WritableNativeMap().apply {
+    val payload = WritableNativeMap().apply {
       putInt("code", error.code)
       putString("message", error.message)
     }
     reactContext
       .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-      .emit(finalEvent, map)
+      .emit(finalEvent, payload)
   }
 
   private fun emitLoadError(format: AdFormat) {
@@ -50,7 +63,7 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
 
   private fun createInterstitialAd() {
     val callback = ScreenContentCallback(reactContext, AdFormat.INTERSTITIAL.label)
-    interstitialAd = CASInterstitial(appCtx(), casIdentifier).apply {
+    interstitialAd = CASInterstitial(appContext(), casIdentifier).apply {
       contentCallback = callback
       onImpressionListener = callback
     }
@@ -58,7 +71,7 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
 
   private fun createRewardedAd() {
     val callback = ScreenContentCallback(reactContext, AdFormat.REWARDED.label)
-    rewardedAd = CASRewarded(appCtx(), casIdentifier).apply {
+    rewardedAd = CASRewarded(appContext(), casIdentifier).apply {
       contentCallback = callback
       onImpressionListener = callback
     }
@@ -66,9 +79,26 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
 
   private fun createAppOpenAd() {
     val callback = ScreenContentCallback(reactContext, AdFormat.APP_OPEN.label)
-    appOpenAd = CASAppOpen(appCtx(), casIdentifier).apply {
+    appOpenAd = CASAppOpen(appContext(), casIdentifier).apply {
       contentCallback = callback
       onImpressionListener = callback
+    }
+  }
+
+  private fun applyNativeLoaderOptions(loader: CASNativeLoader) {
+    nativeMutedEnabled?.let { loader.isStartVideoMuted = it }
+    nativeAdChoicesPlacement?.let { loader.adChoicesPlacement = it }
+  }
+
+  private fun getOrCreateNativeLoader(): CASNativeLoader? {
+    if (casIdentifier.isEmpty()) return null
+
+    val existing = nativeLoader
+    if (existing != null) return existing
+
+    return CASNativeLoader(appContext(), casIdentifier, nativeCallback).also { created ->
+      applyNativeLoaderOptions(created)
+      nativeLoader = created
     }
   }
 
@@ -77,18 +107,19 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
       promise.resolve(initConfig)
       return
     }
+
     casIdentifier = casId
 
-    options.optIntOrNull("targetAudience")?.let {
-      CAS.settings.taggedAudience = it
-    }
-    options.optStringSet("testDeviceIds")?.let {
-      CAS.settings.testDeviceIDs = it
-    }
+    options.optIntOrNull("targetAudience")?.let { CAS.settings.taggedAudience = it }
+    options.optStringSet("testDeviceIds")?.let { CAS.settings.testDeviceIDs = it }
 
     createInterstitialAd()
     createRewardedAd()
     createAppOpenAd()
+
+    nativeLoader = CASNativeLoader(appContext(), casIdentifier, nativeCallback).also {
+      applyNativeLoaderOptions(it)
+    }
 
     val builder = CAS.buildManager()
       .withCasId(casId)
@@ -98,23 +129,19 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
 
     val showConsent = options.optBoolean("showConsentFormIfRequired", true)
     val consent = ConsentFlow(showConsent)
-    options.optIntOrNull("debugGeography")?.let {
-      consent.debugGeography = it
-    }
+    options.optIntOrNull("debugGeography")?.let { consent.debugGeography = it }
     builder.withConsentFlow(consent)
 
     options.optMap("mediationExtras")?.let { extras ->
-      val it = extras.keySetIterator()
-      while (it.hasNextKey()) {
-        val key = it.nextKey()
+      val iterator = extras.keySetIterator()
+      while (iterator.hasNextKey()) {
+        val key = iterator.nextKey()
         val value = extras.getString(key)
-        if (!value.isNullOrEmpty()) {
-          builder.withMediationExtras(key, value)
-        }
+        if (!value.isNullOrEmpty()) builder.withMediationExtras(key, value)
       }
     }
 
-    builder.build(curActivity() ?: appCtx())
+    builder.build(currentActivity() ?: appContext())
   }
 
   fun isInitialized(promise: Promise) {
@@ -124,7 +151,7 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
   fun showConsentFlow(promise: Promise) {
     CASHandler.main {
       ConsentFlow()
-        .withUIContext(curActivity())
+        .withUIContext(currentActivity())
         .withDismissListener(CompletionListener(promise))
         .show()
     }
@@ -155,9 +182,8 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
   }
 
   fun setAppKeywords(keywordsArray: ReadableArray?) {
-    CAS.getTargetingOptions().keywords = keywordsArray?.run {
-      toArrayList().filterIsInstance<String>().toSet()
-    }
+    CAS.getTargetingOptions().keywords =
+      keywordsArray?.toArrayList()?.filterIsInstance<String>()?.toSet()
   }
 
   fun setLocationCollectionEnabled(enabled: Boolean) {
@@ -173,16 +199,11 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
   }
 
   fun loadInterstitialAd() {
-    interstitialAd?.load(appCtx()) ?: run {
-      emitLoadError(AdFormat.INTERSTITIAL)
-    }
+    interstitialAd?.load(appContext()) ?: emitLoadError(AdFormat.INTERSTITIAL)
   }
 
   fun showInterstitialAd() {
-    val ad = interstitialAd
-    interstitialAd?.show(curActivity()) ?: run {
-      emitShowError(AdFormat.INTERSTITIAL)
-    }
+    interstitialAd?.show(currentActivity()) ?: emitShowError(AdFormat.INTERSTITIAL)
   }
 
   fun setInterstitialAutoloadEnabled(enabled: Boolean) {
@@ -212,19 +233,16 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
   }
 
   fun loadRewardedAd() {
-    rewardedAd?.load(appCtx()) ?: run {
-      emitLoadError(AdFormat.REWARDED)
-    }
+    rewardedAd?.load(appContext()) ?: emitLoadError(AdFormat.REWARDED)
   }
 
   fun showRewardedAd() {
-    val ad = rewardedAd
-    if (ad == null) {
+    val ad = rewardedAd ?: run {
       emitShowError(AdFormat.INTERSTITIAL)
       return
     }
     val callback = ad.contentCallback as ScreenContentCallback
-    ad.show(curActivity(), callback)
+    ad.show(currentActivity(), callback)
   }
 
   fun setRewardedAutoloadEnabled(enabled: Boolean) {
@@ -242,15 +260,11 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
   }
 
   fun loadAppOpenAd() {
-    appOpenAd?.load(appCtx()) ?: run {
-      emitLoadError(AdFormat.APP_OPEN)
-    }
+    appOpenAd?.load(appContext()) ?: emitLoadError(AdFormat.APP_OPEN)
   }
 
   fun showAppOpenAd() {
-    appOpenAd?.show(curActivity()) ?: run {
-      emitShowError(AdFormat.APP_OPEN)
-    }
+    appOpenAd?.show(currentActivity()) ?: emitShowError(AdFormat.APP_OPEN)
   }
 
   fun setAppOpenAutoloadEnabled(enabled: Boolean) {
@@ -267,9 +281,37 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
     createAppOpenAd()
   }
 
+  fun loadNativeAd(maxNumberOfAds: Int) {
+    val loader = getOrCreateNativeLoader()
+    if (loader == null) {
+      emitError("onNativeAdFailedToLoad")
+      return
+    }
+    loader.load(maxNumberOfAds)
+  }
+
+  fun destroyNative(instanceId: Int) {
+    CASHandler.main {
+      val content = NativeAdStore.remove(instanceId)
+      content?.onImpressionListener = null
+      content?.destroy()
+    }
+  }
+
+  fun setNativeMutedEnabled(enabled: Boolean) {
+    nativeMutedEnabled = enabled
+    getOrCreateNativeLoader()?.isStartVideoMuted = enabled
+  }
+
+  fun setNativeAdChoicesPlacement(adChoicesPlacement: Int) {
+    nativeAdChoicesPlacement = adChoicesPlacement
+    getOrCreateNativeLoader()?.adChoicesPlacement = adChoicesPlacement
+  }
+
   private inner class CompletionListener(
-    var promise: Promise?
+    private var promise: Promise?
   ) : InitializationListener, ConsentFlow.OnDismissListener {
+
     override fun onCASInitialized(config: InitialConfiguration) {
       initConfig = WritableNativeMap().apply {
         config.error?.let { putString("error", it) }
@@ -277,8 +319,6 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
         putBoolean("isConsentRequired", config.isConsentRequired)
         putInt("consentFlowStatus", config.consentFlowStatus)
       }
-
-      // Fire promise once only
       promise?.resolve(initConfig)
       promise = null
     }
@@ -286,6 +326,43 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
     override fun onConsentFlowDismissed(status: Int) {
       promise?.resolve(status)
       promise = null
+    }
+  }
+
+  private inner class NativeCallback : NativeAdContentCallback(), OnAdImpressionListener {
+
+    private fun emit(event: String, payload: Any? = null) {
+      reactContext
+        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+        .emit(event, payload)
+    }
+
+    private fun errorMap(error: AdError): WritableMap =
+      WritableNativeMap().apply {
+        putInt("code", error.code)
+        putString("message", error.message)
+      }
+
+    override fun onNativeAdLoaded(nativeAd: NativeAdContent, ad: AdContentInfo) {
+      val instanceId = NativeAdStore.save(nativeAd)
+      nativeAd.onImpressionListener = this
+      emit("onNativeAdLoaded", instanceId)
+    }
+
+    override fun onNativeAdFailedToLoad(error: AdError) {
+      emit("onNativeAdFailedToLoad", errorMap(error))
+    }
+
+    override fun onNativeAdClicked(nativeAd: NativeAdContent, ad: AdContentInfo) {
+      emit("onNativeAdClicked", null)
+    }
+
+    override fun onNativeAdFailedToShow(nativeAd: NativeAdContent, error: AdError) {
+      emit("onNativeAdFailedToShow", errorMap(error))
+    }
+
+    override fun onAdImpression(ad: AdContentInfo) {
+      emit("onNativeAdImpression", ad.toWritableMap())
     }
   }
 }

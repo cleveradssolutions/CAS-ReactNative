@@ -44,4 +44,9 @@ class CASMobileAdsModule(reactContext: ReactApplicationContext)
   override fun destroyAppOpen() = impl.destroyAppOpen()
   override fun addListener(eventName: String?) {  }
   override fun removeListeners(count: Double) {  }
+  override fun loadNativeAd(maxNumberOfAds: Double) = impl.loadNativeAd(maxNumberOfAds.toInt())
+  override fun setNativeMutedEnabled(enabled: Boolean) = impl.setNativeMutedEnabled(enabled)
+  override fun setNativeAdChoicesPlacement(adChoicesPlacement: Double) = impl.setNativeAdChoicesPlacement(adChoicesPlacement.toInt())
+  override fun destroyNative(instanceId: Double) = impl.destroyNative(instanceId.toInt())
+
 }

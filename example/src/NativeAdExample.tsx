@@ -47,7 +47,7 @@ export default function NativeAdExample() {
 
   // Buttons
   const onPressLoadButton = () => {
-    NativeAdLoader.loadAd(1);
+    NativeAdLoader.loadAds(1);
   };
 
   const onToggleMute = () => {
