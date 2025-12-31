@@ -6,164 +6,193 @@ import android.widget.FrameLayout
 import com.cleveradssolutions.sdk.nativead.CASNativeView
 import com.cleveradssolutions.sdk.nativead.NativeAdContent
 import com.cleversolutions.ads.AdSize
-import kotlin.math.roundToInt
+import com.facebook.react.views.view.ReactViewGroup
 
-class CASNativeAdView(context: Context) : FrameLayout(context) {
+class CASNativeAdView(context: Context) : ReactViewGroup(context) {
 
-  private var casNativeView: CASNativeView? = null
+  private val nativeView = CASNativeView(context)
+  internal val reactContainer = ReactViewGroup(context)
 
   var instanceId: Int = -1
   var widthDp: Int = 0
   var heightDp: Int = 0
+  var usesTemplate: Boolean = false
+
+  var templateBackgroundColor: Int? = null
+  var templatePrimaryColor: Int? = null
+  var templatePrimaryTextColor: Int? = null
+  var templateHeadlineTextColor: Int? = null
+  var templateHeadlineFontStyle: String? = null
+  var templateSecondaryTextColor: Int? = null
+  var templateSecondaryFontStyle: String? = null
+
+  private val templateStyle = NativeTemplateStyle()
 
   private var appliedInstanceId: Int = Int.MIN_VALUE
-  private var appliedWidthDp: Int = Int.MIN_VALUE
-  private var appliedHeightDp: Int = Int.MIN_VALUE
+  private var lastAdRef: NativeAdContent? = null
+  private var unsubscribe: (() -> Unit)? = null
 
-  private var boundAd: NativeAdContent? = null
-  private var unsubscribeFromStore: (() -> Unit)? = null
+  private val sdkViews = HashMap<Int, View>()
 
-  private val style = NativeTemplateStyle()
+  private var applyPosted = false
+  private var lastTemplateW = 0
+  private var lastTemplateH = 0
 
-  fun setBackgroundColorProp(value: Int?) { style.backgroundColor = value }
-  fun setPrimaryColorProp(value: Int?) { style.primaryColor = value }
-  fun setPrimaryTextColorProp(value: Int?) { style.primaryTextColor = value }
-  fun setHeadlineTextColorProp(value: Int?) { style.headlineTextColor = value }
-  fun setHeadlineFontStyleProp(value: String?) { style.headlineFontStyle = value }
-  fun setSecondaryTextColorProp(value: Int?) { style.secondaryTextColor = value }
-  fun setSecondaryFontStyleProp(value: String?) { style.secondaryFontStyle = value }
+  init {
+    addView(nativeView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+    nativeView.addView(
+      reactContainer,
+      FrameLayout.LayoutParams(
+        FrameLayout.LayoutParams.MATCH_PARENT,
+        FrameLayout.LayoutParams.MATCH_PARENT
+      )
+    )
+  }
+
+  fun addAssetChild(child: View, index: Int) {
+    reactContainer.addView(child, index.coerceIn(0, reactContainer.childCount))
+    scheduleApply()
+  }
+
+  fun getAssetChildCount(): Int = reactContainer.childCount
+  fun getAssetChildAt(index: Int): View? =
+    if (index in 0 until reactContainer.childCount) reactContainer.getChildAt(index) else null
+
+  fun removeAssetChildAt(index: Int) {
+    if (index !in 0 until reactContainer.childCount) return
+    reactContainer.removeViewAt(index)
+    scheduleApply()
+  }
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
-    post(::apply)
+    scheduleApply()
   }
 
   override fun onDetachedFromWindow() {
     super.onDetachedFromWindow()
-    unsubscribeFromStore?.invoke()
-    unsubscribeFromStore = null
+    unsubscribe?.invoke()
+    unsubscribe = null
   }
 
-  override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-    val w = widthDp
-    val h = heightDp
-    if (w > 0 && h > 0) {
-      val density = resources.displayMetrics.density
-      val desiredWpx = (w * density + 0.5f).roundToInt()
-      val desiredHpx = (h * density + 0.5f).roundToInt()
-
-      val resolvedWpx = resolveSize(desiredWpx, widthMeasureSpec)
-      val resolvedHpx = resolveSize(desiredHpx, heightMeasureSpec)
-
-      setMeasuredDimension(resolvedWpx, resolvedHpx)
-      return
-    }
-    super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-  }
-
-  fun commit() {
-    post(::apply)
-  }
+  fun commit() = scheduleApply()
 
   fun dispose() {
-    unsubscribeFromStore?.invoke()
-    unsubscribeFromStore = null
+    unsubscribe?.invoke()
+    unsubscribe = null
 
-    casNativeView?.setNativeAd(null)
-    boundAd = null
-
+    nativeView.setNativeAd(null)
+    lastAdRef = null
     appliedInstanceId = Int.MIN_VALUE
-    appliedWidthDp = Int.MIN_VALUE
-    appliedHeightDp = Int.MIN_VALUE
+
+    lastTemplateW = 0
+    lastTemplateH = 0
+
+    NativeAdAssetBinder.unbindAll(nativeView, sdkViews)
   }
 
-  private fun getOrCreateNativeView(): CASNativeView {
-    val existing = casNativeView
-    if (existing != null) return existing
-
-    val created = CASNativeView(context)
-    casNativeView = created
-    addView(created, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
-    return created
+  private fun scheduleApply() {
+    if (applyPosted) return
+    applyPosted = true
+    post(::applyNow)
   }
 
-  private fun recreateNativeView(): CASNativeView {
-    casNativeView?.let { removeView(it) }
-
-    val created = CASNativeView(context)
-    casNativeView = created
-    addView(created, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
-    appliedWidthDp = Int.MIN_VALUE
-    appliedHeightDp = Int.MIN_VALUE
-    return created
-  }
-
-  private fun forceExactMeasureAndLayout(view: View) {
-    val w = widthDp
-    val h = heightDp
-    if (w <= 0 || h <= 0) return
-
-    val density = resources.displayMetrics.density
-    val wPx = (w * density + 0.5f).roundToInt()
-    val hPx = (h * density + 0.5f).roundToInt()
-
-    val wSpec = MeasureSpec.makeMeasureSpec(wPx, MeasureSpec.EXACTLY)
-    val hSpec = MeasureSpec.makeMeasureSpec(hPx, MeasureSpec.EXACTLY)
-
-    view.measure(wSpec, hSpec)
-    view.layout(0, 0, wPx, hPx)
-    measure(wSpec, hSpec)
-    layout(left, top, left + wPx, top + hPx)
-  }
-
-  private fun apply() {
+  private fun applyNow() {
+    applyPosted = false
     if (!isAttachedToWindow) return
 
-    val w = widthDp
-    val h = heightDp
-    if (w <= 0 || h <= 0) {
-      requestLayout()
+    updateSubscription()
+
+    val ad = resolveAdOrClear() ?: return
+
+    val placeholders = NativeAdAssetBinder.collectPlaceholders(reactContainer)
+    if (placeholders.isNotEmpty()) {
+      val changed = NativeAdAssetBinder.bindAssets(nativeView, placeholders, sdkViews)
+
+      val needSet = (lastAdRef !== ad) || changed
+      if (needSet) {
+        lastAdRef = ad
+        nativeView.setNativeAd(ad)
+      }
+
+      applyTemplateStyle()
       return
     }
 
-    if (appliedInstanceId != instanceId) {
-      appliedInstanceId = instanceId
-      boundAd = null
-
-      unsubscribeFromStore?.invoke()
-      unsubscribeFromStore = null
-
-      if (instanceId >= 0) {
-        unsubscribeFromStore = NativeAdStore.subscribe(instanceId) {
-          post(::apply)
-        }
+    if (usesTemplate) {
+      val (wDp, hDp) = resolveTemplateSizeDp()
+      if (wDp <= 0 || hDp <= 0) {
+        requestLayout()
+        scheduleApply()
+        return
       }
-    }
 
+      if (lastTemplateW != wDp || lastTemplateH != hDp) {
+        lastTemplateW = wDp
+        lastTemplateH = hDp
+        nativeView.setAdTemplateSize(AdSize.getInlineBanner(wDp, hDp))
+      }
+
+      if (lastAdRef !== ad) {
+        lastAdRef = ad
+        nativeView.setNativeAd(ad)
+      }
+
+      applyTemplateStyle()
+      return
+    }
+    
+    NativeAdAssetBinder.unbindAll(nativeView, sdkViews)
+    if (lastAdRef != null) {
+      nativeView.setNativeAd(null)
+      lastAdRef = null
+    }
+  }
+
+  private fun updateSubscription() {
+    if (appliedInstanceId == instanceId) return
+
+    appliedInstanceId = instanceId
+    lastAdRef = null
+    lastTemplateW = 0
+    lastTemplateH = 0
+
+    unsubscribe?.invoke()
+    unsubscribe = null
+
+    if (instanceId >= 0) {
+      unsubscribe = NativeAdStore.subscribe(instanceId) { scheduleApply() }
+    }
+  }
+
+  private fun resolveAdOrClear(): NativeAdContent? {
     val ad = if (appliedInstanceId >= 0) NativeAdStore.find(appliedInstanceId) else null
     if (ad == null) {
-      val view = getOrCreateNativeView()
-      view.setNativeAd(null)
-      style.applyToView(view)
-      forceExactMeasureAndLayout(view)
-      return
+      nativeView.setNativeAd(null)
+      lastAdRef = null
+      lastTemplateW = 0
+      lastTemplateH = 0
+      NativeAdAssetBinder.unbindAll(nativeView, sdkViews)
+      return null
     }
+    return ad
+  }
 
-    val view = if (boundAd !== ad) {
-      boundAd = ad
-      recreateNativeView()
-    } else {
-      getOrCreateNativeView()
-    }
+  private fun resolveTemplateSizeDp(): Pair<Int, Int> {
+    val density = resources.displayMetrics.density
+    val wDp = if (widthDp > 0) widthDp else (measuredWidth / density).toInt()
+    val hDp = if (heightDp > 0) heightDp else (measuredHeight / density).toInt()
+    return wDp to hDp
+  }
 
-    if (appliedWidthDp != w || appliedHeightDp != h) {
-      appliedWidthDp = w
-      appliedHeightDp = h
-      view.setAdTemplateSize(AdSize.getInlineBanner(w, h))
-    }
-
-    view.setNativeAd(ad)
-    style.applyToView(view)
-    forceExactMeasureAndLayout(view)
+  private fun applyTemplateStyle() {
+    templateStyle.backgroundColor = templateBackgroundColor
+    templateStyle.primaryColor = templatePrimaryColor
+    templateStyle.primaryTextColor = templatePrimaryTextColor
+    templateStyle.headlineTextColor = templateHeadlineTextColor
+    templateStyle.headlineFontStyle = templateHeadlineFontStyle
+    templateStyle.secondaryTextColor = templateSecondaryTextColor
+    templateStyle.secondaryFontStyle = templateSecondaryFontStyle
+    templateStyle.applyToView(nativeView)
   }
 }

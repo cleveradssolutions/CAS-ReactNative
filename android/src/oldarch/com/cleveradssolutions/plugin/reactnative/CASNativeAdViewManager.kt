@@ -27,6 +27,10 @@ class CASNativeAdViewManager : SimpleViewManager<CASNativeAdView>() {
   fun setHeight(view: CASNativeAdView, value: Int) =
     NativeAdViewManagerImpl.setHeight(view, value)
 
+  @ReactProp(name = "usesTemplate")
+  fun setUsesTemplate(view: CASNativeAdView, value: Boolean) =
+    NativeAdViewManagerImpl.setUsesTemplate(view, value)
+
   @ReactProp(name = "backgroundColor", customType = "Color")
   fun setBackgroundColor(view: CASNativeAdView, value: Int?) =
     NativeAdViewManagerImpl.setBackgroundColor(view, value)
