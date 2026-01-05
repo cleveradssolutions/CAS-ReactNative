@@ -6,4 +6,3 @@ export { AppOpenAd } from './formats/AppOpenAd';
 export { BannerAdView } from './formats/BannerAdView';
 export { NativeAdLoader } from './formats/NativeAdLoader';
 export { NativeAdView } from './formats/NativeAdView';
-export { NativeAdAssetView } from './formats/NativeAdAssetView';

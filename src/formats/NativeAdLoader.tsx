@@ -1,5 +1,5 @@
 import CASMobileAdsNative from '../modules/NativeCASMobileAdsModule';
-import type { AdChoicesPlacement, NativeAdLoaderType, NativeAdType } from '../types/NativeAdType';
+import type { AdChoicesPlacement, NativeAdLoaderType, NativeAdType } from '../types/NativeAds';
 import { addAdEventListener } from '../EventEmitter';
 
 const enum NativeAdEvent {
@@ -12,8 +12,8 @@ const enum NativeAdEvent {
 
 export const NativeAdLoader: NativeAdLoaderType = {
   loadAds: CASMobileAdsNative.loadNativeAd,
-  setNativeMutedEnabled: CASMobileAdsNative.setNativeMutedEnabled,
-  setNativeAdChoicesPlacement: (placement: AdChoicesPlacement) => {
+  setStartVideoMuted: CASMobileAdsNative.setNativeMutedEnabled,
+  setAdChoicesPlacement: (placement: AdChoicesPlacement) => {
     CASMobileAdsNative.setNativeAdChoicesPlacement(Number(placement));
   },
 
