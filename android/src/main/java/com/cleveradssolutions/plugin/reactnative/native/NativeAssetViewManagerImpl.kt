@@ -10,5 +10,4 @@ object NativeAssetViewManagerImpl {
   fun setAssetType(view: CASNativeAssetView, value: Int) {
     view.assetType = value
   }
-
 }

@@ -2,31 +2,66 @@ package com.cleveradssolutions.plugin.reactnative.native
 
 import android.content.Context
 import android.view.View
-import com.facebook.react.views.view.ReactViewGroup
+import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.TextView
+import com.cleveradssolutions.sdk.nativead.CASChoicesView
+import com.cleveradssolutions.sdk.nativead.CASMediaView
+import com.cleveradssolutions.sdk.nativead.CASStarRatingView
 
-class CASNativeAssetView(context: Context) : ReactViewGroup(context) {
+class CASNativeAssetView(context: Context) : FrameLayout(context) {
+
+  private var inner: View? = null
 
   var assetType: Int = 0
     set(value) {
+      if (field == value) return
       field = value
-      tag = value
-      setTag(NativeAdTags.ASSET_TYPE_KEY, value)
+      ensureInner(value)
       notifyParentCommit()
     }
 
-  override fun onAttachedToWindow() {
-    super.onAttachedToWindow()
-    notifyParentCommit()
+  private fun ensureInner(type: Int) {
+    val newInner = createSdkAssetView(type, context)
+    newInner.tag = type
+
+    val old = inner
+    if (old != null && old::class == newInner::class) {
+      old.tag = type
+      return
+    }
+
+    removeAllViews()
+    addView(
+      newInner,
+      LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+    )
+    inner = newInner
+
+    requestLayout()
+    invalidate()
   }
 
-  override fun onViewAdded(child: View) {
-    super.onViewAdded(child)
-    notifyParentCommit()
-  }
+  private fun createSdkAssetView(type: Int, ctx: Context): View {
+    return when (type) {
+      NativeAdAssetType.HEADLINE,
+      NativeAdAssetType.BODY,
+      NativeAdAssetType.PRICE,
+      NativeAdAssetType.ADVERTISER,
+      NativeAdAssetType.STORE,
+      NativeAdAssetType.REVIEW_COUNT,
+      NativeAdAssetType.AD_LABEL -> TextView(ctx)
+      NativeAdAssetType.MEDIA -> CASMediaView(ctx)
+      NativeAdAssetType.CALL_TO_ACTION -> Button(ctx)
+      NativeAdAssetType.ICON -> ImageView(ctx).apply {
+        scaleType = ImageView.ScaleType.CENTER_CROP
+      }
+      NativeAdAssetType.STAR_RATING -> CASStarRatingView(ctx)
+      NativeAdAssetType.AD_CHOICES -> CASChoicesView(ctx)
 
-  override fun onViewRemoved(child: View) {
-    super.onViewRemoved(child)
-    notifyParentCommit()
+      else -> View(ctx)
+    }
   }
 
   private fun notifyParentCommit() {

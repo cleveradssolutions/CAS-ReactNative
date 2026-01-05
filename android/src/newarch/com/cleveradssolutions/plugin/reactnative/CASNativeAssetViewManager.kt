@@ -25,5 +25,4 @@ class CASNativeAssetViewManager :
 
   override fun setAssetType(view: CASNativeAssetView, value: Int) =
     NativeAssetViewManagerImpl.setAssetType(view, value)
-
 }
