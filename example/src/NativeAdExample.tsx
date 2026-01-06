@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import AppButton from './components/AppButton';
-import { NativeAdLoader, NativeAdView, AdChoicesPlacement, NativeAdViewRef, NativeAdAssetView, NativeAdAssetType, NativeAdType, AdError, AdContentInfo } from 'react-native-cas';
+import { NativeAdLoader, NativeAdView, AdChoicesPlacement, NativeAdViewRef, NativeAdType, AdError, AdContentInfo } from 'react-native-cas';
 
 export default function NativeAdExample() {
   const [loadedAd, setLoadedAd] = useState<NativeAdType | null>(null);
@@ -146,7 +146,6 @@ export default function NativeAdExample() {
 
         {/* AD LABEL */}
         <NativeAdView.AdLabel
-          assetType={NativeAdAssetType.AD_LABEL}
           style={{
             alignSelf: 'flex-start',
             paddingHorizontal: 6,

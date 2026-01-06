@@ -22,7 +22,7 @@ export interface NativeProps extends ViewProps {
   instanceId: Int32;
   width: Float;
   height: Float;
-  usesTemplate: boolean,
+  usesTemplate: boolean;
   backgroundColor?: ColorValue;
   primaryColor?: ColorValue;
   primaryTextColor?: ColorValue;

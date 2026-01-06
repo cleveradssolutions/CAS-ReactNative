@@ -48,7 +48,7 @@
     "clean": "rimraf build && rimraf android/build && rimraf android/app/build && rimraf example/ios/build && rimraf lib && rimraf example/android/build",
     "typecheck": "tsc",
     "format": "prettier --write '**/*.{js,jsx,ts,tsx}'",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "codegen": "react-native codegen",
     "android": "cd example/android && ./gradlew assembleDebug --no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a",
     "ios": "cd example/ios && pod install",

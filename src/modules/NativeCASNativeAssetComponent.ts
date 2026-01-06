@@ -20,6 +20,8 @@ import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNati
 
 export interface NativeProps extends ViewProps {
   assetType: Int32;
-};
+}
 
-export default codegenNativeComponent<NativeProps>('CASNativeAssetView') as HostComponent<NativeProps>;
+export default codegenNativeComponent<NativeProps>(
+  'CASNativeAssetView',
+) as HostComponent<NativeProps>;

@@ -19,7 +19,7 @@ export const NativeAdLoader: NativeAdLoaderType = {
 
   addAdLoadedEventListener: l =>
     addAdEventListener(NativeAdEvent.LOADED, (instanceId: number) => {
-      let nativeAd: NativeAdType = {
+      const nativeAd: NativeAdType = {
         instanceId: instanceId,
         destroyAd: () => CASMobileAdsNative.destroyNative(instanceId),
       };
