@@ -1,5 +1,6 @@
 package com.cleveradssolutions.plugin.reactnative.native
 
+import android.util.Log
 import com.cleveradssolutions.sdk.base.CASHandler
 import com.cleveradssolutions.sdk.nativead.NativeAdContent
 import java.util.concurrent.ConcurrentHashMap
@@ -9,13 +10,14 @@ import java.util.concurrent.atomic.AtomicInteger
 object NativeAdStore {
 
   private val nextInstanceId = AtomicInteger(0)
-
   private val adById = ConcurrentHashMap<Int, NativeAdContent>()
-  private val listenersById = ConcurrentHashMap<Int, CopyOnWriteArraySet<(NativeAdContent?) -> Unit>>()
+  private val listenersById =
+    ConcurrentHashMap<Int, CopyOnWriteArraySet<(NativeAdContent?) -> Unit>>()
 
   fun save(ad: NativeAdContent): Int {
     val id = nextInstanceId.getAndIncrement()
     adById[id] = ad
+    Log.d(LogTags.STORE, "save id=$id ad=$ad")
     notifyListeners(id, ad)
     return id
   }
@@ -24,6 +26,7 @@ object NativeAdStore {
 
   fun remove(id: Int): NativeAdContent? {
     val removed = adById.remove(id)
+    Log.d(LogTags.STORE, "remove id=$id removed=${removed != null}")
     notifyListeners(id, null)
     return removed
   }
@@ -35,7 +38,7 @@ object NativeAdStore {
 
     return {
       val current = listenersById[id]
-      if(current != null) {
+      if (current != null) {
         current.remove(listener)
         if (current.isEmpty()) listenersById.remove(id)
       }

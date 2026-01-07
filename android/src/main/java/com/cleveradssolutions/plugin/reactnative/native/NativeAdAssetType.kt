@@ -13,4 +13,10 @@ internal object NativeAdAssetType {
   const val REVIEW_COUNT = 110
   const val AD_LABEL = 111
   const val AD_CHOICES = 112
+
+  fun isText(type: Int): Boolean = when (type) {
+    HEADLINE, BODY, PRICE, ADVERTISER, STORE, REVIEW_COUNT, AD_LABEL -> true
+    else -> false
+  }
 }
+

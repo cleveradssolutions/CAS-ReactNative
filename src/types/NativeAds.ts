@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import { ColorValue, ViewStyle } from 'react-native';
+import { ColorValue, StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { AdError, AdContentInfo } from './AdContent';
 
 export type NativeAdLoaderType = {
   /**
    * Manually retries loading multiple native ads with a specified maximum number.
    * This method allows you to request multiple native ads in one load operation. It is not guaranteed that the exact
-   * number of ads requested will be returned. 
-   * 
+   * number of ads requested will be returned.
+   *
    * The ad view will try to fetch a new ad and will trigger:
    * - `addAdLoadedEventListener` on success
    * - `addAdFailedToLoadEventListener` on failure
@@ -32,16 +32,16 @@ export type NativeAdLoaderType = {
   /**
    * Enables or disables native ad muting (UI and audio behavior).
    *
-   * @param enabled - If true, the ad will start muted (if supported).
+   * @param muted - If true, the ad will start muted (if supported).
    */
-  setNativeMutedEnabled(enabled: boolean): void;
+  setStartVideoMuted(muted: boolean): void;
 
   /**
    * Sets the placement of the AdChoices icon.
    *
    * Implementation may vary depending on the underlying SDK.
    */
-  setNativeAdChoicesPlacement(adChoicesPlacement: AdChoicesPlacement): void;
+  setAdChoicesPlacement(placement: AdChoicesPlacement): void;
 
   /**
    * Fired when an ad successfully loads.
@@ -80,7 +80,7 @@ export type NativeAdLoaderType = {
    * @param error - detailed error object.
    * @returns a disposer function to remove the listener.
    */
-  addAdFailedToShowEventListener(l: (error: AdError) => void): () => void;  
+  addAdFailedToShowEventListener(l: (error: AdError) => void): () => void;
 };
 
 /**
@@ -123,6 +123,62 @@ export enum AdChoicesPlacement {
    */
   bottomLeftCorner = 3,
 }
+
+/**
+ * Props for the NativeAdView component.
+ *
+ * Defines size constraints and optional template styling
+ * to control how the native ad is displayed on the screen.
+ */
+export interface NativeAdViewProps {
+  /**
+   * The native ad instance to be displayed within the view.
+   */
+  ad: NativeAdType;
+
+  /**
+   * Desired width of the native ad view.
+   * If not provided, the view will attempt to size itself based on template or parent layout.
+   */
+  width?: number;
+
+  /**
+   * Desired height of the native ad view.
+   * If not provided, height will match the internal template layout.
+   */
+  height?: number;
+
+  /**
+   * Template configuration passed to native platforms.
+   *
+   * Can define:
+   * - background colors
+   * - text styles
+   * - CTA button style
+   * - optional rounded corners
+   * - predefined layout presets
+   */
+  templateStyle?: NativeTemplateStyle;
+
+  /**
+   * Optional React Native style for wrapping layout.
+   */
+  style?: StyleProp<ViewStyle> | undefined;
+}
+
+/**
+ * Props for native ad asset components.
+ */
+export type NativeAdAssetProps = {
+  style?: StyleProp<ViewStyle> | undefined;
+};
+
+/**
+ * Props for text-based native ad assets.
+ */
+export type NativeAdTextAssetProps = {
+  style?: StyleProp<TextStyle> | undefined;
+};
 
 /**
  * Represents the allowed font styles for template text elements.
@@ -171,50 +227,3 @@ export interface NativeTemplateStyle {
    */
   secondaryFontStyle?: NativeTemplateFontStyle;
 }
-
-/**
- * Props for the NativeAdView component.
- *
- * Defines size constraints and optional template styling
- * to control how the native ad is displayed on the screen.
- */
-export interface NativeAdViewProps {
-  ad: NativeAdType;
-  /**
-   * Desired width of the native ad view.
-   * If not provided, the view will attempt to size itself based on template or parent layout.
-   */
-  width?: number;
-
-  /**
-   * Desired height of the native ad view.
-   * If not provided, height will match the internal template layout.
-   */
-  height?: number;
-
-  /**
-   * Template configuration passed to native platforms.
-   *
-   * Can define:
-   * - background colors
-   * - text styles
-   * - CTA button style
-   * - optional rounded corners
-   * - predefined layout presets
-   */
-  templateStyle?: NativeTemplateStyle;
-
-  /**
-   * Optional React Native style for wrapping layout.
-   */
-  style?: ViewStyle;
-}
-
-/**
- * Public methods available through the reference.
- * ```
- * <NativeAdView ref={...} />
- * ```
- */
-export type NativeAdViewRef = {
-};

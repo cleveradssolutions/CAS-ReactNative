@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import AppButton from './components/AppButton';
-import { NativeAdLoader, NativeAdView, AdChoicesPlacement, NativeAdViewRef, NativeAdAssetView, NativeAdAssetType, NativeAdType, AdError, AdContentInfo } from 'react-native-cas';
+import { NativeAdLoader, NativeAdView, AdChoicesPlacement, NativeAdViewRef, NativeAdType, AdError, AdContentInfo } from 'react-native-cas';
 
 export default function NativeAdExample() {
   const [loadedAd, setLoadedAd] = useState<NativeAdType | null>(null);
@@ -84,8 +84,7 @@ export default function NativeAdExample() {
         >
           
         {/* HEADLINE */}
-        <NativeAdAssetView
-          assetType={NativeAdAssetType.HEADLINE}
+        <NativeAdView.Headline
           style={{
             width: '100%',
             height: 48,
@@ -98,8 +97,7 @@ export default function NativeAdExample() {
 
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           {/* ICON */}
-          <NativeAdAssetView
-            assetType={NativeAdAssetType.ICON}
+          <NativeAdView.Icon
             style={{
               width: 48,
               height: 48,
@@ -110,8 +108,7 @@ export default function NativeAdExample() {
 
           <View style={{ flex: 1 }}>
             {/* ADVERTISER */}
-            <NativeAdAssetView
-              assetType={NativeAdAssetType.ADVERTISER}
+            <NativeAdView.Advertiser
               style={{
                 fontSize: 12,
                 fontWeight: '600',
@@ -120,8 +117,7 @@ export default function NativeAdExample() {
             />
 
             {/* STAR RATING */}
-            <NativeAdAssetView
-              assetType={NativeAdAssetType.STAR_RATING}
+            <NativeAdView.StarRating
               style={{
                 width: 80,
                 height: 12,
@@ -130,8 +126,7 @@ export default function NativeAdExample() {
             />
 
             {/* REVIEW COUNT */}
-            <NativeAdAssetView
-              assetType={NativeAdAssetType.REVIEW_COUNT}
+            <NativeAdView.ReviewCount
               style={{
                 fontSize: 10,
                 color: '#777777',
@@ -141,8 +136,7 @@ export default function NativeAdExample() {
         </View>
 
         {/* AD CHOICES */}
-        <NativeAdAssetView
-          assetType={NativeAdAssetType.AD_CHOICES}
+        <NativeAdView.AdChoices
           style={{
             position: 'absolute',                        
             width: 10,
@@ -151,8 +145,7 @@ export default function NativeAdExample() {
         />
 
         {/* AD LABEL */}
-        <NativeAdAssetView
-          assetType={NativeAdAssetType.AD_LABEL}
+        <NativeAdView.AdLabel
           style={{
             alignSelf: 'flex-start',
             paddingHorizontal: 6,
@@ -166,8 +159,7 @@ export default function NativeAdExample() {
         />
         
         {/* MEDIA */}
-        <NativeAdAssetView
-          assetType={NativeAdAssetType.MEDIA}
+        <NativeAdView.Media
           style={{
             width: '100%',
             height: 180,
@@ -177,8 +169,7 @@ export default function NativeAdExample() {
         />
 
         {/* BODY */}
-        <NativeAdAssetView
-          assetType={NativeAdAssetType.BODY}
+        <NativeAdView.Body
           style={{
             fontSize: 13,
             color: '#444444',
@@ -187,8 +178,7 @@ export default function NativeAdExample() {
         />
 
         {/* PRICE */}
-        <NativeAdAssetView
-          assetType={NativeAdAssetType.PRICE}
+        <NativeAdView.Price
           style={{
             fontSize: 12,
             color: '#008800',
@@ -197,8 +187,7 @@ export default function NativeAdExample() {
         />
 
         {/* STORE */}
-        <NativeAdAssetView
-          assetType={NativeAdAssetType.STORE}
+        <NativeAdView.Store
           style={{
             fontSize: 11,
             color: '#666666',
@@ -207,8 +196,7 @@ export default function NativeAdExample() {
         />
 
         {/* CALL TO ACTION */}
-        <NativeAdAssetView
-          assetType={NativeAdAssetType.CALL_TO_ACTION}
+        <NativeAdView.CallToAction
           style={{
             backgroundColor: '#ff6600',
             color: '#ffffff',

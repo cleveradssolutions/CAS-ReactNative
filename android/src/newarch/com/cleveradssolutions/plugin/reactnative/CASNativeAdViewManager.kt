@@ -1,7 +1,9 @@
 package com.cleveradssolutions.plugin.reactnative
 
+import android.util.Log
 import android.view.View
 import com.cleveradssolutions.plugin.reactnative.native.CASNativeAdView
+import com.cleveradssolutions.plugin.reactnative.native.LogTags
 import com.cleveradssolutions.plugin.reactnative.native.NativeAdViewManagerImpl
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.uimanager.ThemedReactContext
@@ -21,19 +23,20 @@ class CASNativeAdViewManager :
   override fun getDelegate(): ViewManagerDelegate<CASNativeAdView> = delegate
   override fun getName(): String = NativeAdViewManagerImpl.NAME
 
-  override fun createViewInstance(ctx: ThemedReactContext): CASNativeAdView =
-    NativeAdViewManagerImpl.createViewInstance(ctx)
+  override fun createViewInstance(ctx: ThemedReactContext): CASNativeAdView {
+    val view = NativeAdViewManagerImpl.createViewInstance(ctx)
+    Log.d(LogTags.VIEW, "createViewInstance view=$view")
+    return view
+  }
 
   override fun setInstanceId(view: CASNativeAdView, value: Int) =
     NativeAdViewManagerImpl.setInstanceId(view, value)
 
-  override fun setWidth(view: CASNativeAdView, value: Float) {
+  override fun setWidth(view: CASNativeAdView, value: Float) =
     NativeAdViewManagerImpl.setWidth(view, value.toInt())
-  }
 
-  override fun setHeight(view: CASNativeAdView, value: Float) {
+  override fun setHeight(view: CASNativeAdView, value: Float) =
     NativeAdViewManagerImpl.setHeight(view, value.toInt())
-  }
 
   override fun setUsesTemplate(view: CASNativeAdView, value: Boolean) =
     NativeAdViewManagerImpl.setUsesTemplate(view, value)
@@ -65,7 +68,8 @@ class CASNativeAdViewManager :
 
   override fun getChildCount(parent: CASNativeAdView): Int = parent.getAssetChildCount()
 
-  override fun getChildAt(parent: CASNativeAdView, index: Int): View? = parent.getAssetChildAt(index)
+  override fun getChildAt(parent: CASNativeAdView, index: Int): View? =
+    parent.getAssetChildAt(index)
 
   override fun removeViewAt(parent: CASNativeAdView, index: Int) {
     parent.removeAssetChildAt(index)
@@ -73,10 +77,12 @@ class CASNativeAdViewManager :
 
   override fun onAfterUpdateTransaction(view: CASNativeAdView) {
     super.onAfterUpdateTransaction(view)
-    view.commit()
+    Log.d(LogTags.VIEW, "onAfterUpdateTransaction -> commit view=$view childCount=${view.getAssetChildCount()}")
+    view.commit("onAfterUpdateTransaction")
   }
 
   override fun onDropViewInstance(view: CASNativeAdView) {
+    Log.d(LogTags.VIEW, "onDropViewInstance view=$view")
     view.dispose()
     super.onDropViewInstance(view)
   }

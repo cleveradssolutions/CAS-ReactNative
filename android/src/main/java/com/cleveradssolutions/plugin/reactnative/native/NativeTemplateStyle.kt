@@ -1,6 +1,5 @@
 package com.cleveradssolutions.plugin.reactnative.native
 
-import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -45,11 +44,8 @@ internal class NativeTemplateStyle {
         label.background = createRoundedBorderDrawable(accentColor, density)
         label.setTextColor(accentColor)
       }
-
       (nativeView.starRatingView as? CASStarRatingView)?.color = accentColor
-
-      nativeView.callToActionView?.background =
-        createRoundedButtonDrawable(accentColor, density)
+      nativeView.callToActionView?.background = createRoundedButtonDrawable(accentColor, density)
     }
 
     val ctaTextColor = primaryTextColor
@@ -60,16 +56,12 @@ internal class NativeTemplateStyle {
 
   private fun applyHeadlineStyle(nativeView: CASNativeView) {
     val headlineView = nativeView.headlineView ?: return
-
     val textColor = headlineTextColor
     if (textColor != null && textColor != Color.TRANSPARENT) {
       headlineView.setTextColor(textColor)
     }
-
     val style = headlineFontStyle
-    if (!style.isNullOrBlank()) {
-      headlineView.typeface = typefaceForStyle(style)
-    }
+    if (!style.isNullOrBlank()) headlineView.typeface = typefaceForStyle(style)
   }
 
   private fun applySecondaryStyle(nativeView: CASNativeView) {
@@ -103,10 +95,7 @@ internal class NativeTemplateStyle {
     }
   }
 
-  private fun createRoundedButtonDrawable(
-    color: Int,
-    density: Float
-  ): GradientDrawable {
+  private fun createRoundedButtonDrawable(color: Int, density: Float): GradientDrawable {
     return GradientDrawable().apply {
       shape = GradientDrawable.RECTANGLE
       setColor(color)
@@ -114,10 +103,7 @@ internal class NativeTemplateStyle {
     }
   }
 
-  private fun createRoundedBorderDrawable(
-    color: Int,
-    density: Float
-  ): GradientDrawable {
+  private fun createRoundedBorderDrawable(color: Int, density: Float): GradientDrawable {
     return GradientDrawable().apply {
       shape = GradientDrawable.RECTANGLE
       setColor(Color.TRANSPARENT)
