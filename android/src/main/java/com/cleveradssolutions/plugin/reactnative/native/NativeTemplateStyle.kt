@@ -3,8 +3,10 @@ package com.cleveradssolutions.plugin.reactnative.native
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.util.Log
 import com.cleveradssolutions.sdk.nativead.CASNativeView
 import com.cleveradssolutions.sdk.nativead.CASStarRatingView
+import com.facebook.react.uimanager.BackgroundStyleApplicator
 import kotlin.math.roundToInt
 
 internal class NativeTemplateStyle {
@@ -28,13 +30,14 @@ internal class NativeTemplateStyle {
     applyHeadlineStyle(nativeView)
     applySecondaryStyle(nativeView)
 
-    nativeView.invalidate()
-    nativeView.requestLayout()
+    // TODO: Really need invalidate here?
+    //nativeView.invalidate()
+    //nativeView.requestLayout()
   }
 
   private fun applyBackground(nativeView: CASNativeView) {
-    val color = backgroundColor ?: return
-    if (color != Color.TRANSPARENT) nativeView.setBackgroundColor(color)
+    val color = backgroundColor ?: Color.TRANSPARENT
+    nativeView.setBackgroundColor(color)
   }
 
   private fun applyPrimaryColors(nativeView: CASNativeView, density: Float) {
@@ -58,6 +61,7 @@ internal class NativeTemplateStyle {
     val headlineView = nativeView.headlineView ?: return
     val textColor = headlineTextColor
     if (textColor != null && textColor != Color.TRANSPARENT) {
+      Log.e(LogTags.VIEW, "applyHeadlineStyle $textColor")
       headlineView.setTextColor(textColor)
     }
     val style = headlineFontStyle

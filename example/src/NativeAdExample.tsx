@@ -76,8 +76,6 @@ export default function NativeAdExample() {
           <NativeAdView
             ref={nativeRef}
             ad={loadedAd}
-            width={320}
-            height={320}
             templateStyle = {{
               backgroundColor: '#8c939eff',              
             }}
@@ -87,10 +85,9 @@ export default function NativeAdExample() {
         <NativeAdView.Headline
           style={{
             width: '100%',
-            height: 48,
-            fontSize: 24,
+            fontSize: 18,
             fontWeight: '700',
-            color: '#222222',
+            color: '#42de2aff',
             marginBottom: 6,
           }}
         />
@@ -112,7 +109,7 @@ export default function NativeAdExample() {
               style={{
                 fontSize: 12,
                 fontWeight: '600',
-                color: '#333333',
+                color: '#f12121ff',
               }}
             />
 
@@ -129,7 +126,7 @@ export default function NativeAdExample() {
             <NativeAdView.ReviewCount
               style={{
                 fontSize: 10,
-                color: '#777777',
+                color: '#950000ff',
               }}
             />
           </View>
@@ -150,9 +147,10 @@ export default function NativeAdExample() {
             alignSelf: 'flex-start',
             paddingHorizontal: 6,
             paddingVertical: 2,
-            backgroundColor: '#eeeeee',
-            color: '#666666',
-            fontSize: 17,
+            borderColor: '#2ba3eeff',
+            borderWidth: 1,
+            color: '#2ba3eeff',
+            fontSize: 12,
             borderRadius: 4,
             marginBottom: 6,
           }}
@@ -162,9 +160,7 @@ export default function NativeAdExample() {
         <NativeAdView.Media
           style={{
             width: '100%',
-            height: 180,
-            borderRadius: 12,            
-            overflow: 'hidden',            
+            height: 180,                 
           }}
         />
 
@@ -198,6 +194,7 @@ export default function NativeAdExample() {
         {/* CALL TO ACTION */}
         <NativeAdView.CallToAction
           style={{
+            width: '100%',
             backgroundColor: '#ff6600',
             color: '#ffffff',
             paddingVertical: 10,

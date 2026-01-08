@@ -16,6 +16,7 @@
 
 import type { HostComponent, ViewProps, ColorValue } from 'react-native';
 import type { Float, Int32 } from 'react-native/Libraries/Types/CodegenTypes';
+import codegenNativeCommands from 'react-native/Libraries/Utilities/codegenNativeCommands';
 import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
 
 export interface NativeProps extends ViewProps {
@@ -31,6 +32,21 @@ export interface NativeProps extends ViewProps {
   secondaryTextColor?: ColorValue;
   secondaryFontStyle?: string;
 }
+
+type NativeViewComponentType = HostComponent<NativeProps>;
+
+interface NativeCommands {
+  registerAsset: (
+    // eslint-disable-next-line @typescript-eslint/no-deprecated -- https://github.com/facebook/react-native/issues/54272
+    viewRef: React.ElementRef<NativeViewComponentType>,
+    assetType: Int32,
+    reactTag: Int32,
+  ) => void;
+}
+
+export const Commands: NativeCommands = codegenNativeCommands<NativeCommands>({
+  supportedCommands: ['registerAsset'],
+});
 
 /**
  * Native view component for displaying a ad view.

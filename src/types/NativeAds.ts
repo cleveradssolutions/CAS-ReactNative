@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ColorValue, StyleProp, TextStyle, ViewStyle } from 'react-native';
+import { ColorValue, StyleProp, TextProps, TextStyle, ViewStyle } from 'react-native';
 import type { AdError, AdContentInfo } from './AdContent';
 
 export type NativeAdLoaderType = {
@@ -91,6 +91,8 @@ export type NativeAdLoaderType = {
  */
 export type NativeAdType = {
   instanceId: number;
+  content: string[];
+  
   /**
    * Frees all underlying native ad resources.
    * Must be called when the ad is no longer displayed.
@@ -173,12 +175,7 @@ export type NativeAdAssetProps = {
   style?: StyleProp<ViewStyle> | undefined;
 };
 
-/**
- * Props for text-based native ad assets.
- */
-export type NativeAdTextAssetProps = {
-  style?: StyleProp<TextStyle> | undefined;
-};
+export type NativeAdTextAssetProps = Omit<TextProps, 'children'>
 
 /**
  * Represents the allowed font styles for template text elements.

@@ -13,8 +13,7 @@ class CasPackage : TurboReactPackage() {
     return listOf(
       CASMobileAdsViewManager(),
       CASNativeAdViewManager(),
-      CASNativeAssetViewManager(),
-      CASNativeTextAssetViewManager()
+      CASNativeAssetViewManager()
     )
   }
 

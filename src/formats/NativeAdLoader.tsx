@@ -18,13 +18,18 @@ export const NativeAdLoader: NativeAdLoaderType = {
   },
 
   addAdLoadedEventListener: l =>
-    addAdEventListener(NativeAdEvent.LOADED, (instanceId: number) => {
-      const nativeAd: NativeAdType = {
-        instanceId: instanceId,
-        destroyAd: () => CASMobileAdsNative.destroyNative(instanceId),
-      };
-      l(nativeAd);
-    }),
+    addAdEventListener(
+      NativeAdEvent.LOADED,
+      (content: { instanceId: number; content: string[] }) => {
+        const instanceId = content.instanceId;
+        const nativeAd: NativeAdType = {
+          instanceId: instanceId,
+          content: content.content,
+          destroyAd: () => CASMobileAdsNative.destroyNative(instanceId),
+        };
+        l(nativeAd);
+      },
+    ),
   addAdFailedToLoadEventListener: l => addAdEventListener(NativeAdEvent.FAILED_TO_LOAD, l),
   addAdClickedEventListener: l => addAdEventListener(NativeAdEvent.CLICKED, l),
   addAdImpressionEventListener: l => addAdEventListener(NativeAdEvent.IMPRESSION, l),

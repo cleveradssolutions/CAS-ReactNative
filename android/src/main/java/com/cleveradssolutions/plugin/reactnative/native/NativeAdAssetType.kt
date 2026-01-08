@@ -1,22 +1,17 @@
 package com.cleveradssolutions.plugin.reactnative.native
 
 internal object NativeAdAssetType {
-  const val HEADLINE = 101
-  const val MEDIA = 102
-  const val CALL_TO_ACTION = 103
-  const val ICON = 104
-  const val BODY = 105
-  const val PRICE = 106
-  const val ADVERTISER = 107
-  const val STORE = 108
-  const val STAR_RATING = 109
-  const val REVIEW_COUNT = 110
-  const val AD_LABEL = 111
-  const val AD_CHOICES = 112
-
-  fun isText(type: Int): Boolean = when (type) {
-    HEADLINE, BODY, PRICE, ADVERTISER, STORE, REVIEW_COUNT, AD_LABEL -> true
-    else -> false
-  }
+  const val HEADLINE = 0
+  const val BODY = 1
+  const val CALL_TO_ACTION = 2
+  const val ADVERTISER = 3
+  const val STORE = 4
+  const val PRICE = 5
+  const val REVIEW_COUNT = 6
+  const val STAR_RATING = 7
+  const val AD_LABEL = 8
+  const val ICON = 9
+  const val MEDIA = 10
+  const val AD_CHOICES = 11
 }
 

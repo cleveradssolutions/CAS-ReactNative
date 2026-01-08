@@ -2,6 +2,7 @@ package com.cleveradssolutions.plugin.reactnative
 
 import android.app.Activity
 import android.content.Context
+import com.cleveradssolutions.plugin.reactnative.native.NativeAdAssetType
 import com.cleveradssolutions.plugin.reactnative.native.NativeAdStore
 import com.cleveradssolutions.sdk.AdContentInfo
 import com.cleveradssolutions.sdk.AdFormat
@@ -25,6 +26,11 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
 
   companion object {
     const val NAME = "CASMobileAds"
+
+    const val NAME_NATIVE_VIEW = "CASNativeAdView"
+    const val NAME_NATIVE_ASSET = "CASNativeAssetView"
+    const val NAME_NATIVE_TEXT_ASSET = "CASNativeTextAssetView"
+
     var casIdentifier: String = ""
   }
 
@@ -33,11 +39,7 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
   private var interstitialAd: CASInterstitial? = null
   private var rewardedAd: CASRewarded? = null
   private var appOpenAd: CASAppOpen? = null
-
-  private var nativeLoader: CASNativeLoader? = null
-  private val nativeCallback = NativeCallback()
-  private var nativeMutedEnabled: Boolean? = null
-  private var nativeAdChoicesPlacement: Int? = null
+  private var fieldNativeAdLoader: CASNativeLoader? = null
 
   private fun appContext(): Context = reactContext.applicationContext
   private fun currentActivity(): Activity? = reactContext.currentActivity
@@ -85,22 +87,12 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
     }
   }
 
-  private fun applyNativeLoaderOptions(loader: CASNativeLoader) {
-    nativeMutedEnabled?.let { loader.isStartVideoMuted = it }
-    nativeAdChoicesPlacement?.let { loader.adChoicesPlacement = it }
-  }
-
-  private fun getOrCreateNativeLoader(): CASNativeLoader? {
-    if (casIdentifier.isEmpty()) return null
-
-    val existing = nativeLoader
-    if (existing != null) return existing
-
-    return CASNativeLoader(appContext(), casIdentifier, nativeCallback).also { created ->
-      applyNativeLoaderOptions(created)
-      nativeLoader = created
+  private fun getNativeAdLoader(): CASNativeLoader =
+    fieldNativeAdLoader ?: CASNativeLoader(
+      appContext(), casIdentifier, NativeCallback()
+    ).also {
+      fieldNativeAdLoader = it
     }
-  }
 
   fun initialize(casId: String, options: ReadableMap, promise: Promise) {
     if (initConfig != null && casIdentifier == casId) {
@@ -116,10 +108,6 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
     createInterstitialAd()
     createRewardedAd()
     createAppOpenAd()
-
-    nativeLoader = CASNativeLoader(appContext(), casIdentifier, nativeCallback).also {
-      applyNativeLoaderOptions(it)
-    }
 
     val builder = CAS.buildManager()
       .withCasId(casId)
@@ -282,12 +270,7 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
   }
 
   fun loadNativeAd(maxNumberOfAds: Int) {
-    val loader = getOrCreateNativeLoader()
-    if (loader == null) {
-      emitError("onNativeAdFailedToLoad")
-      return
-    }
-    loader.load(maxNumberOfAds)
+    getNativeAdLoader().load(maxNumberOfAds)
   }
 
   fun destroyNative(instanceId: Int) {
@@ -299,13 +282,11 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
   }
 
   fun setNativeMutedEnabled(enabled: Boolean) {
-    nativeMutedEnabled = enabled
-    getOrCreateNativeLoader()?.isStartVideoMuted = enabled
+    getNativeAdLoader().isStartVideoMuted = enabled
   }
 
   fun setNativeAdChoicesPlacement(adChoicesPlacement: Int) {
-    nativeAdChoicesPlacement = adChoicesPlacement
-    getOrCreateNativeLoader()?.adChoicesPlacement = adChoicesPlacement
+    getNativeAdLoader().adChoicesPlacement = adChoicesPlacement
   }
 
   private inner class CompletionListener(
@@ -346,7 +327,24 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
     override fun onNativeAdLoaded(nativeAd: NativeAdContent, ad: AdContentInfo) {
       val instanceId = NativeAdStore.save(nativeAd)
       nativeAd.onImpressionListener = this
-      emit("onNativeAdLoaded", instanceId)
+
+      // Attention! Array order must be same as indexes in
+      NativeAdAssetType
+      val content = WritableNativeArray()
+      content.pushString(nativeAd.headline)
+      content.pushString(nativeAd.body)
+      content.pushString(nativeAd.callToAction)
+      content.pushString(nativeAd.advertiser)
+      content.pushString(nativeAd.store)
+      content.pushString(nativeAd.price)
+      content.pushString(nativeAd.reviewCount)
+      content.pushString(nativeAd.starRating?.let { "%.1f".format(it) })
+      content.pushString(nativeAd.adLabel)
+
+      emit("onNativeAdLoaded", WritableNativeMap().apply {
+        putInt("instanceId", instanceId)
+        putArray("content", content)
+      })
     }
 
     override fun onNativeAdFailedToLoad(error: AdError) {
