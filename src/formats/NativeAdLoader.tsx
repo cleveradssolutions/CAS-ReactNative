@@ -20,7 +20,7 @@ export const NativeAdLoader: NativeAdLoaderType = {
   addAdLoadedEventListener: l =>
     addAdEventListener(
       NativeAdEvent.LOADED,
-      (content: { instanceId: number; content: string[] }) => {
+      (content: { instanceId: number; content: (string | null)[] }) => {
         const instanceId = content.instanceId;
         const nativeAd: NativeAdType = {
           instanceId: instanceId,

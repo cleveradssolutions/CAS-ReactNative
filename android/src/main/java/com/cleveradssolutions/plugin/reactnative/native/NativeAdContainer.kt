@@ -54,6 +54,11 @@ class NativeAdContainer(context: ReactContext) : FrameLayout(context) {
    */
   private var lastInstanceId: Int = -2
 
+  /**
+   * Check last template size to refresh Ad content after template size changed.
+   */
+  private var lastTemplateSize: AdSize? = null
+
   private val mainThread = Handler(Looper.getMainLooper())
   private val updateAdContentRunnable = Runnable {
     updateAdContent()
@@ -87,10 +92,18 @@ class NativeAdContainer(context: ReactContext) : FrameLayout(context) {
   fun onAfterUpdateTransaction() {
     Log.d(LogTags.VIEW, "onAfterUpdateTransaction")
     if (usesTemplate) {
-      // Can be called multiple times with same size without regeneration views.
-      val templateSize = AdSize.getInlineBanner(requiredWidthDp, requiredHeightDp)
-      Log.d(LogTags.VIEW, "setAdTemplateSize $templateSize")
-      adView.setAdTemplateSize(templateSize)
+      // If JS not specify template size then use Medium rectangle by default
+      val templateSize = if (requiredWidthDp == 0 || requiredHeightDp == 0)
+        AdSize.MEDIUM_RECTANGLE
+      else
+        AdSize.getInlineBanner(requiredWidthDp, requiredHeightDp)
+
+      if (lastTemplateSize != templateSize) {
+        Log.d(LogTags.VIEW, "setAdTemplateSize $templateSize")
+        adView.setAdTemplateSize(templateSize)
+        // Reset last instance id to refresh ad content after template size changed.
+        lastInstanceId = -1
+      }
     }
 
     if (isAttachedToWindow) {
@@ -99,10 +112,6 @@ class NativeAdContainer(context: ReactContext) : FrameLayout(context) {
   }
 
   fun addContentChild(child: View, index: Int) {
-    Log.d(
-      LogTags.VIEW,
-      "addAssetChild index=$index child=${child::class.java.simpleName} view=$this"
-    )
     container.addView(child, index)
   }
 
@@ -134,7 +143,8 @@ class NativeAdContainer(context: ReactContext) : FrameLayout(context) {
       NativeAdAssetType.AD_LABEL -> adView.adLabelView = assetView as TextView
       NativeAdAssetType.MEDIA -> adView.mediaView = assetView as CASMediaView
       NativeAdAssetType.AD_CHOICES -> adView.adChoicesView = assetView as CASChoicesView
-      NativeAdAssetType.STAR_RATING -> adView.starRatingView = assetView as CASStarRatingView
+      // STAR_RATING is TextView or CASStarRatingView
+      NativeAdAssetType.STAR_RATING -> adView.starRatingView = assetView
       NativeAdAssetType.ICON -> adView.iconView = assetView as ImageView
       NativeAdAssetType.CALL_TO_ACTION -> adView.callToActionView = assetView as Button
 
@@ -173,7 +183,7 @@ class NativeAdContainer(context: ReactContext) : FrameLayout(context) {
           Log.e("CAS.AI", error)
         return
       }
-      Log.d(LogTags.VIEW, "applyNow -> setNativeAd(ad) view=$this")
+      Log.d(LogTags.VIEW, "updateAdContent setNativeAd")
       adView.setNativeAd(nativeAd)
       lastInstanceId = instanceId
     }

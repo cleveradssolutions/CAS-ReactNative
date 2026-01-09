@@ -91,8 +91,8 @@ export type NativeAdLoaderType = {
  */
 export type NativeAdType = {
   instanceId: number;
-  content: string[];
-  
+  content: (string | null)[];
+
   /**
    * Frees all underlying native ad resources.
    * Must be called when the ad is no longer displayed.

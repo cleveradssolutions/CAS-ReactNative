@@ -61,7 +61,6 @@ internal class NativeTemplateStyle {
     val headlineView = nativeView.headlineView ?: return
     val textColor = headlineTextColor
     if (textColor != null && textColor != Color.TRANSPARENT) {
-      Log.e(LogTags.VIEW, "applyHeadlineStyle $textColor")
       headlineView.setTextColor(textColor)
     }
     val style = headlineFontStyle
