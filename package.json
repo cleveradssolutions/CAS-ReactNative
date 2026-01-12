@@ -108,8 +108,7 @@
       "componentProvider": {
         "CASAdView": "RNCASBannerAdView",
         "CASNativeAdView": "RNCASNativeAdView",
-        "CASNativeAssetView": "RNCASNativeAssetView",
-        "CASNativeAdTextAssetView": "RNCASNativeAdTextAssetView"
+        "CASNativeAssetView": "RNCASNativeAssetView"
       }
     },
     "android": {

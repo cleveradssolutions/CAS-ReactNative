@@ -21,15 +21,11 @@ import React, {
   useContext,
   useEffect,
   useRef,
-  useState,
 } from 'react';
 import {
-  findNodeHandle,
-  LayoutChangeEvent,
-  Pressable,
+  findNodeHandle,  
   StyleSheet,
-  Text,
-  TextProps,
+  Text,  
   useWindowDimensions,
   View,
   ViewProps,

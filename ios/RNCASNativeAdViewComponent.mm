@@ -4,47 +4,39 @@
 
 #import "CASMobileAds.h"
 #import "RNCASNativeAdStore.h"
-#import "RNCASNativeAdAssetBinder.h"
 #import "RNCASNativeAdViewComponent.h"
 
 
-@interface RNCASNativeAdViewComponent () 
+@interface RNCASNativeAdViewComponent ()
 @property (nonatomic, strong, nullable) CASNativeView *nativeView;
 @property (nonatomic, assign) int appliedInstanceId;
-
-/// assetType(tag) -> sdk asset view
-@property (nonatomic, strong) NSMutableDictionary<NSNumber *, UIView *> *assetViews;
-/// assetType(tag) -> placeholder view
-@property (nonatomic, strong) NSMutableDictionary<NSNumber *, UIView *> *assetPlaceholders;
 @end
 
 @implementation RNCASNativeAdViewComponent
 
 - (instancetype)initWithFrame:(CGRect)frame {
   if (self = [super initWithFrame:frame]) {
-    _assetViews = [NSMutableDictionary new];
-    _assetPlaceholders = [NSMutableDictionary new];
     _appliedInstanceId = -1;
   }
   return self;
 }
 
 - (void)dealloc {
-  [self.assetViews removeAllObjects];
-  [self.assetPlaceholders removeAllObjects];
   self.nativeView = nil;
 }
 
-- (void)didSetProps:(NSArray<NSString *> *)changedProps {
+#pragma mark - Props
 
-  // Create Native View if nedded
+- (void)didSetProps:(NSArray<NSString *> *)changedProps {
+  
+  /// 1. Ensure CASNativeView
   if (!self.nativeView) {
     self.nativeView = [[CASNativeView alloc] initWithFrame:CGRectZero];
-
     self.nativeView.translatesAutoresizingMaskIntoConstraints = YES;
     [self addSubview:_nativeView];
   }
   
+  /// 2. Template size only
   if (self.usesTemplate) {
     // Refresh template Size
     // setAdTemplateSize can be called multiple times for same ad size with zero performance
@@ -52,25 +44,25 @@
     CASSize *adSize = [CASSize getInlineBannerWithWidth:self.width maxHeight:self.height];
     [self.nativeView setAdTemplateSize:adSize];
   } else {
-    [RNCASNativeAdAssetBinder bindAssetsIfPossibleForNativeView:self.nativeView
-                                                    placeholders:self.assetPlaceholders
-                                                           views:self.assetViews];
+    // Register Assets via RNCASNativeAdAssetRegistrar
   }
   
-  // Refresh Native Ad if changed only
+  /// 3. Bind NativeAd only if changed
   if (self.appliedInstanceId != self.instanceId) {
     self.appliedInstanceId = self.instanceId;
     CASNativeAdContent *ad =
-        [[RNCASNativeAdStore shared] findNativeAdWithId:@(self.instanceId)];
-
+    [[RNCASNativeAdStore shared] findNativeAdWithId:@(self.instanceId)];
+    
     [self.nativeView setNativeAd:ad];
   }
-
-  // Set styles
+  
+  /// 4. Apply styles (template only)
   if (self.usesTemplate) {
     [self applyTemplateStyleToView:self.nativeView];
   }
 }
+
+#pragma mark - Template styles
 
 - (void)applyTemplateStyleToView:(CASNativeView *)nativeView {
   if (self.backgroundColor) {
@@ -94,7 +86,7 @@
     if (nativeView.priceView) nativeView.priceView.textColor = self.secondaryTextColor;
     if (nativeView.reviewCountView) nativeView.reviewCountView.textColor = self.secondaryTextColor;
   }
-
+  
   // Primary text: call to action (CTA)
   UIButton *button = self.nativeView.callToActionView;
   if (button) {
@@ -107,7 +99,7 @@
         if (self.primaryTextColor != nil) {
           config.baseForegroundColor = self.primaryTextColor;
         }
-
+        
         button.configuration = config;
         [button setNeedsUpdateConfiguration];
       }

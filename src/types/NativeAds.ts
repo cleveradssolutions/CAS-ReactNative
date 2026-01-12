@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ColorValue, StyleProp, TextProps, TextStyle, ViewStyle } from 'react-native';
+import { ColorValue, StyleProp, TextProps, ViewStyle } from 'react-native';
 import type { AdError, AdContentInfo } from './AdContent';
 
 export type NativeAdLoaderType = {
