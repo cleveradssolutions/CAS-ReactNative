@@ -32,30 +32,44 @@ class NativeAdAssetContainer(context: Context) : FrameLayout(context) {
   }
 
   fun onAfterUpdateTransaction() {
-    Log.d(LogTags.ASSET, "onAfterUpdateTransaction")
     if (childCount > 0) return
-    val view = when (assetType) {
-      NativeAdAssetType.MEDIA -> CASMediaView(context)
-      NativeAdAssetType.AD_CHOICES -> CASChoicesView(context)
-      NativeAdAssetType.STAR_RATING -> CASStarRatingView(context)
-      NativeAdAssetType.ICON -> ImageView(context).also {
-        it.scaleType = ImageView.ScaleType.FIT_CENTER
+
+    when (assetType) {
+      NativeAdAssetType.MEDIA -> {
+        val view = CASMediaView(context)
+        addView(view, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
       }
 
-      // Call To Action in JS use Text for visible text and styling.
-      // Here we create invisible button to handle clicks in ads.
-      // Also Only button should be get mach parent to have same size as JS Text.
-      NativeAdAssetType.CALL_TO_ACTION -> Button(context).also {
-        it.setBackgroundColor(Color.TRANSPARENT)
-        it.setTextColor(Color.TRANSPARENT)
-        addView(it, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+      NativeAdAssetType.AD_CHOICES -> {
+        val view = CASChoicesView(context)
+        addView(view, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+      }
+
+      NativeAdAssetType.STAR_RATING -> {
+        val view = CASStarRatingView(context)
+        addView(view, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+      }
+
+      NativeAdAssetType.ICON -> {
+        val view = ImageView(context).also {
+          it.scaleType = ImageView.ScaleType.CENTER_CROP
+        }
+        addView(view, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+      }
+
+      NativeAdAssetType.CALL_TO_ACTION -> {
+        Button(context).also {
+          it.setBackgroundColor(Color.TRANSPARENT)
+          it.setTextColor(Color.TRANSPARENT)
+          addView(it, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        }
         return
       }
 
       else -> throw Exception("Not supported asset type: $assetType")
     }
-    addView(view, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
   }
+
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
@@ -66,14 +80,12 @@ class NativeAdAssetContainer(context: Context) : FrameLayout(context) {
     var view = parent
     while (view is ViewGroup) {
       if (view is NativeAdContainer) {
-        Log.d(LogTags.ASSET, "onAttachedToWindow found parent")
         val assetView = getChildAt(0)
         view.registerAdAsset(assetType, assetView)
         return
       }
       view = view.parent
     }
-    Log.d(LogTags.ASSET, "onAttachedToWindow not found parent")
   }
 
 }

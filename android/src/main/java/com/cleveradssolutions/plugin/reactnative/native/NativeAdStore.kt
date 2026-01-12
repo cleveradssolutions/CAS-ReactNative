@@ -14,7 +14,6 @@ object NativeAdStore {
   fun save(ad: NativeAdContent): Int {
     val id = nextInstanceId.getAndIncrement()
     adById[id] = ad
-    Log.d(LogTags.STORE, "save id=$id ad=$ad")
     return id
   }
 
@@ -22,7 +21,6 @@ object NativeAdStore {
 
   fun remove(id: Int): NativeAdContent? {
     val removed = adById.remove(id)
-    Log.d(LogTags.STORE, "remove id=$id removed=${removed != null}")
     return removed
   }
 

@@ -29,10 +29,6 @@ internal class NativeTemplateStyle {
     applyPrimaryColors(nativeView, density)
     applyHeadlineStyle(nativeView)
     applySecondaryStyle(nativeView)
-
-    // TODO: Really need invalidate here?
-    //nativeView.invalidate()
-    //nativeView.requestLayout()
   }
 
   private fun applyBackground(nativeView: CASNativeView) {

@@ -3,7 +3,6 @@ package com.cleveradssolutions.plugin.reactnative
 import android.util.Log
 import android.view.View
 import com.cleveradssolutions.plugin.reactnative.native.NativeAdContainer
-import com.cleveradssolutions.plugin.reactnative.native.LogTags
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.uimanager.ThemedReactContext

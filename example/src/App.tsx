@@ -23,6 +23,7 @@ export type RootStackParamList = {
   Rewarded: undefined;
   AppOpen: undefined;
   Native: undefined;
+  NativeSizeExample: undefined;
   Banner: undefined;
   MREC: undefined;
   Adaptive: undefined;
@@ -42,7 +43,7 @@ export default function App() {
         <Stack.Screen name="Rewarded" component={RewardedExample} />
         <Stack.Screen name="AppOpen" component={AppOpenExample} />
 
-        <Stack.Screen name="Native" component={NativeAdExample} />                
+        <Stack.Screen name="Native" component={NativeAdExample} />
 
         <Stack.Screen name="Banner" component={NativeBannerExample} />
         <Stack.Screen name="MREC" component={NativeMRecExample} />

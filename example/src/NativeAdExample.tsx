@@ -1,36 +1,66 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  useWindowDimensions,
+} from 'react-native';
+
 import AppButton from './components/AppButton';
-import { NativeAdLoader, NativeAdView, AdChoicesPlacement, NativeAdViewRef, NativeAdType, AdError, AdContentInfo } from 'react-native-cas';
+
+import {
+  NativeAdLoader,
+  NativeAdView,
+  AdChoicesPlacement,
+  NativeAdType,
+  AdError,
+  AdContentInfo,
+} from 'react-native-cas';
 
 export default function NativeAdExample() {
+  const { width: winWidth } = useWindowDimensions();
+
   const [loadedAd, setLoadedAd] = useState<NativeAdType | null>(null);
   const [muted, setMuted] = useState(false);
-  const [placement, setPlacement] = useState<AdChoicesPlacement>(AdChoicesPlacement.topRightCorner);
 
-  const nativeRef = useRef<NativeAdViewRef>(null);
+  const [placement, setPlacement] = useState<AdChoicesPlacement>(
+    AdChoicesPlacement.topRightCorner
+  );
 
-  useEffect(() => {    
-    // Events
-    const unsubscribeLoaded = NativeAdLoader.addAdLoadedEventListener((ad: NativeAdType) => {
-      console.log('Native Ad loaded', ad.instanceId);
-      setLoadedAd(ad);
-    });
+  const cardWidth = useMemo(() => {
+    return Math.min(winWidth - 40, 420);
+  }, [winWidth]);
 
-    const unsubscribeLoadFailed = NativeAdLoader.addAdFailedToLoadEventListener((e: AdError) => {
-      console.log('Native Ad failed to load', e);
-      setLoadedAd(null);
-    });
+  const contentWidth = useMemo(() => {
+    return Math.max(0, Math.round(cardWidth - 68));
+  }, [cardWidth]);
+
+  useEffect(() => {
+    const unsubscribeLoaded = NativeAdLoader.addAdLoadedEventListener(
+      (ad: NativeAdType) => {
+        console.log('Native Ad loaded', ad.instanceId);
+        setLoadedAd(ad);
+      }
+    );
+
+    const unsubscribeLoadFailed = NativeAdLoader.addAdFailedToLoadEventListener(
+      (e: AdError) => {
+        console.log('Native Ad failed to load', e);
+        setLoadedAd(null);
+      }
+    );
 
     const unsubscribeClicked = NativeAdLoader.addAdClickedEventListener(() => {
       console.log('Native Ad clicked');
     });
 
-    const unsubscribeImpression = NativeAdLoader.addAdImpressionEventListener((info: AdContentInfo) => {
-      console.log('Native Ad impression', info);
-    });
-    
-    // Auto Load
+    const unsubscribeImpression = NativeAdLoader.addAdImpressionEventListener(
+      (info: AdContentInfo) => {
+        console.log('Native Ad impression', info);
+      }
+    );
+
     NativeAdLoader.loadAds(1);
 
     return () => {
@@ -39,13 +69,13 @@ export default function NativeAdExample() {
       unsubscribeClicked();
       unsubscribeImpression();
 
-      if (loadedAd) {
-        loadedAd.destroyAd();        
-      }
+      setLoadedAd(prev => {
+        prev?.destroyAd();
+        return null;
+      });
     };
   }, []);
 
-  // Buttons
   const onPressLoadButton = () => {
     NativeAdLoader.loadAds(1);
   };
@@ -56,14 +86,42 @@ export default function NativeAdExample() {
   };
 
   const onChangePlacement = () => {
-    const next = (placement + 1) % 4;
+    const next = ((placement as number) + 1) % 4;
+
     NativeAdLoader.setNativeAdChoicesPlacement(next);
-    setPlacement(next);
+    setPlacement(next as any);
   };
 
+  const cardDynamicStyle = useMemo(() => {
+    return { width: cardWidth };
+  }, [cardWidth]);
+
+  const nativeRootDynamicStyle = useMemo(() => {
+    return { width: contentWidth };
+  }, [contentWidth]);
+
+  const headlineDynamicStyle = useMemo(() => {
+    return { width: contentWidth };
+  }, [contentWidth]);
+
+  const mediaWrapDynamicStyle = useMemo(() => {
+    return {
+      width: contentWidth,
+      height: 180,
+    };
+  }, [contentWidth]);
+
+  const ctaDynamicStyle = useMemo(() => {
+    return { width: contentWidth };
+  }, [contentWidth]);
+
   return (
-    <View style={S.screen}>
-      <View style={S.card}>
+    <ScrollView
+      style={S.screen}
+      contentContainerStyle={S.content}
+      keyboardShouldPersistTaps="handled"
+    >
+      <View style={[S.card, cardDynamicStyle]}>
         <Text style={S.title}>Native Ad</Text>
 
         <View style={S.row}>
@@ -72,165 +130,85 @@ export default function NativeAdExample() {
           <AppButton title="Change AdChoices" onPress={onChangePlacement} />
         </View>
 
-        {loadedAd ? (
-          <NativeAdView
-            ref={nativeRef}
-            ad={loadedAd}
-            templateStyle = {{
-              backgroundColor: '#8c939eff',              
-            }}
-        >
-          
-        {/* HEADLINE */}
-        <NativeAdView.Headline
-          style={{
-            width: '100%',
-            fontSize: 18,
-            fontWeight: '700',
-            color: '#42de2aff',
-            marginBottom: 6,
-          }}
-        />
-
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          {/* ICON */}
-          <NativeAdView.Icon
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 8,
-              marginRight: 8,
-            }}
-          />
-
-          <View style={{ flex: 1 }}>
-            {/* ADVERTISER */}
-            <NativeAdView.Advertiser
-              style={{
-                fontSize: 12,
-                fontWeight: '600',
-                color: '#f12121ff',
-              }}
-            />
-
-            {/* STAR RATING */}
-            <NativeAdView.StarRating
-              style={{
-                width: 80,
-                height: 12,
-                marginTop: 2,
-              }}
-            />
-
-            {/* REVIEW COUNT */}
-            <NativeAdView.ReviewCount
-              style={{
-                fontSize: 10,
-                color: '#950000ff',
-              }}
-            />
-          </View>
-        </View>
-
-        {/* AD CHOICES */}
-        <NativeAdView.AdChoices
-          style={{
-            position: 'absolute',                        
-            width: 10,
-            height: 10,
-          }}
-        />
-
-        {/* AD LABEL */}
-        <NativeAdView.AdLabel
-          style={{
-            alignSelf: 'flex-start',
-            paddingHorizontal: 6,
-            paddingVertical: 2,
-            borderColor: '#2ba3eeff',
-            borderWidth: 1,
-            color: '#2ba3eeff',
-            fontSize: 12,
-            borderRadius: 4,
-            marginBottom: 6,
-          }}
-        />
-        
-        {/* MEDIA */}
-        <NativeAdView.Media
-          style={{
-            width: '100%',
-            height: 180,                 
-          }}
-        />
-
-        {/* BODY */}
-        <NativeAdView.Body
-          style={{
-            fontSize: 13,
-            color: '#444444',
-            marginVertical: 6,
-          }}
-        />
-
-        {/* PRICE */}
-        <NativeAdView.Price
-          style={{
-            fontSize: 12,
-            color: '#008800',
-            marginBottom: 2,
-          }}
-        />
-
-        {/* STORE */}
-        <NativeAdView.Store
-          style={{
-            fontSize: 11,
-            color: '#666666',
-            marginBottom: 8,
-          }}
-        />
-
-        {/* CALL TO ACTION */}
-        <NativeAdView.CallToAction
-          style={{
-            width: '100%',
-            backgroundColor: '#ff6600',
-            color: '#ffffff',
-            paddingVertical: 10,
-            borderRadius: 8,
-            textAlign: 'center',
-            fontWeight: '600',
-          }}
-        />
-          
-        </NativeAdView>
-        ) : (
+        {!loadedAd ? (
           <Text style={S.info}>Loading native ad...</Text>
+        ) : (
+          <View style={S.adShell}>
+            <NativeAdView
+              ad={loadedAd}
+              style={[S.nativeRoot, nativeRootDynamicStyle]}
+              templateStyle={S.templateStyle}
+            >
+              {/* AdChoices */}
+              <NativeAdView.AdChoices style={S.adChoices} />
+
+              {/* Headline */}
+              <NativeAdView.Headline style={[S.headline, headlineDynamicStyle]} />
+
+              {/* Top row */}
+              <View style={S.topRow}>
+                <View style={S.iconWrap}>
+                  <NativeAdView.Icon style={S.icon} />
+                </View>
+
+                <View style={S.topMeta}>
+                  <NativeAdView.Advertiser style={S.advertiser} />
+
+                  <View style={S.rateRow}>
+                    <NativeAdView.StarRating style={S.stars} />
+                    <NativeAdView.ReviewCount style={S.reviewCount} />
+                  </View>
+                </View>
+              </View>
+
+              {/* AD LABEL */}
+              <NativeAdView.AdLabel style={S.adLabel} />
+
+              {/* MEDIA */}
+              <View style={[S.mediaWrap, mediaWrapDynamicStyle]}>
+                <NativeAdView.Media style={S.media} />
+              </View>
+
+              {/* BODY */}
+              <NativeAdView.Body style={S.body} />
+
+              {/* STORE AND PRICE */}
+              <View style={S.metaRow}>
+                <NativeAdView.Price style={S.price} />
+                <NativeAdView.Store style={S.store} />
+              </View>
+
+              {/* CALL TO ACTION */}
+              <NativeAdView.CallToAction style={[S.cta, ctaDynamicStyle]} />
+            </NativeAdView>
+          </View>
         )}
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const S = StyleSheet.create({
   screen: {
     flex: 1,
+    backgroundColor: '#0B0F14',
+  },
+
+  content: {
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 24,
-    backgroundColor: '#0B0F14',
     alignItems: 'center',
     justifyContent: 'center',
   },
+
   card: {
-    width: '100%',
-    maxWidth: 420,
     borderRadius: 16,
     backgroundColor: '#121821',
     padding: 20,
     elevation: 6,
   },
+
   title: {
     fontSize: 20,
     fontWeight: '700',
@@ -238,9 +216,151 @@ const S = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 8,
   },
-  row: { flexDirection: 'column', gap: 12, justifyContent: 'center', marginBottom: 8 },
+
+  row: {
+    flexDirection: 'column',
+    gap: 12,
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+
   info: {
     color: '#bbb',
     marginTop: 20,
+    textAlign: 'center',
+  },
+
+  adShell: {
+    borderRadius: 16,
+    padding: 14,
+    backgroundColor: '#0f141c',
+    overflow: 'hidden',
+  },
+  templateStyle: {
+    backgroundColor: '#8c939eff',
+  },
+
+  adChoices: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 20,
+    height: 20,
+  },
+
+  headline: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#E8EEF6',
+    marginBottom: 8,
+    paddingRight: 30,
+  },
+
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  iconWrap: {
+    width: 52,
+    height: 52,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+    overflow: 'hidden',
+  },
+
+  icon: {
+    width: 52,
+    height: 52,
+  },
+
+  topMeta: {
+    flex: 1,
+  },
+
+  advertiser: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#7dd3fc',
+    marginBottom: 4,
+  },
+
+  rateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  stars: {
+    width: 88,
+    height: 14,
+    marginRight: 8,
+  },
+
+  reviewCount: {
+    fontSize: 11,
+    color: '#c9d2de',
+    opacity: 0.85,
+  },
+
+  adLabel: {
+    alignSelf: 'flex-start',
+    marginTop: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderColor: '#60a5fa',
+    borderWidth: 1,
+    color: '#60a5fa',
+    fontSize: 12,
+    borderRadius: 999,
+  },
+
+  mediaWrap: {
+    marginTop: 12,
+    borderRadius: 14,
+    overflow: 'hidden',
+  },
+
+  media: {
+    width: '100%',
+    height: '100%',
+  },
+
+  body: {
+    marginTop: 10,
+    fontSize: 13,
+    color: '#c9d2de',
+    opacity: 0.9,
+    lineHeight: 18,
+  },
+
+  metaRow: {
+    marginTop: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  price: {
+    fontSize: 12,
+    color: '#fde68a',
+    marginRight: 10,
+  },
+
+  store: {
+    fontSize: 12,
+    color: '#a7f3d0',
+    opacity: 0.9,
+    flex: 1,
+  },
+
+  cta: {
+    marginTop: 12,
+    backgroundColor: '#ff6600',
+    color: '#ffffff',
+    paddingVertical: 12,
+    borderRadius: 12,
+    textAlign: 'center',
+    fontWeight: '800',
   },
 });

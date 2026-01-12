@@ -1,28 +1,21 @@
 package com.cleveradssolutions.plugin.reactnative.native
 
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.os.postDelayed
 import com.cleveradssolutions.plugin.reactnative.BuildConfig
-import com.cleveradssolutions.sdk.base.CASHandler
-import com.cleveradssolutions.sdk.base.CASJob
 import com.cleveradssolutions.sdk.nativead.CASChoicesView
 import com.cleveradssolutions.sdk.nativead.CASMediaView
 import com.cleveradssolutions.sdk.nativead.CASNativeView
-import com.cleveradssolutions.sdk.nativead.CASStarRatingView
 import com.cleversolutions.ads.AdSize
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.uimanager.UIManagerHelper
-import com.facebook.react.views.text.ReactTextView
 import com.facebook.react.views.view.ReactViewGroup
 
 @SuppressLint("ViewConstructor")
@@ -46,6 +39,9 @@ class NativeAdContainer(context: ReactContext) : FrameLayout(context) {
   var requiredWidthDp: Int = 0
   var requiredHeightDp: Int = 0
   var usesTemplate: Boolean = false
+  private var lastBoundWidth = -1
+  private var lastBoundHeight = -1
+  private var lastBoundInstanceId = -1
 
   internal val templateStyle = NativeTemplateStyle()
 
@@ -72,9 +68,11 @@ class NativeAdContainer(context: ReactContext) : FrameLayout(context) {
     layout(left, top, right, bottom)
   }
 
+  var assetType: Int = 0
+
   init {
-    addView(adView)
-    adView.addView(container)
+    addView(adView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+    adView.addView(container, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
   }
 
   override fun requestLayout() {
@@ -84,13 +82,10 @@ class NativeAdContainer(context: ReactContext) : FrameLayout(context) {
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
-    Log.d(LogTags.VIEW, "onAttachedToWindow view=$this size=${width}x${height}")
-
     delayUpdateAdContent()
   }
 
   fun onAfterUpdateTransaction() {
-    Log.d(LogTags.VIEW, "onAfterUpdateTransaction")
     if (usesTemplate) {
       // If JS not specify template size then use Medium rectangle by default
       val templateSize = if (requiredWidthDp == 0 || requiredHeightDp == 0)
@@ -99,8 +94,9 @@ class NativeAdContainer(context: ReactContext) : FrameLayout(context) {
         AdSize.getInlineBanner(requiredWidthDp, requiredHeightDp)
 
       if (lastTemplateSize != templateSize) {
-        Log.d(LogTags.VIEW, "setAdTemplateSize $templateSize")
         adView.setAdTemplateSize(templateSize)
+
+        lastTemplateSize = templateSize
         // Reset last instance id to refresh ad content after template size changed.
         lastInstanceId = -1
       }
@@ -109,6 +105,11 @@ class NativeAdContainer(context: ReactContext) : FrameLayout(context) {
     if (isAttachedToWindow) {
       delayUpdateAdContent()
     }
+  }
+
+  override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+    super.onSizeChanged(w, h, oldw, oldh)
+    if (isAttachedToWindow) delayUpdateAdContent()
   }
 
   fun addContentChild(child: View, index: Int) {
@@ -131,8 +132,6 @@ class NativeAdContainer(context: ReactContext) : FrameLayout(context) {
   }
 
   fun registerAdAsset(assetType: Int, assetView: View) {
-    Log.d(LogTags.VIEW, "Register asset type $assetType")
-
     when (assetType) {
       NativeAdAssetType.HEADLINE -> adView.headlineView = assetView as TextView
       NativeAdAssetType.BODY -> adView.bodyView = assetView as TextView
@@ -155,60 +154,38 @@ class NativeAdContainer(context: ReactContext) : FrameLayout(context) {
   }
 
   private fun delayUpdateAdContent() {
-    Log.d(LogTags.VIEW, "delayUpdateAdContent")
     mainThread.removeCallbacks(updateAdContentRunnable)
     mainThread.postDelayed(updateAdContentRunnable, 100)
   }
 
   private fun updateAdContent() {
-    Log.d(
-      LogTags.VIEW,
-      "updateAdContent() instanceId=$instanceId usesTemplate=$usesTemplate " +
-        "childCount=${container.childCount} viewSize=${width}x${height} nativeSize=${adView.width}x${adView.height} view=$this"
-    )
-
     templateStyle.applyToView(adView)
 
-    if (!usesTemplate) {
-      logRegisteredAssets()
+    val nativeAd = NativeAdStore.find(instanceId)
+    if (nativeAd == null) {
+      val error = "Not found Native Ad with instance id: $instanceId"
+      if (BuildConfig.DEBUG) throw Exception(error) else Log.e("CAS.AI", error)
+      return
     }
 
-    if (instanceId != lastInstanceId) {
-      val nativeAd = NativeAdStore.find(instanceId)
-      if (nativeAd == null) {
-        val error = "Not found Native Ad with instance id: $instanceId"
-        if (BuildConfig.DEBUG)
-          throw Exception(error)
-        else
-          Log.e("CAS.AI", error)
-        return
-      }
-      Log.d(LogTags.VIEW, "updateAdContent setNativeAd")
+    val sizeChanged = (width != lastBoundWidth || height != lastBoundHeight)
+    val instanceChanged = (instanceId != lastInstanceId)
+
+    if (instanceChanged) {
       adView.setNativeAd(nativeAd)
       lastInstanceId = instanceId
-    }
-  }
+      lastBoundWidth = width
+      lastBoundHeight = height
+      lastBoundInstanceId = instanceId
 
-  private fun logRegisteredAssets() {
-    if (!BuildConfig.DEBUG) return
-    Log.d(
-      LogTags.VIEW,
-      buildString {
-        append("assets registered view=$this\n")
-        append(" headline=${adView.headlineView?.javaClass?.simpleName}\n")
-        append(" body=${adView.bodyView?.javaClass?.simpleName}\n")
-        append(" cta=${adView.callToActionView?.javaClass?.simpleName}\n")
-        append(" media=${adView.mediaView?.javaClass?.simpleName}\n")
-        append(" icon=${adView.iconView?.javaClass?.simpleName}\n")
-        append(" advertiser=${adView.advertiserView?.javaClass?.simpleName}\n")
-        append(" store=${adView.storeView?.javaClass?.simpleName}\n")
-        append(" price=${adView.priceView?.javaClass?.simpleName}\n")
-        append(" star=${adView.starRatingView?.javaClass?.simpleName}\n")
-        append(" reviewCount=${adView.reviewCountView?.javaClass?.simpleName}\n")
-        append(" adLabel=${adView.adLabelView?.javaClass?.simpleName}\n")
-        append(" adChoices=${adView.adChoicesView?.javaClass?.simpleName}\n")
-      }
-    )
+      return
+    }
+
+    if (sizeChanged && lastBoundInstanceId == instanceId) {
+      adView.setNativeAd(nativeAd)
+      lastBoundWidth = width
+      lastBoundHeight = height
+    }
   }
 
 }

@@ -123,10 +123,8 @@ const NativeAdTextAssetView = forwardRef<Text, InternalTextAssetProps>(
     const ref = (forwardedRef ?? localRef) as React.RefObject<Text>;
     const { nativeAd, adViewRef } = useContext(NativeAdContext);
 
-    const assetContent = nativeAd.content[assetType];
-
     useEffect(() => {
-      if (!adViewRef.current || !ref.current || assetContent == null) {
+      if (!adViewRef.current || !ref.current) {
         return;
       }
 
@@ -134,15 +132,11 @@ const NativeAdTextAssetView = forwardRef<Text, InternalTextAssetProps>(
       if (reactTag != null) {
         Commands.registerAsset(adViewRef.current, assetType, reactTag);
       }
-    }, [adViewRef, assetContent]);
-
-    if (assetContent == null) {
-      return null;
-    }
+    }, [adViewRef]);
 
     return (
       <Text ref={ref} {...textProps}>
-        {assetContent}
+        {nativeAd.content[assetType]}
       </Text>
     );
   },
@@ -151,11 +145,6 @@ const NativeAdTextAssetView = forwardRef<Text, InternalTextAssetProps>(
 const CallToAction = forwardRef<Text, NativeAdTextAssetProps>(({ style, ...textProps }, ref) => {
   const { nativeAd } = useContext(NativeAdContext);
   const flattenedStyle = StyleSheet.flatten(style);
-  const assetContent = nativeAd.content[NativeAdAssetType.CALL_TO_ACTION];
-
-  if (assetContent == null) {
-    return;
-  }
 
   return (
     <View
@@ -166,14 +155,14 @@ const CallToAction = forwardRef<Text, NativeAdTextAssetProps>(({ style, ...textP
         height: flattenedStyle?.height,
       }}
     >
-      <Text ref={ref} style={style} {...textProps}>
-        {assetContent}
-      </Text>
-
       <CASNativeAdAssetView
         assetType={NativeAdAssetType.CALL_TO_ACTION}
         style={StyleSheet.absoluteFillObject}
       />
+
+      <Text ref={ref} style={style} {...textProps}>
+        {nativeAd.content[NativeAdAssetType.CALL_TO_ACTION]}
+      </Text>
     </View>
   );
 });
