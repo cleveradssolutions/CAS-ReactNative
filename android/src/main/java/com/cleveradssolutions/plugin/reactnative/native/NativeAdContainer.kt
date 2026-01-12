@@ -39,9 +39,6 @@ class NativeAdContainer(context: ReactContext) : FrameLayout(context) {
   var requiredWidthDp: Int = 0
   var requiredHeightDp: Int = 0
   var usesTemplate: Boolean = false
-  private var lastBoundWidth = -1
-  private var lastBoundHeight = -1
-  private var lastBoundInstanceId = -1
 
   internal val templateStyle = NativeTemplateStyle()
 
@@ -68,7 +65,6 @@ class NativeAdContainer(context: ReactContext) : FrameLayout(context) {
     layout(left, top, right, bottom)
   }
 
-  var assetType: Int = 0
 
   init {
     addView(adView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
@@ -105,11 +101,6 @@ class NativeAdContainer(context: ReactContext) : FrameLayout(context) {
     if (isAttachedToWindow) {
       delayUpdateAdContent()
     }
-  }
-
-  override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-    super.onSizeChanged(w, h, oldw, oldh)
-    if (isAttachedToWindow) delayUpdateAdContent()
   }
 
   fun addContentChild(child: View, index: Int) {
@@ -168,24 +159,13 @@ class NativeAdContainer(context: ReactContext) : FrameLayout(context) {
       return
     }
 
-    val sizeChanged = (width != lastBoundWidth || height != lastBoundHeight)
     val instanceChanged = (instanceId != lastInstanceId)
 
     if (instanceChanged) {
       adView.setNativeAd(nativeAd)
       lastInstanceId = instanceId
-      lastBoundWidth = width
-      lastBoundHeight = height
-      lastBoundInstanceId = instanceId
 
       return
     }
-
-    if (sizeChanged && lastBoundInstanceId == instanceId) {
-      adView.setNativeAd(nativeAd)
-      lastBoundWidth = width
-      lastBoundHeight = height
-    }
   }
-
 }

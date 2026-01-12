@@ -15,6 +15,7 @@ import NativeBannerExample from './BannerExample';
 import NativeMRecExample from './MRecExample';
 import AdaptiveBannerExample from './AdaptiveBannerExample';
 import ScrolledAdViewExample from './ScrolledAdViewExample';
+import NativeTemplateSizeExample from './NativeTemplateSizeExample';
 
 export type RootStackParamList = {
   Setup: undefined;
@@ -44,6 +45,7 @@ export default function App() {
         <Stack.Screen name="AppOpen" component={AppOpenExample} />
 
         <Stack.Screen name="Native" component={NativeAdExample} />
+        <Stack.Screen name="NativeSizeExample" component={NativeTemplateSizeExample} />
 
         <Stack.Screen name="Banner" component={NativeBannerExample} />
         <Stack.Screen name="MREC" component={NativeMRecExample} />

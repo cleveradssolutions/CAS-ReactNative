@@ -318,7 +318,6 @@ const S = StyleSheet.create({
 
   mediaWrap: {
     marginTop: 12,
-    borderRadius: 14,
     overflow: 'hidden',
   },
 

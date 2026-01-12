@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 
 import AppButton from './components/AppButton';
-
 import {
   NativeAdLoader,
   NativeAdView,
@@ -20,8 +19,7 @@ import {
 } from 'react-native-cas';
 
 function pxToDp(px: number) {
-  const dp = Math.round(px / PixelRatio.get());
-  return Math.max(1, dp);
+  return Math.round(px / PixelRatio.get());
 }
 
 export default function NativeTemplateSizeExample() {
@@ -49,29 +47,23 @@ export default function NativeTemplateSizeExample() {
   }, [contentWidthPx]);
 
   useEffect(() => {
-    const unsubLoaded = NativeAdLoader.addAdLoadedEventListener(
-      (ad: NativeAdType) => {
-        console.log('Native Ad loaded', ad.instanceId);
-        setLoadedAd(ad);
-      }
-    );
+    const unsubLoaded = NativeAdLoader.addAdLoadedEventListener((ad: NativeAdType) => {
+      console.log('Native Ad loaded', ad.instanceId);
+      setLoadedAd(ad);
+    });
 
-    const unsubFailed = NativeAdLoader.addAdFailedToLoadEventListener(
-      (e: AdError) => {
-        console.log('Native Ad failed to load', e);
-        setLoadedAd(null);
-      }
-    );
+    const unsubFailed = NativeAdLoader.addAdFailedToLoadEventListener((e: AdError) => {
+      console.log('Native Ad failed to load', e);
+      setLoadedAd(null);
+    });
 
     const unsubClicked = NativeAdLoader.addAdClickedEventListener(() => {
       console.log('Native Ad clicked');
     });
 
-    const unsubImpression = NativeAdLoader.addAdImpressionEventListener(
-      (info: AdContentInfo) => {
-        console.log('Native Ad impression', info);
-      }
-    );
+    const unsubImpression = NativeAdLoader.addAdImpressionEventListener((info: AdContentInfo) => {
+      console.log('Native Ad impression', info);
+    });
 
     NativeAdLoader.loadAds(1);
 
@@ -103,9 +95,9 @@ export default function NativeTemplateSizeExample() {
     setPlacement(next as any);
   };
 
-  const cardDynamicStyle = useMemo(() => {
-    return { width: cardWidthPx };
-  }, [cardWidthPx]);
+
+  const cardDynamicStyle = useMemo(() => ({ width: cardWidthPx }), [cardWidthPx]);
+  const nativeRootDynamicStyle = useMemo(() => ({ width: contentWidthPx }), [contentWidthPx]);
 
   return (
     <ScrollView style={S.screen} contentContainerStyle={S.content}>
@@ -118,6 +110,7 @@ export default function NativeTemplateSizeExample() {
           <AppButton title="Change AdChoices" onPress={onChangePlacement} />
         </View>
 
+
         {!loadedAd ? (
           <Text style={S.info}>Loading native ad...</Text>
         ) : (
@@ -127,6 +120,7 @@ export default function NativeTemplateSizeExample() {
               usesTemplate={true}
               width={templateWidthDp}
               height={templateHeightDp}
+              style={[S.nativeRoot, nativeRootDynamicStyle]}
               templateStyle={S.templateStyle}
             />
           </View>

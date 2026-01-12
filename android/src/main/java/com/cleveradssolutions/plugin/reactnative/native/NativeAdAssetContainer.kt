@@ -57,6 +57,9 @@ class NativeAdAssetContainer(context: Context) : FrameLayout(context) {
         addView(view, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
       }
 
+      // Call To Action in JS use Text for visible text and styling.
+      // Here we create invisible button to handle clicks in ads.
+      // Also Only button should be get mach parent to have same size as JS Text.
       NativeAdAssetType.CALL_TO_ACTION -> {
         Button(context).also {
           it.setBackgroundColor(Color.TRANSPARENT)

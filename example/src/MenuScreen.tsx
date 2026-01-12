@@ -20,6 +20,7 @@ export default function MenuScreen() {
           <View style={S.divider} />
           
           <AppButton title="Native" onPress={go('Native')} />
+          <AppButton title="Native Template Size" onPress={go('NativeSizeExample')} />
           
 
           <View style={S.divider} />
