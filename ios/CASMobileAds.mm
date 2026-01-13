@@ -601,7 +601,49 @@ RCT_EXPORT_METHOD(destroyNative : (long)instanceId) {
   ad.delegate = self;
   ad.impressionDelegate = self;
 
-  [self sendEventWithName:kOnNativeAdLoaded body:instanceId];
+  NSMutableArray *content = [NSMutableArray arrayWithCapacity:12];
+
+  // 0 — HEADLINE
+  [content addObject:ad.headline ?: [NSNull null]];
+
+  // 1 — BODY
+  [content addObject:ad.body ?: [NSNull null]];
+
+  // 2 — CALL TO ACTION
+  [content addObject:ad.callToAction ?: [NSNull null]];
+
+  // 3 — ADVERTISER
+  [content addObject:ad.advertiser ?: [NSNull null]];
+
+  // 4 — STORE
+  [content addObject:ad.store ?: [NSNull null]];
+
+  // 5 — PRICE
+  [content addObject:ad.price ?: [NSNull null]];
+
+  // 6 — REVIEW COUNT
+  [content addObject:ad.reviewCount ?: [NSNull null]];
+
+  // 7 - STAR RATING
+  [content addObject:ad.starRating ? ad.starRating.stringValue : [NSNull null]];
+
+  // 8 — AD LABEL
+  [content addObject:ad.adLabel ?: [NSNull null]];
+
+  // 9 — ICON
+  [content addObject:(ad.icon || ad.iconURL) ? @"1" : [NSNull null]];
+
+  // 10 — MEDIA
+  [content addObject:(ad.mediaImage || ad.hasVideoContent) ? @"1" : [NSNull null]];
+
+  // 11 — AD_CHOICES
+  [content addObject:@"1"];
+
+  [self sendEventWithName:kOnNativeAdLoaded
+                     body:@{
+                       @"instanceId": instanceId,
+                       @"content": content
+                     }];
 }
 
 - (void)nativeAd:(CASNativeAdContent *)ad didFailToLoadWithError:(CASError *)error {
