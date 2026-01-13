@@ -13,6 +13,7 @@
 using namespace facebook::react;
 
 @interface RNCASNativeAssetView () <RCTCASNativeAssetViewViewProtocol>
+@property (nonatomic, assign) NSInteger assetType;
 @property (nonatomic, assign) BOOL didRegister;
 @end
 
@@ -35,16 +36,18 @@ using namespace facebook::react;
 - (void)didMoveToWindow {
   [super didMoveToWindow];
   
-  if (!self.window) {
+  if (!self.window || self.didRegister) {
     return;
   }
+  
+  self.didRegister = YES;
   
   UIView *parent = self.superview;
   while (parent) {
     if ([parent isKindOfClass:[RNCASNativeAdView class]]) {
       [(RNCASNativeAdView *)parent
        registerAssetView:self
-       assetType:self.tag];
+       assetType:self.assetType];
       break;
     }
     parent = parent.superview;
@@ -64,13 +67,15 @@ using namespace facebook::react;
   
   const auto &newProps =
   *std::static_pointer_cast<const CASNativeAssetViewProps>(props);
-  
-  NSInteger assetType = newProps.assetType;
-  
-  if (self.tag != assetType) {
-    self.tag = assetType;
+      
+  if (self.assetType != newProps.assetType) {
+    self.assetType = newProps.assetType;
+
+    if (self.window && !self.didRegister) {
+      [self didMoveToWindow];
+    }
   }
-  
+
   [super updateProps:props oldProps:oldProps];
 }
 

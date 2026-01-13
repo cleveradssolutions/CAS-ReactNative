@@ -97,6 +97,18 @@ using namespace facebook::react;
   [super updateProps:props oldProps:oldProps];
 }
 
+#pragma mark - Mount / Unmount child component view
+
+- (void)mountChildComponentView:(UIView<RCTComponentViewProtocol> *)child
+                          index:(NSInteger)index {
+  [self.nativeView insertSubview:child atIndex:index];
+}
+
+- (void)unmountChildComponentView:(UIView<RCTComponentViewProtocol> *)child
+                            index:(NSInteger)index {
+  [child removeFromSuperview];
+}
+
 #pragma mark - JS → Native (Text assets)
 
 - (void)registerAsset:(NSInteger)assetType reactTag:(NSInteger)reactTag {

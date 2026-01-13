@@ -1,6 +1,10 @@
 #import "RNCASNativeAdView.h"
 #import "RNCASNativeAssetViewComponent.h"
 
+@interface RNCASNativeAssetViewComponent ()
+@property (nonatomic, assign) BOOL didRegister;
+@end
+
 @implementation RNCASNativeAssetViewComponent
 
 - (instancetype)initWithFrame:(CGRect)frame {
@@ -12,30 +16,27 @@
 
 - (void)setAssetType:(NSInteger)assetType {
   _assetType = assetType;
-  
-  if (assetType != 0 && self.tag != assetType) {
-    self.tag = assetType;
-  }
 }
 
 - (void)didMoveToSuperview {
   [super didMoveToSuperview];
   
-  if (!self.superview) {
+  if (!self.superview || self.didRegister) {
     return;
   }
+  
+  self.didRegister = YES;
   
   UIView *parent = self.superview;
   while (parent) {
     if ([parent isKindOfClass:[RNCASNativeAdView class]]) {
       [(RNCASNativeAdView *)parent
        registerAssetView:self
-       assetType:self.tag];
+       assetType:self.assetType];
       break;
     }
     parent = parent.superview;
   }
 }
-
 
 @end
