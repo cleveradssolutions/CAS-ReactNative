@@ -14,7 +14,7 @@ using namespace facebook::react;
 
 @interface RNCASNativeAssetView () <RCTCASNativeAssetViewViewProtocol>
 @property (nonatomic, assign) NSInteger assetType;
-@property (nonatomic, assign) BOOL didRegister;
+@property (nonatomic, assign) BOOL isRegistered;
 @end
 
 @implementation RNCASNativeAssetView
@@ -26,57 +26,66 @@ using namespace facebook::react;
 - (instancetype)initWithFrame:(CGRect)frame {
   if (self = [super initWithFrame:frame]) {
     self.clipsToBounds = YES;
-    _didRegister = NO;
+    _isRegistered = NO;
   }
   return self;
 }
 
+
 #pragma mark - Lifecycle
+
+- (void)didMoveToSuperview {
+  [super didMoveToSuperview];
+  [self tryRegister];
+}
 
 - (void)didMoveToWindow {
   [super didMoveToWindow];
-  
-  if (!self.window || self.didRegister) {
-    return;
-  }
-  
-  self.didRegister = YES;
-  
-  UIView *parent = self.superview;
-  while (parent) {
-    if ([parent isKindOfClass:[RNCASNativeAdView class]]) {
-      [(RNCASNativeAdView *)parent
-       registerAssetView:self
-       assetType:self.assetType];
-      break;
-    }
-    parent = parent.superview;
-  }
+  [self tryRegister];
 }
 
-
 - (void)prepareForRecycle {
-  self.didRegister = NO;
+  self.isRegistered = NO;
   [super prepareForRecycle];
 }
 
-#pragma mark - Props update
 
-- (void)updateProps:(const Props::Shared &)props
-           oldProps:(const Props::Shared &)oldProps {
-  
+#pragma mark - Props
+
+- (void)updateProps:(Props::Shared const &)props
+           oldProps:(Props::Shared const &)oldProps {
   const auto &newProps =
   *std::static_pointer_cast<const CASNativeAssetViewProps>(props);
-      
-  if (self.assetType != newProps.assetType) {
-    self.assetType = newProps.assetType;
-
-    if (self.window && !self.didRegister) {
-      [self didMoveToWindow];
-    }
-  }
-
+  
+  self.assetType = newProps.assetType;
   [super updateProps:props oldProps:oldProps];
+}
+
+#pragma mark - Registration
+
+- (void)tryRegister {
+  if (self.isRegistered || !self.superview) {
+    return;
+  }
+  
+  RNCASNativeAdView *nativeAdView = [self findParentNativeAdView];
+  if (!nativeAdView) {
+    return;
+  }
+  
+  [nativeAdView registerAssetView:self assetType:self.assetType];
+  self.isRegistered = YES;
+}
+
+- (RNCASNativeAdView *)findParentNativeAdView {
+  UIView *view = self.superview;
+  while (view) {
+    if ([view isKindOfClass:[RNCASNativeAdView class]]) {
+      return (RNCASNativeAdView *)view;
+    }
+    view = view.superview;
+  }
+  return nil;
 }
 
 @end

@@ -43,21 +43,17 @@
     // drop
     CASSize *adSize = [CASSize getInlineBannerWithWidth:self.width maxHeight:self.height];
     [self.nativeView setAdTemplateSize:adSize];
-  } else {
-    // Register Assets via RNCASNativeAdAssetRegistrar
-  }
-  
-  /// 3. Bind NativeAd only if changed
-  if (self.appliedInstanceId != self.instanceId) {
-    self.appliedInstanceId = self.instanceId;
-    CASNativeAdContent *ad =
-    [[RNCASNativeAdStore shared] findNativeAdWithId:@(self.instanceId)];
     
-    [self.nativeView setNativeAd:ad];
-  }
-  
-  /// 4. Apply styles (template only)
-  if (self.usesTemplate) {
+    /// 3. Bind NativeAd only if changed
+    if (self.appliedInstanceId != self.instanceId) {
+      self.appliedInstanceId = self.instanceId;
+      CASNativeAdContent *ad =
+      [[RNCASNativeAdStore shared] findNativeAdWithId:@(self.instanceId)];
+      
+      [self.nativeView setNativeAd:ad];
+    }
+    
+    /// 4. Apply styles (template only)
     [self applyTemplateStyleToView:self.nativeView];
   }
 }

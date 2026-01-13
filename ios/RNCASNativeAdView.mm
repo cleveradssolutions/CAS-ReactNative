@@ -71,30 +71,39 @@ using namespace facebook::react;
     [self addSubview:self.nativeView];
   }
   
-  // 2. Update template size or bind assets
+  // Update template size or bind assets // setNativeAd via debounce
   if (newProps.usesTemplate) {
+    // 2. Update template size
     CASSize *adSize = [CASSize getInlineBannerWithWidth:newProps.width
                                               maxHeight:newProps.height];
     [self.nativeView setAdTemplateSize:adSize];
-  } else {
-    // Register Assets via RNCASNativeAdAssetRegistrar
-  }
-  
-  // 3. Update native ad only if changed
-  if (self.appliedInstanceId != newProps.instanceId) {
-    self.appliedInstanceId = newProps.instanceId;
-    CASNativeAdContent *ad =
-    [[RNCASNativeAdStore shared] findNativeAdWithId:@(self.appliedInstanceId)];
     
-    [self.nativeView setNativeAd:ad];
-  }
-  
-  // 4. Apply styles
-  if (newProps.usesTemplate) {
+    // 3. Update native ad only if changed
+    if (self.appliedInstanceId != newProps.instanceId) {
+      self.appliedInstanceId = newProps.instanceId;
+      CASNativeAdContent *ad =
+      [[RNCASNativeAdStore shared] findNativeAdWithId:@(self.appliedInstanceId)];
+      
+      [self.nativeView setNativeAd:ad];
+    }
+    
+    // 4. Apply styles
     [self applyTemplateStyles:newProps];
   }
   
   [super updateProps:props oldProps:oldProps];
+}
+
+#pragma mark - Commands (JS → Native)
+
+- (void)handleCommand:(const NSString *)commandName
+                args:(const NSArray *)args {
+  if ([commandName isEqualToString:@"registerAsset"]) {
+    NSInteger assetType = [args[0] integerValue];
+    NSInteger reactTag  = [args[1] integerValue];
+    [self registerAsset:assetType reactTag:reactTag];
+    return;
+  }
 }
 
 #pragma mark - Mount / Unmount child component view
@@ -115,43 +124,46 @@ using namespace facebook::react;
   RCTExecuteOnMainQueue(^{
     RCTBridge *bridge = [RCTBridge currentBridge];
     if (!bridge) return;
-
-    [bridge.uiManager addUIBlock:^(
-      __unused RCTUIManager *uiManager,
-      NSDictionary<NSNumber *, UIView *> *viewRegistry
-    ) {
-      UIView *view = viewRegistry[@(reactTag)];
-      if (!view) return;
-
-      view.userInteractionEnabled = NO;
-      [self bindAssetView:view assetType:assetType];
-      [self debounceApplyNativeAd];
-    }];
+    
+    UIView *view = [bridge.uiManager viewForReactTag:@(reactTag)];
+    if (!view) {
+      return;
+    }
+    
+    view.userInteractionEnabled = NO;
+    [self bindAssetView:view assetType:assetType];
+    [self debounceApplyNativeAd];
   });
 }
 
 #pragma mark - Native → Native (View assets)
 
-- (void)registerAssetView:(UIView *)view assetType:(NSInteger)assetType {
+- (void)registerAssetView:(UIView *)view
+                assetType:(NSInteger)assetType {
   if (!view) return;
-  
+
   view.userInteractionEnabled = NO;
   [self bindAssetView:view assetType:assetType];
   [self debounceApplyNativeAd];
 }
 
 - (void)debounceApplyNativeAd {
-  if (self.debouncedApply) {
+  if (self.debouncedApply != nil) {
     dispatch_block_cancel(self.debouncedApply);
     self.debouncedApply = nil;
   }
-  
-  dispatch_block_t block = ^{
-    [self applyNativeAd];
-  };
-  
+
+  __weak __typeof__(self) weakSelf = self;
+
+  dispatch_block_t block =
+    dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
+      __strong __typeof__(weakSelf) strongSelf = weakSelf;
+      if (!strongSelf) return;
+      [strongSelf applyNativeAd];
+    });
+
   self.debouncedApply = block;
-  
+
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)),
                  dispatch_get_main_queue(),
                  block);
@@ -160,13 +172,13 @@ using namespace facebook::react;
 
 - (void)applyNativeAd {
   if (self.appliedInstanceId < 0) return;
-  
+
   CASNativeAdContent *ad =
-  [[RNCASNativeAdStore shared]
-   findNativeAdWithId:@(self.appliedInstanceId)];
-  
+    [[RNCASNativeAdStore shared]
+      findNativeAdWithId:@(self.appliedInstanceId)];
+
   if (ad) {
-    self.nativeView.nativeAd = ad;
+    [self.nativeView setNativeAd:ad];
   }
 }
 
@@ -187,20 +199,21 @@ using namespace facebook::react;
 
 #pragma mark - Asset binding
 
-- (void)bindAssetView:(UIView *)view assetType:(NSInteger)assetType {
+- (void)bindAssetView:(UIView *)view
+            assetType:(NSInteger)assetType {
   switch (assetType) {
-    case 0:  self.nativeView.headlineView = (UILabel *)view; break;
-    case 1:  self.nativeView.bodyView = (UILabel *)view; break;
+    case 0:  self.nativeView.headlineView     = (UILabel *)view; break;
+    case 1:  self.nativeView.bodyView         = (UILabel *)view; break;
     case 2:  self.nativeView.callToActionView = (UIButton *)view; break;
-    case 3:  self.nativeView.advertiserView = (UILabel *)view; break;
-    case 4:  self.nativeView.storeView = (UILabel *)view; break;
-    case 5:  self.nativeView.priceView = (UILabel *)view; break;
-    case 6:  self.nativeView.reviewCountView = (UILabel *)view; break;
-    case 7:  self.nativeView.starRatingView = view; break;
-    case 8:  self.nativeView.adLabelView = (UILabel *)view; break;
-    case 9:  self.nativeView.iconView = (UIImageView *)view; break;
-    case 10: self.nativeView.mediaView = (CASMediaView *)view; break;
-    case 11: self.nativeView.adChoicesView = (CASChoicesView *)view; break;
+    case 3:  self.nativeView.advertiserView   = (UILabel *)view; break;
+    case 4:  self.nativeView.storeView        = (UILabel *)view; break;
+    case 5:  self.nativeView.priceView        = (UILabel *)view; break;
+    case 6:  self.nativeView.reviewCountView  = (UILabel *)view; break;
+    case 7:  self.nativeView.starRatingView   = view; break;
+    case 8:  self.nativeView.adLabelView      = (UILabel *)view; break;
+    case 9:  self.nativeView.iconView         = (UIImageView *)view; break;
+    case 10: self.nativeView.mediaView        = (CASMediaView *)view; break;
+    case 11: self.nativeView.adChoicesView    = (CASChoicesView *)view; break;
     default: break;
   }
 }
