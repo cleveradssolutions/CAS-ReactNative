@@ -1,20 +1,20 @@
 #ifdef RCT_NEW_ARCH_ENABLED
 
-#import "RNCASNativeAdView.h"
 #import "RNCASNativeAssetView.h"
+#import "RNCASNativeAdView.h"
+#import <CleverAdsSolutions/CleverAdsSolutions-Swift.h>
 
-#import <React/RCTConversions.h>
 #import "RCTFabricComponentsPlugins.h"
+#import <React/RCTConversions.h>
 
-#import <react/renderer/components/RNCASMobileAdsSpec/Props.h>
 #import <react/renderer/components/RNCASMobileAdsSpec/ComponentDescriptors.h>
+#import <react/renderer/components/RNCASMobileAdsSpec/Props.h>
 #import <react/renderer/components/RNCASMobileAdsSpec/RCTComponentViewHelpers.h>
 
 using namespace facebook::react;
 
 @interface RNCASNativeAssetView () <RCTCASNativeAssetViewViewProtocol>
-@property (nonatomic, assign) NSInteger assetType;
-@property (nonatomic, assign) BOOL isRegistered;
+@property(nonatomic, assign) NSInteger assetType;
 @end
 
 @implementation RNCASNativeAssetView
@@ -25,75 +25,88 @@ using namespace facebook::react;
 
 - (instancetype)initWithFrame:(CGRect)frame {
   if (self = [super initWithFrame:frame]) {
-    self.clipsToBounds = YES;
-    _isRegistered = NO;
+    // self.clipsToBounds = YES;
   }
   return self;
 }
 
-
 #pragma mark - Lifecycle
 
-- (void)didMoveToSuperview {
-  [super didMoveToSuperview];
-  [self tryRegister];
++ (BOOL)shouldBeRecycled {
+  return NO;
 }
 
-- (void)didMoveToWindow {
-  [super didMoveToWindow];
-  [self tryRegister];
-}
+- (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &)oldProps {
+  const auto &newProps = *std::static_pointer_cast<const CASNativeAssetViewProps>(props);
 
-- (void)prepareForRecycle {
-  self.isRegistered = NO;
-  [super prepareForRecycle];
-}
-
-
-#pragma mark - Props
-
-- (void)updateProps:(Props::Shared const &)props
-           oldProps:(Props::Shared const &)oldProps {
-  const auto &newProps =
-  *std::static_pointer_cast<const CASNativeAssetViewProps>(props);
-  
   self.assetType = newProps.assetType;
   [super updateProps:props oldProps:oldProps];
 }
 
-#pragma mark - Registration
+- (void)didMoveToWindow {
+  [super didMoveToWindow];
 
-- (void)tryRegister {
-  if (self.isRegistered || !self.superview) {
-    return;
-  }
-  
-  RNCASNativeAdView *nativeAdView = [self findParentNativeAdView];
-  if (!nativeAdView) {
-    return;
-  }
-  
-  [nativeAdView registerAssetView:self assetType:self.assetType];
-  self.isRegistered = YES;
-}
-
-- (RNCASNativeAdView *)findParentNativeAdView {
   UIView *view = self.superview;
   while (view) {
     if ([view isKindOfClass:[RNCASNativeAdView class]]) {
-      return (RNCASNativeAdView *)view;
+      RNCASNativeAdView *adView = (RNCASNativeAdView *)view;
+      UIView *assetView = self.subviews.firstObject ?: [self createSDKAssetView];
+      [adView registerAssetView:self assetType:self.assetType];
+      return;
     }
     view = view.superview;
   }
-  return nil;
+}
+
+- (CGSize)intrinsicContentSize {
+  if (self.subviews.count) {
+    return self.subviews.firstObject.intrinsicContentSize;
+  }
+  return super.intrinsicContentSize;
+}
+
+- (UIView *)createSDKAssetView {
+  UIView *view;
+  switch (self.assetType) {
+  case 102: { // MEDIA
+    view = [[CASMediaView alloc] initWithFrame:self.bounds];
+    break;
+  }
+  case 103: { // CALL TO ACTION
+    UIButton *button = [[UIButton alloc] initWithFrame:self.bounds];
+    button.backgroundColor = UIColor.clearColor;
+    [button setTitleColor:UIColor.clearColor forState:UIControlStateNormal];
+    view = button;
+    break;
+  }
+  case 104: { // ICON
+    UIImageView *icon = [[UIImageView alloc] initWithFrame:self.bounds];
+    icon.contentMode = UIViewContentModeScaleAspectFit;
+    view = icon;
+    break;
+  }
+  case 109: { // STAR RATING
+    view = [[CASStarRatingView alloc] init];
+    break;
+  }
+  case 112: { // AD CHOICES
+    view = [[CASChoicesView alloc] initWithFrame:self.bounds];
+    break;
+  }
+  default: {
+    @throw [NSException exceptionWithName:NSInvalidArgumentException
+                                   reason:@"Not supported asset type"
+                                 userInfo:nil];
+  }
+  }
+  [self addSubview:view];
+  return view;
 }
 
 @end
 
 #pragma mark - RNCASNativeAdViewCls
 
-Class<RCTComponentViewProtocol> RNCASNativeAssetViewCls(void) {
-  return RNCASNativeAssetView.class;
-}
+Class<RCTComponentViewProtocol> RNCASNativeAssetViewCls(void) { return RNCASNativeAssetView.class; }
 
 #endif /* ifdef RCT_NEW_ARCH_ENABLED */

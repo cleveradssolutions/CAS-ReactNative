@@ -21,7 +21,6 @@ using namespace facebook::react;
 
 @property(nonatomic, strong, nullable) CASNativeLoader *nativeLoader;
 
-
 @property(nonatomic, assign) BOOL hasListeners;
 @end
 
@@ -39,7 +38,7 @@ static NSString *_casIdentifier = @"";
 
 - (instancetype)init {
   self = [super init];
-  
+
   return self;
 }
 
@@ -85,9 +84,8 @@ static NSString *_casIdentifier = @"";
 
 #else /* ifdef RCT_NEW_ARCH_ENABLED */
 
-RCT_EXPORT_METHOD(initialize : (NSString *)casId options : (NSDictionary *)
-                      options resolver : (RCTPromiseResolveBlock)
-                          resolve rejecter : (RCTPromiseRejectBlock)reject) {
+RCT_EXPORT_METHOD(initialize : (NSString *)casId options : (NSDictionary *)options resolver : (
+    RCTPromiseResolveBlock)resolve rejecter : (RCTPromiseRejectBlock)reject) {
   [self internalInitWithCASID:casId options:options resolver:resolve rejecter:reject];
 }
 
@@ -96,7 +94,7 @@ RCT_EXPORT_METHOD(initialize : (NSString *)casId options : (NSDictionary *)
 - (void)internalInitWithCASID:(NSString *)casId
                       options:(NSDictionary *)options
                      resolver:(RCTPromiseResolveBlock)resolve
-                     rejecter:(RCTPromiseRejectBlock)reject {  
+                     rejecter:(RCTPromiseRejectBlock)reject {
   if (self.casInitConfig && _casIdentifier == casId) {
     resolve(self.casInitConfig);
     return;
@@ -137,8 +135,7 @@ RCT_EXPORT_METHOD(initialize : (NSString *)casId options : (NSDictionary *)
 
   NSNumber *showConsent = options[@"showConsentFormIfRequired"];
 
-  CASConsentFlow *consentFlow =
-      [[CASConsentFlow alloc] initWithEnabled:[showConsent boolValue]];
+  CASConsentFlow *consentFlow = [[CASConsentFlow alloc] initWithEnabled:[showConsent boolValue]];
 
   NSNumber *privacyGeo = options[@"debugGeography"];
 
@@ -174,15 +171,15 @@ RCT_EXPORT_METHOD(initialize : (NSString *)casId options : (NSDictionary *)
   [builder createWithCasId:casId];
 }
 
-RCT_EXPORT_METHOD(isInitialized : (RCTPromiseResolveBlock)
-                      resolve reject : (RCTPromiseRejectBlock)reject) {
+RCT_EXPORT_METHOD(isInitialized : (RCTPromiseResolveBlock)resolve reject : (RCTPromiseRejectBlock)
+                      reject) {
   BOOL initialized = (self.casInitConfig != nil);
 
   resolve(@(initialized));
 }
 
-RCT_EXPORT_METHOD(getSDKVersion : (RCTPromiseResolveBlock)
-                      resolve reject : (RCTPromiseRejectBlock)reject) {
+RCT_EXPORT_METHOD(getSDKVersion : (RCTPromiseResolveBlock)resolve reject : (RCTPromiseRejectBlock)
+                      reject) {
   resolve([CAS getSDKVersion]);
 }
 
@@ -216,8 +213,7 @@ RCT_EXPORT_METHOD(getSDKVersion : (RCTPromiseResolveBlock)
 }
 
 #ifdef RCT_NEW_ARCH_ENABLED
-- (std::shared_ptr<TurboModule>)getTurboModule:
-    (const ObjCTurboModule::InitParams &)params {
+- (std::shared_ptr<TurboModule>)getTurboModule:(const ObjCTurboModule::InitParams &)params {
   return std::make_shared<NativeCASMobileAdsModuleSpecJSI>(params);
 }
 
@@ -461,8 +457,7 @@ RCT_EXPORT_METHOD(destroyRewarded) {
     return;
   }
 
-  [self sendEventWithName:event
-                     body:@{@"code" : @(error.code), @"message" : error.description}];
+  [self sendEventWithName:event body:@{@"code" : @(error.code), @"message" : error.description}];
 }
 
 #pragma mark - Native
@@ -485,16 +480,14 @@ RCT_EXPORT_METHOD(setNativeMutedEnabled : (BOOL)enabled) {
 
 RCT_EXPORT_METHOD(setNativeAdChoicesPlacement : (long)adChoicesPlacement) {
   if (self.nativeLoader) {
-    self.nativeLoader.adChoicesPlacement =
-        RNCASChoicesPlacementFromLong(adChoicesPlacement);
+    self.nativeLoader.adChoicesPlacement = RNCASChoicesPlacementFromLong(adChoicesPlacement);
   }
 }
 
 RCT_EXPORT_METHOD(destroyNative : (long)instanceId) {
   NSNumber *instanceNumber = @(instanceId);
 
-  CASNativeAdContent *content =
-    [[RNCASNativeAdStore shared] removeNativeAdWithId:instanceNumber];
+  CASNativeAdContent *content = [[RNCASNativeAdStore shared] removeNativeAdWithId:instanceNumber];
 
   if (content) {
     content.delegate = nil;
@@ -625,25 +618,22 @@ RCT_EXPORT_METHOD(destroyNative : (long)instanceId) {
   [content addObject:ad.reviewCount ?: [NSNull null]];
 
   // 7 - STAR RATING
-  [content addObject:ad.starRating ? ad.starRating.stringValue : [NSNull null]];
-
+  NSNumber *starRating = ad.starRating;
+  if (starRating) {
+    NSNumberFormatter *ratingFormatter = [[NSNumberFormatter alloc] init];
+    [ratingFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
+    [ratingFormatter setMinimumFractionDigits:1];
+    [ratingFormatter setMaximumFractionDigits:1];
+    [content addObject:[ratingFormatter stringFromNumber:starRating]];
+  } else {
+    [content addObject:[NSNull null]];
+  }
+  
   // 8 — AD LABEL
   [content addObject:ad.adLabel ?: [NSNull null]];
 
-  // 9 — ICON
-  [content addObject:(ad.icon || ad.iconURL) ? @"1" : [NSNull null]];
-
-  // 10 — MEDIA
-  [content addObject:(ad.mediaImage || ad.hasVideoContent) ? @"1" : [NSNull null]];
-
-  // 11 — AD_CHOICES
-  [content addObject:@"1"];
-
   [self sendEventWithName:kOnNativeAdLoaded
-                     body:@{
-                       @"instanceId": instanceId,
-                       @"content": content
-                     }];
+                     body:@{@"instanceId" : instanceId, @"content" : content}];
 }
 
 - (void)nativeAd:(CASNativeAdContent *)ad didFailToLoadWithError:(CASError *)error {
@@ -653,7 +643,7 @@ RCT_EXPORT_METHOD(destroyNative : (long)instanceId) {
   [self sendAdEvent:kOnNativeAdFailedToLoad withError:error];
 }
 
-- (void)nativeAd:(CASNativeAdContent *)ad didFailToPresentWithError:(CASError *)error{
+- (void)nativeAd:(CASNativeAdContent *)ad didFailToPresentWithError:(CASError *)error {
   if (!self.hasListeners) {
     return;
   }
@@ -698,8 +688,7 @@ NSDictionary *RNCASNSDictionaryFromContentInfo(CASContentInfo *info) {
   impressionData[@"sourceName"] = info.sourceName;
   impressionData[@"sourceUnitId"] = info.sourceUnitID;
   impressionData[@"revenue"] = @(info.revenue);
-  impressionData[@"revenuePrecision"] =
-      RNCASNSStringFromRevenuePresision(info.revenuePrecision);
+  impressionData[@"revenuePrecision"] = RNCASNSStringFromRevenuePresision(info.revenuePrecision);
   impressionData[@"impressionDepth"] = @(info.impressionDepth);
   impressionData[@"revenueTotal"] = @(info.revenueTotal);
 
@@ -772,10 +761,11 @@ CASChoicesPlacement RNCASChoicesPlacementFromLong(long value) {
 
 UIFont *RNCASFontForStyle(NSString *style, UILabel *label) {
   CGFloat size = label.font.pointSize;
-  if (!style) return [UIFont systemFontOfSize:size];
-  
+  if (!style)
+    return [UIFont systemFontOfSize:size];
+
   NSString *s = style.lowercaseString;
-  
+
   if ([s isEqualToString:@"bold"]) {
     return [UIFont boldSystemFontOfSize:size];
   }
@@ -788,6 +778,6 @@ UIFont *RNCASFontForStyle(NSString *style, UILabel *label) {
   if ([s isEqualToString:@"monospace"]) {
     return [UIFont monospacedSystemFontOfSize:size weight:UIFontWeightRegular];
   }
-  
+
   return [UIFont systemFontOfSize:size];
 }
