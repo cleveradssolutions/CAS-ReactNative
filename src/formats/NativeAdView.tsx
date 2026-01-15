@@ -34,9 +34,10 @@ import {
 import type {
   NativeAdAssetProps,
   NativeAdTextAssetProps,
-  NativeAdType,
+  NativeAdContent,
   NativeAdViewProps,
 } from '../types/NativeAds';
+
 
 import CASNativeAdViewComponent, { Commands } from '../modules/NativeCASNativeAdViewComponent';
 import CASNativeAdAssetView from '../modules/NativeCASNativeAssetComponent';
@@ -60,7 +61,7 @@ const enum NativeAdAssetType {
 }
 
 type NativeAdContextType = {
-  nativeAd: NativeAdType;
+  nativeAd: NativeAdContent;
   adViewRef: RefObject<React.ComponentRef<typeof CASNativeAdViewComponent> | null>;
 };
 const NativeAdContext = createContext<NativeAdContextType>({} as NativeAdContextType);

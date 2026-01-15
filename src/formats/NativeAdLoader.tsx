@@ -1,5 +1,5 @@
 import CASMobileAdsNative from '../modules/NativeCASMobileAdsModule';
-import type { AdChoicesPlacement, NativeAdLoaderType, NativeAdType } from '../types/NativeAds';
+import type { AdChoicesPlacement, NativeAdLoaderType, NativeAdContent } from '../types/NativeAds';
 import { addAdEventListener } from '../EventEmitter';
 
 const enum NativeAdEvent {
@@ -22,10 +22,11 @@ export const NativeAdLoader: NativeAdLoaderType = {
       NativeAdEvent.LOADED,
       (content: { instanceId: number; content: (string | null)[] }) => {
         const instanceId = content.instanceId;
-        const nativeAd: NativeAdType = {
+        const nativeAd: NativeAdContent = {
           instanceId: instanceId,
           content: content.content,
-          destroyAd: () => CASMobileAdsNative.destroyNative(instanceId),
+          destroy: () => CASMobileAdsNative.destroyNative(instanceId),
+          isExpired: () => CASMobileAdsNative.isNativeExpired(instanceId),
         };
         l(nativeAd);
       },

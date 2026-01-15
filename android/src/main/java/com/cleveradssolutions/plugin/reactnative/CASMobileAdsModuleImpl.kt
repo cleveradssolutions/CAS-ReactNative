@@ -29,7 +29,6 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
 
     const val NAME_NATIVE_VIEW = "CASNativeAdView"
     const val NAME_NATIVE_ASSET = "CASNativeAssetView"
-    const val NAME_NATIVE_TEXT_ASSET = "CASNativeTextAssetView"
 
     var casIdentifier: String = ""
   }
@@ -281,6 +280,13 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
     }
   }
 
+  fun isNativeExpired(instanceId: Int, promise: Promise) {
+    CASHandler.main {
+      val content = NativeAdStore.find(instanceId)
+      promise.resolve(content?.isExpired ?: true)
+    }
+  }
+  
   fun setNativeMutedEnabled(enabled: Boolean) {
     getNativeAdLoader().isStartVideoMuted = enabled
   }
