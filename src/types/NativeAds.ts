@@ -48,7 +48,7 @@ export type NativeAdLoaderType = {
    *
    * @returns a disposer function to remove the listener.
    */
-  addAdLoadedEventListener(l: (ad: NativeAdType) => void): () => void;
+  addAdLoadedEventListener(l: (ad: NativeAdContent) => void): () => void;
 
   /**
    * Fired when loading a native ad fails.
@@ -89,7 +89,7 @@ export type NativeAdLoaderType = {
  * Provides lifecycle management (load, destroy), event handling,
  * and additional configuration parameters for muting, AdChoices, etc.
  */
-export type NativeAdType = {
+export type NativeAdContent = {
   instanceId: number;
   content: (string | null)[];
 
@@ -97,8 +97,15 @@ export type NativeAdType = {
    * Frees all underlying native ad resources.
    * Must be called when the ad is no longer displayed.
    */
-  destroyAd: () => void;
+  destroy: () => void;
+   /**
+   * Returns true if the native ad is no longer valid (expired) and should not be displayed.
+   * Implemented on Android/iOS and checked by instanceId.
+   */
+  isExpired: () => Promise<boolean>;
 };
+
+export type NativeAdType = NativeAdContent;
 
 /**
  * Defines the placement of the AdChoices icon inside the native ad view.
@@ -108,22 +115,22 @@ export enum AdChoicesPlacement {
   /**
    * Places the AdChoices icon in the top-left corner of the native ad view.
    */
-  topLeftCorner = 0,
+  TOP_LEFT = 0,
 
   /**
    * Places the AdChoices icon in the top-right corner of the native ad view.
    */
-  topRightCorner = 1,
+  TOP_RIGHT = 1,
 
   /**
    * Places the AdChoices icon in the bottom-right corner of the native ad view.
    */
-  bottomRightCorner = 2,
+  BOTTOM_RIGHT = 2,
 
   /**
    * Places the AdChoices icon in the bottom-left corner of the native ad view.
    */
-  bottomLeftCorner = 3,
+  BOTTOM_LEFT = 3,
 }
 
 /**
@@ -175,7 +182,7 @@ export type NativeAdAssetProps = {
   style?: StyleProp<ViewStyle> | undefined;
 };
 
-export type NativeAdTextAssetProps = Omit<TextProps, 'children'>
+export type NativeAdTextAssetProps = Omit<TextProps, 'children'>;
 
 /**
  * Represents the allowed font styles for template text elements.

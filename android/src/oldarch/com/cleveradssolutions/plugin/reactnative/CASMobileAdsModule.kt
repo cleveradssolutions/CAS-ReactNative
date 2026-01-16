@@ -54,6 +54,7 @@ class CASMobileAdsModule(reactContext: ReactApplicationContext) : ReactContextBa
   @ReactMethod fun setNativeMutedEnabled(enabled: Boolean) = impl.setNativeMutedEnabled(enabled)
   @ReactMethod fun setNativeAdChoicesPlacement(adChoicesPlacement: Double) = impl.setNativeAdChoicesPlacement(adChoicesPlacement.toInt())
   @ReactMethod fun destroyNative(instanceId: Double) = impl.destroyNative(instanceId.toInt())
+  @ReactMethod fun isNativeExpired(instanceId: Double, promise: Promise) = impl.isNativeExpired(instanceId.toInt(), promise)
 
 
   @ReactMethod
