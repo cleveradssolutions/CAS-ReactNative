@@ -25,6 +25,7 @@ using namespace facebook::react;
 @property(nonatomic, strong) CASSize *lastTemplateSize;
 @property(nonatomic, assign) NSInteger instanceId;
 @property(nonatomic, assign) NSInteger appliedInstanceId;
+@property (nonatomic, assign) BOOL usesTemplate;
 @property(nonatomic, strong) dispatch_block_t debouncedApply;
 @end
 
@@ -55,7 +56,7 @@ using namespace facebook::react;
     _props = defaultProps;
     _appliedInstanceId = -1;
   }
-
+  
   return self;
 }
 
@@ -63,7 +64,7 @@ using namespace facebook::react;
 
 - (void)updateProps:(const Props::Shared &)props oldProps:(const Props::Shared &)oldProps {
   const auto &newProps = *std::static_pointer_cast<const CASNativeAdViewProps>(props);
-
+  
   // 1. Ensure CASNativeView
   if (!self.nativeView) {
     self.nativeView = [[CASNativeView alloc] initWithFrame:CGRectZero];
@@ -71,7 +72,8 @@ using namespace facebook::react;
     [self addSubview:self.nativeView];
   }
   self.instanceId = newProps.instanceId;
-
+  self.usesTemplate = newProps.usesTemplate;
+  
   // Update template size or bind assets // setNativeAd via debounce
   if (newProps.usesTemplate) {
     // 2. Update template size
@@ -83,12 +85,12 @@ using namespace facebook::react;
       self.appliedInstanceId = -1;
     }
   }
-
+  
   // 4. Apply styles
   [self applyTemplateStyles:newProps];
-
+  
   [super updateProps:props oldProps:oldProps];
-
+  
   if (self.window) {
     [self applyNativeAd];
   }
@@ -99,6 +101,15 @@ using namespace facebook::react;
   [self debounceApplyNativeAd];
 }
 
+- (void)layoutSubviews {
+  [super layoutSubviews];
+  
+  if (!self.usesTemplate) {
+    self.nativeView.frame = self.bounds;
+  }
+}
+
+
 #pragma mark - Commands (JS → Native)
 
 - (void)handleCommand:(const NSString *)commandName args:(const NSArray *)args {
@@ -106,19 +117,11 @@ using namespace facebook::react;
     NSInteger assetType = [args[0] integerValue];
     NSInteger reactTag = [args[1] integerValue];
     [self registerAsset:assetType reactTag:reactTag];
+    
     return;
   }
 }
 
-#pragma mark - Mount / Unmount child component view
-
-- (void)mountChildComponentView:(UIView<RCTComponentViewProtocol> *)child index:(NSInteger)index {
-  [self.nativeView insertSubview:child atIndex:index];
-}
-
-- (void)unmountChildComponentView:(UIView<RCTComponentViewProtocol> *)child index:(NSInteger)index {
-  [child removeFromSuperview];
-}
 
 #pragma mark - JS → Native (Text assets)
 
@@ -127,7 +130,7 @@ using namespace facebook::react;
     RCTBridge *bridge = [RCTBridge currentBridge];
     if (!bridge)
       return;
-
+    
     UIView *view = [bridge.uiManager viewForReactTag:@(reactTag)];
     [self registerAssetView:view assetType:assetType];
   });
@@ -136,50 +139,99 @@ using namespace facebook::react;
 #pragma mark - Native → Native (View assets)
 
 - (void)registerAssetView:(UIView *)view assetType:(NSInteger)assetType {
-  if (!view)
-    return;
+  if (!view) return;
+  
+  if (assetType == 2) {
+      if ([view isKindOfClass:[UIButton class]]) {
+        self.nativeView.callToActionView = (UIButton *)view;
+      }
+      [self debounceApplyNativeAd];
+      return;
+    }
 
-  switch (assetType) {
-  case 0:
-    self.nativeView.headlineView = (UILabel *)view;
-    break;
-  case 1:
-    self.nativeView.bodyView = (UILabel *)view;
-    break;
-  case 2:
-    self.nativeView.callToActionView = (UIButton *)view;
-    break;
-  case 3:
-    self.nativeView.advertiserView = (UILabel *)view;
-    break;
-  case 4:
-    self.nativeView.storeView = (UILabel *)view;
-    break;
-  case 5:
-    self.nativeView.priceView = (UILabel *)view;
-    break;
-  case 6:
-    self.nativeView.reviewCountView = (UILabel *)view;
-    break;
-  case 7:
-    self.nativeView.starRatingView = view;
-    break;
-  case 8:
-    self.nativeView.adLabelView = (UILabel *)view;
-    break;
-  case 9:
-    self.nativeView.iconView = (UIImageView *)view;
-    break;
-  case 10:
-    self.nativeView.mediaView = (CASMediaView *)view;
-    break;
-  case 11:
-    self.nativeView.adChoicesView = (CASChoicesView *)view;
-    break;
-  default:
-    break;
+  
+  if (![view isDescendantOfView:self.nativeView]) {
+    UIView *fromSuperview = view.superview;
+    if (!fromSuperview) return;
+    
+    CGRect frameInNativeView =
+    [fromSuperview convertRect:view.frame toView:self.nativeView];
+    
+    [view removeFromSuperview];
+    view.frame = frameInNativeView;
+    view.autoresizingMask = UIViewAutoresizingNone;
+    [self.nativeView addSubview:view];
   }
-
+  
+  switch (assetType) {
+    case 0:
+      if ([view isKindOfClass:[UILabel class]]) {
+        self.nativeView.headlineView = (UILabel *)view;
+      }
+      break;
+    case 1:
+      if ([view isKindOfClass:[UILabel class]]) {
+        self.nativeView.bodyView = (UILabel *)view;
+      }
+      break;
+    case 2:      
+      self.nativeView.callToActionView = (UIButton *)view;
+      break;
+    case 3:
+      if ([view isKindOfClass:[UILabel class]]) {
+        self.nativeView.advertiserView = (UILabel *)view;
+      }
+      break;
+    case 4:
+      if ([view isKindOfClass:[UILabel class]]) {
+        self.nativeView.storeView = (UILabel *)view;
+      }
+      break;
+    case 5:
+      if ([view isKindOfClass:[UILabel class]]) {
+        self.nativeView.priceView = (UILabel *)view;
+      }
+      break;
+    case 6:
+      if ([view isKindOfClass:[UILabel class]]) {
+        self.nativeView.reviewCountView = (UILabel *)view;
+      }
+      break;
+    case 7:
+      self.nativeView.starRatingView = view;
+      view.userInteractionEnabled = NO;
+      break;
+    case 8:
+      if ([view isKindOfClass:[UILabel class]]) {
+        self.nativeView.adLabelView = (UILabel *)view;
+      }
+      break;
+    case 9:
+      if ([view isKindOfClass:[UIImageView class]]) {
+        self.nativeView.iconView = (UIImageView *)view;
+      }
+      break;
+    case 10:
+      if ([view isKindOfClass:[CASMediaView class]]) {
+        self.nativeView.mediaView = (CASMediaView *)view;
+      }
+      break;
+    case 11:
+      if ([view isKindOfClass:[CASChoicesView class]]) {
+        self.nativeView.adChoicesView = (CASChoicesView *)view;
+      }
+      break;
+    default:
+      break;
+  }
+  
+  NSLog(@"[NativeAd][Asset] type=%ld jsView=%@ frame=%@ window=%@",
+        (long)assetType,
+        NSStringFromClass(view.class),
+        NSStringFromCGRect(view.frame),
+        view.window);
+  
+  
   [self debounceApplyNativeAd];
 }
 
@@ -188,18 +240,18 @@ using namespace facebook::react;
     dispatch_block_cancel(self.debouncedApply);
     self.debouncedApply = nil;
   }
-
+  
   __weak __typeof__(self) weakSelf = self;
-
+  
   dispatch_block_t block = dispatch_block_create(DISPATCH_BLOCK_NO_QOS_CLASS, ^{
     __strong __typeof__(weakSelf) strongSelf = weakSelf;
     if (!strongSelf)
       return;
     [strongSelf applyNativeAd];
   });
-
+  
   self.debouncedApply = block;
-
+  
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)),
                  dispatch_get_main_queue(), block);
 }
@@ -208,10 +260,37 @@ using namespace facebook::react;
   if (self.appliedInstanceId != self.instanceId) {
     self.appliedInstanceId = self.instanceId;
     CASNativeAdContent *ad =
-        [[RNCASNativeAdStore shared] findNativeAdWithId:@(self.appliedInstanceId)];
-
+    [[RNCASNativeAdStore shared] findNativeAdWithId:@(self.appliedInstanceId)];
+    
     if (ad) {
       [self.nativeView setNativeAd:ad];
+      
+      // FIXME: need to remove
+      dispatch_async(dispatch_get_main_queue(), ^{
+        NSLog(@"[NativeAd][After setNativeAd]");
+        
+        NSLog(@"CTA view: %@ frame=%@ hidden=%d alpha=%.2f title=%@",
+              self.nativeView.callToActionView,
+              NSStringFromCGRect(self.nativeView.callToActionView.frame),
+              self.nativeView.callToActionView.hidden,
+              self.nativeView.callToActionView.alpha,
+              self.nativeView.callToActionView.titleLabel.text);
+        
+        UIView *starContainer = self.nativeView.starRatingView;
+        NSLog(@"Star container: %@ frame=%@ subviews=%lu",
+              starContainer,
+              NSStringFromCGRect(starContainer.frame),
+              (unsigned long)starContainer.subviews.count);
+        
+        for (UIView *sub in starContainer.subviews) {
+          NSLog(@" subview %@ frame=%@ hidden=%d alpha=%.2f",
+                NSStringFromClass(sub.class),
+                NSStringFromCGRect(sub.frame),
+                sub.hidden,
+                sub.alpha);
+        }
+      });
+      
     } else {
       @throw [NSException exceptionWithName:NSInvalidArgumentException
                                      reason:@"Native ad content not found"
@@ -227,9 +306,9 @@ using namespace facebook::react;
     dispatch_block_cancel(self.debouncedApply);
     self.debouncedApply = nil;
   }
-
+  
   self.appliedInstanceId = -1;
-
+  
   [super prepareForRecycle];
 }
 
@@ -239,11 +318,11 @@ using namespace facebook::react;
   if (props.backgroundColor) {
     self.nativeView.backgroundColor = RCTUIColorFromSharedColor(props.backgroundColor);
   }
-
+  
   if (props.headlineTextColor && self.nativeView.headlineView) {
     self.nativeView.headlineView.textColor = RCTUIColorFromSharedColor(props.headlineTextColor);
   }
-
+  
   // Secondary text: body, advertiser, store, price, reviewCount
   if (props.secondaryTextColor) {
     UIColor *color = RCTUIColorFromSharedColor(props.secondaryTextColor);
@@ -263,7 +342,7 @@ using namespace facebook::react;
       self.nativeView.reviewCountView.textColor = color;
     }
   }
-
+  
   // Primary text: call to action (CTA)
   UIButton *button = self.nativeView.callToActionView;
   if (button) {
@@ -278,7 +357,7 @@ using namespace facebook::react;
         if (callToActionTextColor != nil) {
           config.baseForegroundColor = callToActionTextColor;
         }
-
+        
         button.configuration = config;
         [button setNeedsUpdateConfiguration];
       }
@@ -291,40 +370,40 @@ using namespace facebook::react;
       }
     }
   }
-
+  
   // Fonts // bold | italic | monospace | medium etc
   // Convert std::string to NSString*
-
+  
   // HEADLINE
   NSString *headlineFontStyle = RCTNSStringFromString(props.headlineFontStyle);
-
+  
   if (headlineFontStyle && self.nativeView.headlineView) {
     self.nativeView.headlineView.font =
-        RNCASFontForStyle(headlineFontStyle, self.nativeView.headlineView);
+    RNCASFontForStyle(headlineFontStyle, self.nativeView.headlineView);
   }
-
+  
   NSString *secondaryFontStyle = RCTNSStringFromString(props.secondaryFontStyle);
-
+  
   if (secondaryFontStyle) {
     if (self.nativeView.bodyView) {
       self.nativeView.bodyView.font =
-          RNCASFontForStyle(secondaryFontStyle, self.nativeView.bodyView);
+      RNCASFontForStyle(secondaryFontStyle, self.nativeView.bodyView);
     }
     if (self.nativeView.storeView) {
       self.nativeView.storeView.font =
-          RNCASFontForStyle(secondaryFontStyle, self.nativeView.storeView);
+      RNCASFontForStyle(secondaryFontStyle, self.nativeView.storeView);
     }
     if (self.nativeView.priceView) {
       self.nativeView.priceView.font =
-          RNCASFontForStyle(secondaryFontStyle, self.nativeView.priceView);
+      RNCASFontForStyle(secondaryFontStyle, self.nativeView.priceView);
     }
     if (self.nativeView.advertiserView) {
       self.nativeView.advertiserView.font =
-          RNCASFontForStyle(secondaryFontStyle, self.nativeView.advertiserView);
+      RNCASFontForStyle(secondaryFontStyle, self.nativeView.advertiserView);
     }
     if (self.nativeView.reviewCountView) {
       self.nativeView.reviewCountView.font =
-          RNCASFontForStyle(secondaryFontStyle, self.nativeView.reviewCountView);
+      RNCASFontForStyle(secondaryFontStyle, self.nativeView.reviewCountView);
     }
   }
 }
