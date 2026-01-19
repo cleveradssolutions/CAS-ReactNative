@@ -10,7 +10,7 @@
 #else
 #import <React/RCTBridgeModule.h>
 
-@interface CASMobileAds : RCTEventEmitter <RCTBridgeModule, CASScreenContentDelegate, CASImpressionDelegate>
+@interface CASMobileAds : RCTEventEmitter <RCTBridgeModule, CASScreenContentDelegate, CASImpressionDelegate, CASNativeLoaderDelegate, CASNativeAdContentDelegate>
 #endif
 
 @property (class, readonly, copy) NSString *casIdendifier;

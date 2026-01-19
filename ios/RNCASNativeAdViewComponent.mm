@@ -41,7 +41,16 @@
     // Refresh template Size
     // setAdTemplateSize can be called multiple times for same ad size with zero performance
     // drop
-    CASSize *adSize = [CASSize getInlineBannerWithWidth:self.width maxHeight:self.height];
+    CASSize *adSize = nil;
+    
+    if (self.width <= 0 || self.height <= 0) {
+      // Explicit fallback only for invalid size
+      adSize = [CASSize mediumRectangle];
+    } else {
+      adSize = [CASSize getInlineBannerWithWidth:self.width
+                                       maxHeight:self.height];
+    }
+
     [self.nativeView setAdTemplateSize:adSize];
     
     /// 3. Bind NativeAd only if changed

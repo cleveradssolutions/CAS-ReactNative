@@ -90,7 +90,16 @@ using namespace facebook::react;
   // Update template size or bind assets // setNativeAd via debounce
   if (newProps.usesTemplate) {
     // 2. Update template size
-    CASSize *adSize = [CASSize getInlineBannerWithWidth:newProps.width maxHeight:newProps.height];
+    CASSize *adSize = nil;
+    
+    if (newProps.width <= 0 || newProps.height <= 0) {
+      // Explicit fallback only for invalid size
+      adSize = [CASSize mediumRectangle];
+    } else {
+      adSize = [CASSize getInlineBannerWithWidth:newProps.width
+                                       maxHeight:newProps.height];
+    }
+    
     if (adSize != self.lastTemplateSize) {
       [self.nativeView setAdTemplateSize:adSize];
       self.lastTemplateSize = adSize;

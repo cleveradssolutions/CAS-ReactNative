@@ -16,7 +16,7 @@ RCT_EXPORT_VIEW_PROPERTY(width, CGFloat)
 RCT_EXPORT_VIEW_PROPERTY(height, CGFloat)
 
 // Templates
-RCT_EXPORT_VIEW_PROPERTY(usesTemplate, Boolean)
+RCT_EXPORT_VIEW_PROPERTY(usesTemplate, BOOL)
 
 // Export types
 RCT_EXPORT_VIEW_PROPERTY(backgroundColor, UIColor)

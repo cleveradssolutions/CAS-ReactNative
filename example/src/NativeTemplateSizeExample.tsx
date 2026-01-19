@@ -32,24 +32,26 @@ export default function NativeTemplateSizeExample() {
     AdChoicesPlacement.topRightCorner
   );
 
-  const MIN_TEMPLATE_WIDTH_DP = 300;
-
   const [templateHeightDp] = useState(250);
+
+  const MIN_INLINE_WIDTH = 300;
+  const CARD_HORIZONTAL_PADDING = 20 * 2; // card padding
+  const AD_SHELL_PADDING = 14 * 2;        // adShell padding
 
   const cardWidthPx = useMemo(() => {
     return Math.min(winWidth - 40, 420);
   }, [winWidth]);
 
-  const contentWidthPx = useMemo(() => {
-    return Math.max(0, Math.round(cardWidthPx - 68));
+  const availableWidth = useMemo(() => {
+    const w = cardWidthPx - CARD_HORIZONTAL_PADDING - AD_SHELL_PADDING;
+    return w > 0 ? Math.round(w) : 0;
   }, [cardWidthPx]);
 
-  const templateWidthDp = useMemo(() => {
-    return Math.max(
-      MIN_TEMPLATE_WIDTH_DP,
-      pxToDp(contentWidthPx)
-    );
-  }, [contentWidthPx]);
+  const effectiveTemplateWidth = useMemo(() => {
+    if (availableWidth <= 0) return 0;
+    return Math.max(availableWidth, MIN_INLINE_WIDTH);
+  }, [availableWidth]);
+
 
   useEffect(() => {
     const unsubLoaded = NativeAdLoader.addAdLoadedEventListener((ad: NativeAdType) => {
@@ -102,14 +104,7 @@ export default function NativeTemplateSizeExample() {
 
 
   const cardDynamicStyle = useMemo(() => ({ width: cardWidthPx }), [cardWidthPx]);
-  // const nativeRootDynamicStyle = useMemo(() => ({ width: contentWidthPx }), [contentWidthPx]);
-
-  const nativeRootDynamicStyle = useMemo(
-    () => ({
-      width: Math.max(contentWidthPx, MIN_TEMPLATE_WIDTH_DP),
-    }),
-    [contentWidthPx]
-  );
+  const nativeRootDynamicStyle = useMemo(() => ({ width: effectiveTemplateWidth }), [effectiveTemplateWidth]);
 
   return (
     <ScrollView style={S.screen} contentContainerStyle={S.content}>
@@ -129,8 +124,8 @@ export default function NativeTemplateSizeExample() {
           <View style={S.adShell}>
             <NativeAdView
               ad={loadedAd}
-              usesTemplate={true}
-              width={templateWidthDp}
+              usesTemplate
+              width={effectiveTemplateWidth}
               height={templateHeightDp}
               style={[S.nativeRoot, nativeRootDynamicStyle]}
               templateStyle={S.templateStyle}
@@ -187,6 +182,9 @@ const S = StyleSheet.create({
     padding: 14,
     backgroundColor: '#0f141c',
     overflow: 'hidden',
+
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   templateStyle: {
     backgroundColor: '#8c939eff',

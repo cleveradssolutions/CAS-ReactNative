@@ -127,6 +127,7 @@ RCT_EXPORT_METHOD(initialize : (NSString *)casId options : (NSDictionary *)optio
 
   CASNativeLoader *nativeLoader = [[CASNativeLoader alloc] initWithCasID:casId];
   nativeLoader.delegate = self;
+
   self.nativeLoader = nativeLoader;
 
   CASManagerBuilder *builder = [CAS buildManager];
@@ -318,7 +319,7 @@ RCT_EXPORT_METHOD(showInterstitialAd) {
   [self.interstitialAds presentFromViewController:nil];
 }
 
-RCT_EXPORT_METHOD(setInterstitialMinInterval : (long)seconds) {
+RCT_EXPORT_METHOD(setInterstitialMinInterval : (NSInteger)seconds) {
   if (self.interstitialAds) {
     self.interstitialAds.minInterval = seconds;
   }
@@ -462,7 +463,7 @@ RCT_EXPORT_METHOD(destroyRewarded) {
 
 #pragma mark - Native
 
-RCT_EXPORT_METHOD(loadNativeAd : (long)maxNumberOfAds) {
+RCT_EXPORT_METHOD(loadNativeAd:(NSInteger)maxNumberOfAds) {
   if (!self.nativeLoader) {
     [self sendAdEvent:kOnNativeAdFailedToLoad withError:CASError.notInitialized];
     return;
@@ -478,13 +479,13 @@ RCT_EXPORT_METHOD(setNativeMutedEnabled : (BOOL)enabled) {
   }
 }
 
-RCT_EXPORT_METHOD(setNativeAdChoicesPlacement : (long)adChoicesPlacement) {
+RCT_EXPORT_METHOD(setNativeAdChoicesPlacement : (NSInteger)adChoicesPlacement) {
   if (self.nativeLoader) {
     self.nativeLoader.adChoicesPlacement = RNCASChoicesPlacementFromLong(adChoicesPlacement);
   }
 }
 
-RCT_EXPORT_METHOD(destroyNative : (long)instanceId) {
+RCT_EXPORT_METHOD(destroyNative : (NSInteger)instanceId) {
   NSNumber *instanceNumber = @(instanceId);
 
   CASNativeAdContent *content = [[RNCASNativeAdStore shared] removeNativeAdWithId:instanceNumber];
