@@ -60,6 +60,15 @@ using namespace facebook::react;
   return self;
 }
 
+- (UIView *)contentView {
+  if (self.usesTemplate) {
+    return nil;
+  }
+
+  // Assets mode
+  return self.nativeView;
+}
+
 #pragma mark - Props update
 
 - (void)updateProps:(const Props::Shared &)props oldProps:(const Props::Shared &)oldProps {
@@ -69,7 +78,11 @@ using namespace facebook::react;
   if (!self.nativeView) {
     self.nativeView = [[CASNativeView alloc] initWithFrame:CGRectZero];
     self.nativeView.translatesAutoresizingMaskIntoConstraints = YES;
-    [self addSubview:self.nativeView];
+    self.nativeView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    
+    if (newProps.usesTemplate) {
+      [self addSubview:self.nativeView];
+    }
   }
   self.instanceId = newProps.instanceId;
   self.usesTemplate = newProps.usesTemplate;
@@ -86,27 +99,31 @@ using namespace facebook::react;
     }
   }
   
+  // 3. Apply Ad
+  if (newProps.usesTemplate) {
+    [self applyNativeAd];
+  } else if (self.window) {
+    [self debounceApplyNativeAd];
+  }
+  
   // 4. Apply styles
   [self applyTemplateStyles:newProps];
   
   [super updateProps:props oldProps:oldProps];
-  
-  if (self.window) {
-    [self applyNativeAd];
-  }
 }
 
 - (void)didMoveToWindow {
   [super didMoveToWindow];
-  [self debounceApplyNativeAd];
+  if (!self.usesTemplate) {
+    [self debounceApplyNativeAd];
+  }
 }
 
 - (void)layoutSubviews {
   [super layoutSubviews];
   
-  if (!self.usesTemplate) {
-    self.nativeView.frame = self.bounds;
-  }
+  // Use for template and assets mode
+  self.nativeView.frame = self.bounds;
 }
 
 
@@ -136,33 +153,12 @@ using namespace facebook::react;
   });
 }
 
+
 #pragma mark - Native → Native (View assets)
 
 - (void)registerAssetView:(UIView *)view assetType:(NSInteger)assetType {
   if (!view) return;
-  
-  if (assetType == 2) {
-      if ([view isKindOfClass:[UIButton class]]) {
-        self.nativeView.callToActionView = (UIButton *)view;
-      }
-      [self debounceApplyNativeAd];
-      return;
-    }
 
-  
-  if (![view isDescendantOfView:self.nativeView]) {
-    UIView *fromSuperview = view.superview;
-    if (!fromSuperview) return;
-    
-    CGRect frameInNativeView =
-    [fromSuperview convertRect:view.frame toView:self.nativeView];
-    
-    [view removeFromSuperview];
-    view.frame = frameInNativeView;
-    view.autoresizingMask = UIViewAutoresizingNone;
-    [self.nativeView addSubview:view];
-  }
-  
   switch (assetType) {
     case 0:
       if ([view isKindOfClass:[UILabel class]]) {
@@ -174,9 +170,17 @@ using namespace facebook::react;
         self.nativeView.bodyView = (UILabel *)view;
       }
       break;
-    case 2:      
-      self.nativeView.callToActionView = (UIButton *)view;
+    case 2: {
+      if ([view isKindOfClass:[UIButton class]]) {
+        self.nativeView.callToActionView = (UIButton *)view;
+      }
+      UIView *jsWrapper = view.superview;
+      if (jsWrapper) {
+        jsWrapper.hidden = YES;
+      }
+
       break;
+    }
     case 3:
       if ([view isKindOfClass:[UILabel class]]) {
         self.nativeView.advertiserView = (UILabel *)view;
@@ -225,13 +229,6 @@ using namespace facebook::react;
       break;
   }
   
-  NSLog(@"[NativeAd][Asset] type=%ld jsView=%@ frame=%@ window=%@",
-        (long)assetType,
-        NSStringFromClass(view.class),
-        NSStringFromCGRect(view.frame),
-        view.window);
-  
-  
   [self debounceApplyNativeAd];
 }
 
@@ -264,33 +261,6 @@ using namespace facebook::react;
     
     if (ad) {
       [self.nativeView setNativeAd:ad];
-      
-      // FIXME: need to remove
-      dispatch_async(dispatch_get_main_queue(), ^{
-        NSLog(@"[NativeAd][After setNativeAd]");
-        
-        NSLog(@"CTA view: %@ frame=%@ hidden=%d alpha=%.2f title=%@",
-              self.nativeView.callToActionView,
-              NSStringFromCGRect(self.nativeView.callToActionView.frame),
-              self.nativeView.callToActionView.hidden,
-              self.nativeView.callToActionView.alpha,
-              self.nativeView.callToActionView.titleLabel.text);
-        
-        UIView *starContainer = self.nativeView.starRatingView;
-        NSLog(@"Star container: %@ frame=%@ subviews=%lu",
-              starContainer,
-              NSStringFromCGRect(starContainer.frame),
-              (unsigned long)starContainer.subviews.count);
-        
-        for (UIView *sub in starContainer.subviews) {
-          NSLog(@" subview %@ frame=%@ hidden=%d alpha=%.2f",
-                NSStringFromClass(sub.class),
-                NSStringFromCGRect(sub.frame),
-                sub.hidden,
-                sub.alpha);
-        }
-      });
-      
     } else {
       @throw [NSException exceptionWithName:NSInvalidArgumentException
                                      reason:@"Native ad content not found"

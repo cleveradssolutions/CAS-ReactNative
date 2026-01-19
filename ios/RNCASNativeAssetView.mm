@@ -46,6 +46,18 @@ using namespace facebook::react;
   [super updateProps:props oldProps:oldProps];
 }
 
+
+- (RNCASNativeAdView *)findAdView {
+  UIView *view = self.superview;
+  while (view) {
+    if ([view isKindOfClass:[RNCASNativeAdView class]]) {
+      return (RNCASNativeAdView *)view;
+    }
+    view = view.superview;
+  }
+  return nil;
+}
+
 - (void)layoutSubviews {
   [super layoutSubviews];
   
@@ -53,25 +65,16 @@ using namespace facebook::react;
     return;
   }
   
-  UIView *view = self.superview;
-  while (view) {
-    if ([view isKindOfClass:[RNCASNativeAdView class]]) {
-      RNCASNativeAdView *adView = (RNCASNativeAdView *)view;
-      
-      UIView *assetView = self.subviews.firstObject;
-      if (!assetView) {
-        assetView = [self createSDKAssetView];
-      }
-      
-      assetView.frame = self.bounds;
-      
+  if (!self.subviews.count) {
+    UIView *assetView = [self createSDKAssetView];
+    assetView.frame = self.bounds;
+    
+    RNCASNativeAdView *adView = [self findAdView];
+    if (adView) {
       [adView registerAssetView:assetView assetType:self.assetType];
-      return;
     }
-    view = view.superview;
   }
 }
-
 
 - (CGSize)intrinsicContentSize {
   if (self.subviews.count) {
@@ -88,7 +91,7 @@ using namespace facebook::react;
       button.frame = self.bounds;
       button.autoresizingMask =
       UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-            
+      
       button.backgroundColor = UIColor.clearColor;
       [button setTitle:nil forState:UIControlStateNormal];
       button.userInteractionEnabled = YES;

@@ -32,6 +32,8 @@ export default function NativeTemplateSizeExample() {
     AdChoicesPlacement.topRightCorner
   );
 
+  const MIN_TEMPLATE_WIDTH_DP = 300;
+
   const [templateHeightDp] = useState(250);
 
   const cardWidthPx = useMemo(() => {
@@ -43,7 +45,10 @@ export default function NativeTemplateSizeExample() {
   }, [cardWidthPx]);
 
   const templateWidthDp = useMemo(() => {
-    return pxToDp(contentWidthPx);
+    return Math.max(
+      MIN_TEMPLATE_WIDTH_DP,
+      pxToDp(contentWidthPx)
+    );
   }, [contentWidthPx]);
 
   useEffect(() => {
@@ -97,7 +102,14 @@ export default function NativeTemplateSizeExample() {
 
 
   const cardDynamicStyle = useMemo(() => ({ width: cardWidthPx }), [cardWidthPx]);
-  const nativeRootDynamicStyle = useMemo(() => ({ width: contentWidthPx }), [contentWidthPx]);
+  // const nativeRootDynamicStyle = useMemo(() => ({ width: contentWidthPx }), [contentWidthPx]);
+
+  const nativeRootDynamicStyle = useMemo(
+    () => ({
+      width: Math.max(contentWidthPx, MIN_TEMPLATE_WIDTH_DP),
+    }),
+    [contentWidthPx]
+  );
 
   return (
     <ScrollView style={S.screen} contentContainerStyle={S.content}>
