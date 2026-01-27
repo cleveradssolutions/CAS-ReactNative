@@ -1,30 +1,35 @@
-#ifdef RCT_NEW_ARCH_ENABLED
+#import <UIKit/UIKit.h>
 
 #import "RNCASNativeAdView.h"
 #import "RNCASNativeAssetView.h"
 #import "RNCASStarRatingContainer.h"
+
+#import "RCTFabricComponentsPlugins.h"
+
 #import <CleverAdsSolutions/CleverAdsSolutions-Swift.h>
 
 #import <objc/runtime.h>
-#import "RCTFabricComponentsPlugins.h"
 #import <React/RCTConversions.h>
 
 #import <react/renderer/components/RNCASMobileAdsSpec/ComponentDescriptors.h>
 #import <react/renderer/components/RNCASMobileAdsSpec/Props.h>
 #import <react/renderer/components/RNCASMobileAdsSpec/RCTComponentViewHelpers.h>
 
-using namespace facebook::react;
 
-@interface RNCASNativeAssetView () <RCTCASNativeAssetViewViewProtocol>
+#ifdef RCT_NEW_ARCH_ENABLED
+using namespace facebook::react;
+#endif
+
+@interface RNCASNativeAssetView ()
+#ifdef RCT_NEW_ARCH_ENABLED
+<RCTCASNativeAssetViewViewProtocol>
 @property(nonatomic, assign) NSInteger assetType;
-@property(nonatomic, assign) BOOL didRegister;
+#endif
 @end
 
 @implementation RNCASNativeAssetView
 
-+ (ComponentDescriptorProvider)componentDescriptorProvider {
-  return concreteComponentDescriptorProvider<CASNativeAssetViewComponentDescriptor>();
-}
+#pragma mark - Lifecycle
 
 - (instancetype)initWithFrame:(CGRect)frame {
   if (self = [super initWithFrame:frame]) {
@@ -33,10 +38,14 @@ using namespace facebook::react;
   return self;
 }
 
-#pragma mark - Lifecycle
-
 + (BOOL)shouldBeRecycled {
   return NO;
+}
+
+#ifdef RCT_NEW_ARCH_ENABLED
+
++ (ComponentDescriptorProvider)componentDescriptorProvider {
+  return concreteComponentDescriptorProvider<CASNativeAssetViewComponentDescriptor>();
 }
 
 - (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &)oldProps {
@@ -46,17 +55,11 @@ using namespace facebook::react;
   [super updateProps:props oldProps:oldProps];
 }
 
+#endif
 
-- (RNCASNativeAdView *)findAdView {
-  UIView *view = self.superview;
-  while (view) {
-    if ([view isKindOfClass:[RNCASNativeAdView class]]) {
-      return (RNCASNativeAdView *)view;
-    }
-    view = view.superview;
-  }
-  return nil;
-}
+
+
+#pragma mark - Layout
 
 - (void)layoutSubviews {
   [super layoutSubviews];
@@ -76,12 +79,29 @@ using namespace facebook::react;
   }
 }
 
+
+#pragma mark - Native Ad registration
+
+- (RNCASNativeAdView *)findAdView {
+  UIView *view = self.superview;
+  while (view) {
+    if ([view isKindOfClass:[RNCASNativeAdView class]]) {
+      return (RNCASNativeAdView *)view;
+    }
+    view = view.superview;
+  }
+  return nil;
+}
+
 - (CGSize)intrinsicContentSize {
   if (self.subviews.count) {
     return self.subviews.firstObject.intrinsicContentSize;
   }
   return super.intrinsicContentSize;
 }
+
+
+#pragma mark - SDK Asset View Factory
 
 - (UIView *)createSDKAssetView {
   UIView *view;
@@ -94,6 +114,7 @@ using namespace facebook::react;
       
       button.backgroundColor = UIColor.clearColor;
       [button setTitle:nil forState:UIControlStateNormal];
+      [button setTitleColor:UIColor.clearColor forState:UIControlStateNormal];
       button.userInteractionEnabled = YES;
       
       view = button;
@@ -102,6 +123,7 @@ using namespace facebook::react;
     case 9: { // ICON
       UIImageView *icon = [[UIImageView alloc] initWithFrame:self.bounds];
       icon.contentMode = UIViewContentModeScaleAspectFit;
+      icon.clipsToBounds = YES;
       view = icon;
       break;
     }
@@ -123,6 +145,7 @@ using namespace facebook::react;
       view = [[CASChoicesView alloc] initWithFrame:self.bounds];
       break;
     }
+      
     default: {
       @throw [NSException exceptionWithName:NSInvalidArgumentException
                                      reason:@"Not supported asset type"
@@ -135,8 +158,24 @@ using namespace facebook::react;
 
 @end
 
-#pragma mark - RNCASNativeAdViewCls
+#ifdef RCT_NEW_ARCH_ENABLED
+
+#pragma mark - Fabric registration
 
 Class<RCTComponentViewProtocol> RNCASNativeAssetViewCls(void) { return RNCASNativeAssetView.class; }
 
-#endif /* ifdef RCT_NEW_ARCH_ENABLED */
+#else
+
+#pragma mark - Paper View Manager
+@implementation RNCASNativeAssetViewManager
+
+RCT_EXPORT_MODULE(CASNativeAssetView)
+
+- (UIView *)view {
+  return [RNCASNativeAssetView new];
+}
+
+RCT_EXPORT_VIEW_PROPERTY(assetType, NSInteger)
+
+@end
+#endif
