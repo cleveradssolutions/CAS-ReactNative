@@ -36,6 +36,10 @@ export default function NativeTemplateSizeExample() {
 
   const [templateHeightDp] = useState(250);
 
+  const MIN_INLINE_WIDTH = 300;
+  const CARD_HORIZONTAL_PADDING = 20 * 2; // card padding
+  const AD_SHELL_PADDING = 14 * 2;        // adShell padding
+
   const cardWidthPx = useMemo(() => {
     return Math.min(winWidth - 40, 420);
   }, [winWidth]);
@@ -43,10 +47,16 @@ export default function NativeTemplateSizeExample() {
   const contentWidthPx = useMemo(() => {
     return Math.max(0, Math.round(cardWidthPx - 68));
   }, [cardWidthPx]);
+  
+  const availableWidth = useMemo(() => {
+    const w = cardWidthPx - CARD_HORIZONTAL_PADDING - AD_SHELL_PADDING;
+    return w > 0 ? Math.round(w) : 0;
+  }, [cardWidthPx]);
 
-  const templateWidthDp = useMemo(() => {
-    return pxToDp(contentWidthPx);
-  }, [contentWidthPx]);
+  const effectiveTemplateWidth = useMemo(() => {
+    if (availableWidth <= 0) return 0;
+    return Math.max(availableWidth, MIN_INLINE_WIDTH);
+  }, [availableWidth]);
 
   useEffect(() => {
     const unsubLoaded = NativeAdLoader.addAdLoadedEventListener(
@@ -125,7 +135,7 @@ export default function NativeTemplateSizeExample() {
             <NativeAdView
               ad={loadedAd}
               usesTemplate={true}
-              width={templateWidthDp}
+              width={effectiveTemplateWidth}
               height={templateHeightDp}
               templateStyle={S.templateStyle}
             />
