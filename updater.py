@@ -1,15 +1,17 @@
 import os
 
-_PLUGIN_VERSION = "4.5.0"
-_CAS_VERSION = "4.5.0"
+_PLUGIN_VERSION = "4.5.4"
+_CAS_VERSION = "4.5.4"
 
 # Plugin publishing flow (from the project root):
-# python3 version_updater.py
+# python3 updater.py
 # yarn clean
 # yarn format
 # yarn lint
 # yarn codegen
 # yarn prepare
+# yarn test:android
+# yarn test:ios
 # yarn release
 
 def update_version_in_file(file_path, prefix, suffix):
