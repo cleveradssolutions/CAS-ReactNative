@@ -162,7 +162,7 @@ class NativeAdContainer(context: ReactContext) : FrameLayout(context) {
     val instanceChanged = (instanceId != lastInstanceId)
 
     if (instanceChanged) {
-      adView.setNativeAd(nativeAd)
+      adView.bindAdContent(nativeAd, usesTemplate)
       lastInstanceId = instanceId
 
       return

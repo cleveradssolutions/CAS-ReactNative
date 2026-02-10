@@ -17,6 +17,7 @@ import {
   AdError,
   AdContentInfo,
 } from 'react-native-cas';
+import { ROUTE_TITLES } from './App';
 
 export default function NativeAdExample() {
   const { width: winWidth } = useWindowDimensions();
@@ -28,38 +29,27 @@ export default function NativeAdExample() {
     AdChoicesPlacement.topRightCorner
   );
 
-  const cardWidth = useMemo(() => {
-    return Math.min(winWidth - 40, 420);
-  }, [winWidth]);
-
-  const contentWidth = useMemo(() => {
-    return Math.max(0, Math.round(cardWidth - 68));
-  }, [cardWidth]);
+  const cardWidth = useMemo(() => Math.min(winWidth - 40, 420), [winWidth]);
+  const contentWidth = useMemo(() => Math.max(0, Math.round(cardWidth - 68)), [cardWidth]);
 
   useEffect(() => {
-    const unsubscribeLoaded = NativeAdLoader.addAdLoadedEventListener(
-      (ad: NativeAdType) => {
-        console.log('Native Ad loaded', ad.instanceId);
-        setLoadedAd(ad);
-      }
-    );
+    const unsubscribeLoaded = NativeAdLoader.addAdLoadedEventListener((ad: NativeAdType) => {
+      console.log('Native Ad loaded', ad.instanceId);
+      setLoadedAd(ad);
+    });
 
-    const unsubscribeLoadFailed = NativeAdLoader.addAdFailedToLoadEventListener(
-      (e: AdError) => {
-        console.log('Native Ad failed to load', e);
-        setLoadedAd(null);
-      }
-    );
+    const unsubscribeLoadFailed = NativeAdLoader.addAdFailedToLoadEventListener((e: AdError) => {
+      console.log('Native Ad failed to load', e);
+      setLoadedAd(null);
+    });
 
     const unsubscribeClicked = NativeAdLoader.addAdClickedEventListener(() => {
       console.log('Native Ad clicked');
     });
 
-    const unsubscribeImpression = NativeAdLoader.addAdImpressionEventListener(
-      (info: AdContentInfo) => {
-        console.log('Native Ad impression', info);
-      }
-    );
+    const unsubscribeImpression = NativeAdLoader.addAdImpressionEventListener((info: AdContentInfo) => {
+      console.log('Native Ad impression', info);
+    });
 
     NativeAdLoader.loadAds(1);
 
@@ -87,33 +77,20 @@ export default function NativeAdExample() {
 
   const onChangePlacement = () => {
     const next = ((placement as number) + 1) % 4;
-
     NativeAdLoader.setNativeAdChoicesPlacement(next);
     setPlacement(next as any);
   };
 
-  const cardDynamicStyle = useMemo(() => {
-    return { width: cardWidth };
-  }, [cardWidth]);
+  const cardDynamicStyle = useMemo(() => ({ width: cardWidth }), [cardWidth]);
+  const nativeRootDynamicStyle = useMemo(() => ({ width: contentWidth }), [contentWidth]);
+  const headlineDynamicStyle = useMemo(() => ({ width: contentWidth }), [contentWidth]);
 
-  const nativeRootDynamicStyle = useMemo(() => {
-    return { width: contentWidth };
-  }, [contentWidth]);
+  const mediaWrapDynamicStyle = useMemo(
+    () => ({ width: contentWidth, height: 180 }),
+    [contentWidth]
+  );
 
-  const headlineDynamicStyle = useMemo(() => {
-    return { width: contentWidth };
-  }, [contentWidth]);
-
-  const mediaWrapDynamicStyle = useMemo(() => {
-    return {
-      width: contentWidth,
-      height: 180,
-    };
-  }, [contentWidth]);
-
-  const ctaDynamicStyle = useMemo(() => {
-    return { width: contentWidth };
-  }, [contentWidth]);
+  const ctaDynamicStyle = useMemo(() => ({ width: contentWidth }), [contentWidth]);
 
   return (
     <ScrollView
@@ -122,7 +99,7 @@ export default function NativeAdExample() {
       keyboardShouldPersistTaps="handled"
     >
       <View style={[S.card, cardDynamicStyle]}>
-        <Text style={S.title}>Native Ad</Text>
+        <Text style={S.title}>{ROUTE_TITLES.Native}</Text>
 
         <View style={S.row}>
           <AppButton title="Reload" onPress={onPressLoadButton} />
@@ -203,7 +180,6 @@ const S = StyleSheet.create({
   },
 
   card: {
-    borderRadius: 16,
     backgroundColor: '#121821',
     padding: 20,
     elevation: 6,
@@ -225,7 +201,7 @@ const S = StyleSheet.create({
   },
 
   info: {
-    color: '#bbb',
+    color: '#A5B3C5',
     marginTop: 20,
     textAlign: 'center',
   },
@@ -236,8 +212,11 @@ const S = StyleSheet.create({
     backgroundColor: '#0f141c',
     overflow: 'hidden',
   },
+
+  nativeRoot: {},
+
   templateStyle: {
-    backgroundColor: '#8c939eff',
+    backgroundColor: '#FFFFFF',
   },
 
   adChoices: {
@@ -251,7 +230,7 @@ const S = StyleSheet.create({
   headline: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#E8EEF6',
+    color: '#0F172A',
     marginBottom: 8,
     paddingRight: 30,
   },
@@ -269,6 +248,7 @@ const S = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 10,
     overflow: 'hidden',
+    backgroundColor: '#F1F5F9', 
   },
 
   icon: {
@@ -283,7 +263,7 @@ const S = StyleSheet.create({
   advertiser: {
     fontSize: 12,
     fontWeight: '800',
-    color: '#7dd3fc',
+    color: '#2563EB', 
     marginBottom: 4,
   },
 
@@ -300,8 +280,8 @@ const S = StyleSheet.create({
 
   reviewCount: {
     fontSize: 11,
-    color: '#c9d2de',
-    opacity: 0.85,
+    color: '#475569', 
+    opacity: 0.95,
   },
 
   adLabel: {
@@ -309,9 +289,9 @@ const S = StyleSheet.create({
     marginTop: 10,
     paddingHorizontal: 8,
     paddingVertical: 3,
-    borderColor: '#60a5fa',
+    borderColor: '#2563EB',
     borderWidth: 1,
-    color: '#60a5fa',
+    color: '#2563EB',
     fontSize: 12,
     borderRadius: 999,
   },
@@ -319,6 +299,7 @@ const S = StyleSheet.create({
   mediaWrap: {
     marginTop: 12,
     overflow: 'hidden',
+    backgroundColor: '#F1F5F9',
   },
 
   media: {
@@ -329,8 +310,8 @@ const S = StyleSheet.create({
   body: {
     marginTop: 10,
     fontSize: 13,
-    color: '#c9d2de',
-    opacity: 0.9,
+    color: '#334155', 
+    opacity: 1,
     lineHeight: 18,
   },
 
@@ -342,24 +323,26 @@ const S = StyleSheet.create({
 
   price: {
     fontSize: 12,
-    color: '#fde68a',
+    color: '#0F172A',
     marginRight: 10,
+    fontWeight: '700',
   },
 
   store: {
     fontSize: 12,
-    color: '#a7f3d0',
-    opacity: 0.9,
+    color: '#475569',
+    opacity: 1,
     flex: 1,
   },
 
   cta: {
     marginTop: 12,
-    backgroundColor: '#ff6600',
-    color: '#ffffff',
+    backgroundColor: '#2563EB',
+    color: '#FFFFFF',
     paddingVertical: 12,
     borderRadius: 12,
     textAlign: 'center',
     fontWeight: '800',
+    overflow: 'hidden',
   },
 });
