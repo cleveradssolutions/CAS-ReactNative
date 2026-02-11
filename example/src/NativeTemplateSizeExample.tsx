@@ -1,12 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  useWindowDimensions,
-  PixelRatio,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, useWindowDimensions, PixelRatio } from 'react-native';
 
 import AppButton from './components/AppButton';
 import {
@@ -29,15 +22,13 @@ export default function NativeTemplateSizeExample() {
   const [loadedAd, setLoadedAd] = useState<NativeAdType | null>(null);
   const [muted, setMuted] = useState(false);
 
-  const [placement, setPlacement] = useState<AdChoicesPlacement>(
-    AdChoicesPlacement.topRightCorner
-  );
+  const [placement, setPlacement] = useState<AdChoicesPlacement>(AdChoicesPlacement.topRightCorner);
 
   const [templateHeightDp] = useState(250);
 
   const MIN_INLINE_WIDTH = 300;
   const CARD_HORIZONTAL_PADDING = 20 * 2; // card padding
-  const AD_SHELL_PADDING = 14 * 2;        // adShell padding
+  const AD_SHELL_PADDING = 14 * 2; // adShell padding
 
   const cardWidthPx = useMemo(() => {
     return Math.min(winWidth - 40, 420);
@@ -52,7 +43,6 @@ export default function NativeTemplateSizeExample() {
     if (availableWidth <= 0) return 0;
     return Math.max(availableWidth, MIN_INLINE_WIDTH);
   }, [availableWidth]);
-
 
   useEffect(() => {
     const unsubLoaded = NativeAdLoader.addAdLoadedEventListener((ad: NativeAdType) => {
@@ -103,9 +93,11 @@ export default function NativeTemplateSizeExample() {
     setPlacement(next as any);
   };
 
-
   const cardDynamicStyle = useMemo(() => ({ width: cardWidthPx }), [cardWidthPx]);
-  const nativeRootDynamicStyle = useMemo(() => ({ width: effectiveTemplateWidth }), [effectiveTemplateWidth]);
+  const nativeRootDynamicStyle = useMemo(
+    () => ({ width: effectiveTemplateWidth }),
+    [effectiveTemplateWidth],
+  );
 
   return (
     <ScrollView style={S.screen} contentContainerStyle={S.content}>
@@ -117,7 +109,6 @@ export default function NativeTemplateSizeExample() {
           <AppButton title={muted ? 'Unmute' : 'Mute'} onPress={onToggleMute} />
           <AppButton title="Change AdChoices" onPress={onChangePlacement} />
         </View>
-
 
         {!loadedAd ? (
           <Text style={S.info}>Loading native ad...</Text>

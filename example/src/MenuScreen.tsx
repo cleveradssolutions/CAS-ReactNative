@@ -18,11 +18,7 @@ export default function MenuScreen() {
         <Text style={S.title}>Examples</Text>
         <Text style={S.subtitle}>Choose an ad format to test</Text>
 
-        <ScrollView
-          contentContainerStyle={S.menuList}
-          showsVerticalScrollIndicator={false}
-          bounces
-        >
+        <ScrollView contentContainerStyle={S.menuList} showsVerticalScrollIndicator={false} bounces>
           <AppButton title={ROUTE_TITLES.Interstitial} onPress={go('Interstitial')} />
           <AppButton title={ROUTE_TITLES.Rewarded} onPress={go('Rewarded')} />
           <AppButton title={ROUTE_TITLES.AppOpen} onPress={go('AppOpen')} />

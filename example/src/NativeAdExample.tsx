@@ -1,11 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  useWindowDimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, useWindowDimensions } from 'react-native';
 
 import AppButton from './components/AppButton';
 
@@ -25,9 +19,7 @@ export default function NativeAdExample() {
   const [loadedAd, setLoadedAd] = useState<NativeAdType | null>(null);
   const [muted, setMuted] = useState(false);
 
-  const [placement, setPlacement] = useState<AdChoicesPlacement>(
-    AdChoicesPlacement.topRightCorner
-  );
+  const [placement, setPlacement] = useState<AdChoicesPlacement>(AdChoicesPlacement.topRightCorner);
 
   const cardWidth = useMemo(() => Math.min(winWidth - 40, 420), [winWidth]);
   const contentWidth = useMemo(() => Math.max(0, Math.round(cardWidth - 68)), [cardWidth]);
@@ -47,9 +39,11 @@ export default function NativeAdExample() {
       console.log('Native Ad clicked');
     });
 
-    const unsubscribeImpression = NativeAdLoader.addAdImpressionEventListener((info: AdContentInfo) => {
-      console.log('Native Ad impression', info);
-    });
+    const unsubscribeImpression = NativeAdLoader.addAdImpressionEventListener(
+      (info: AdContentInfo) => {
+        console.log('Native Ad impression', info);
+      },
+    );
 
     NativeAdLoader.loadAds(1);
 
@@ -87,7 +81,7 @@ export default function NativeAdExample() {
 
   const mediaWrapDynamicStyle = useMemo(
     () => ({ width: contentWidth, height: 180 }),
-    [contentWidth]
+    [contentWidth],
   );
 
   const ctaDynamicStyle = useMemo(() => ({ width: contentWidth }), [contentWidth]);
@@ -248,7 +242,7 @@ const S = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 10,
     overflow: 'hidden',
-    backgroundColor: '#F1F5F9', 
+    backgroundColor: '#F1F5F9',
   },
 
   icon: {
@@ -263,7 +257,7 @@ const S = StyleSheet.create({
   advertiser: {
     fontSize: 12,
     fontWeight: '800',
-    color: '#2563EB', 
+    color: '#2563EB',
     marginBottom: 4,
   },
 
@@ -280,7 +274,7 @@ const S = StyleSheet.create({
 
   reviewCount: {
     fontSize: 11,
-    color: '#475569', 
+    color: '#475569',
     opacity: 0.95,
   },
 
@@ -310,7 +304,7 @@ const S = StyleSheet.create({
   body: {
     marginTop: 10,
     fontSize: 13,
-    color: '#334155', 
+    color: '#334155',
     opacity: 1,
     lineHeight: 18,
   },

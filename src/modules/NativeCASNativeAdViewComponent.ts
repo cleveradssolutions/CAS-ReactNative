@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import React from 'react';
 import type { HostComponent, ViewProps, ColorValue } from 'react-native';
 import type { Float, Int32 } from 'react-native/Libraries/Types/CodegenTypes';
 import codegenNativeCommands from 'react-native/Libraries/Utilities/codegenNativeCommands';
@@ -23,7 +24,7 @@ export interface NativeProps extends ViewProps {
   instanceId: Int32;
   width: Float;
   height: Float;
-  usesTemplate: boolean,
+  usesTemplate: boolean;
   backgroundColor?: ColorValue;
   primaryColor?: ColorValue;
   primaryTextColor?: ColorValue;
@@ -37,7 +38,6 @@ type NativeViewComponentType = HostComponent<NativeProps>;
 
 interface NativeCommands {
   registerAsset: (
-    // eslint-disable-next-line @typescript-eslint/no-deprecated -- https://github.com/facebook/react-native/issues/54272
     viewRef: React.ElementRef<NativeViewComponentType>,
     assetType: Int32,
     reactTag: Int32,

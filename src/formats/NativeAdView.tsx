@@ -14,22 +14,8 @@
  * limitations under the License.
  */
 
-import React, {
-  createContext,
-  forwardRef,
-  RefObject,
-  useContext,
-  useEffect,
-  useRef,
-} from 'react';
-import {
-  findNodeHandle,  
-  StyleSheet,
-  Text,  
-  useWindowDimensions,
-  View,
-  ViewProps,
-} from 'react-native';
+import React, { createContext, forwardRef, RefObject, useContext, useEffect, useRef } from 'react';
+import { findNodeHandle, StyleSheet, Text, View, ViewProps } from 'react-native';
 
 import type {
   NativeAdAssetProps,
@@ -37,7 +23,6 @@ import type {
   NativeAdContent,
   NativeAdViewProps,
 } from '../types/NativeAds';
-
 
 import CASNativeAdViewComponent, { Commands } from '../modules/NativeCASNativeAdViewComponent';
 import CASNativeAdAssetView from '../modules/NativeCASNativeAssetComponent';
@@ -76,15 +61,9 @@ const NativeAdViewInner = ({
 }: NativeAdViewProps & ViewProps) => {
   const ref = useRef<React.ComponentRef<typeof CASNativeAdViewComponent>>(null);
   const flattenedStyle = StyleSheet.flatten(style) || {};
-
   const useTemplate = React.Children.count(children) === 0;
-  var _width = width ?? getNumericSize(flattenedStyle.width);
-  var _height = height ?? getNumericSize(flattenedStyle.height);
-  if (useTemplate) {
-    const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-    _width = _width ?? screenWidth;
-    _height = _height ?? screenHeight;
-  }
+  const _width = width ?? getNumericSize(flattenedStyle.width);
+  const _height = height ?? getNumericSize(flattenedStyle.height);
 
   // TODO: rename backgroundColor property to templateBackgroundColor to avoid Android view conflict
   return (
@@ -115,7 +94,7 @@ type InternalTextAssetProps = NativeAdTextAssetProps & {
 };
 
 const NativeAdTextAssetView = forwardRef<Text, InternalTextAssetProps>(
-  ({ assetType, ...textProps }, forwardedRef) => {
+  function NativeAdTextAssetView({ assetType, ...textProps }, forwardedRef) {
     const localRef = useRef<Text>(null);
     const ref = (forwardedRef ?? localRef) as React.RefObject<Text>;
     const { nativeAd, adViewRef } = useContext(NativeAdContext);
@@ -145,7 +124,10 @@ const NativeAdTextAssetView = forwardRef<Text, InternalTextAssetProps>(
   },
 );
 
-const CallToAction = forwardRef<Text, NativeAdTextAssetProps>(({ style, ...textProps }, ref) => {
+const CallToAction = forwardRef<Text, NativeAdTextAssetProps>(function NativeAdCallToActionView(
+  { style, ...textProps },
+  ref,
+) {
   const { nativeAd } = useContext(NativeAdContext);
   const flattenedStyle = StyleSheet.flatten(style);
   const assetContent = nativeAd.content[NativeAdAssetType.CALL_TO_ACTION];
@@ -178,33 +160,41 @@ const CallToAction = forwardRef<Text, NativeAdTextAssetProps>(({ style, ...textP
 const Media = ({ style }: NativeAdAssetProps) => (
   <CASNativeAdAssetView assetType={NativeAdAssetType.MEDIA} style={style} />
 );
-const Icon = ({ style }: NativeAdAssetProps) => (
-  <CASNativeAdAssetView assetType={NativeAdAssetType.ICON} style={style} />
+const Icon = function NativeAdIconView({ style }: NativeAdAssetProps) {
+  return <CASNativeAdAssetView assetType={NativeAdAssetType.ICON} style={style} />;
+};
+const Headline = forwardRef<Text, NativeAdTextAssetProps>(
+  function NativeAdHeadlineView(props, ref) {
+    return <NativeAdTextAssetView ref={ref} assetType={NativeAdAssetType.HEADLINE} {...props} />;
+  },
 );
-const Headline = forwardRef<Text, NativeAdTextAssetProps>((props, ref) => (
-  <NativeAdTextAssetView ref={ref} assetType={NativeAdAssetType.HEADLINE} {...props} />
-));
-const Body = forwardRef<Text, NativeAdTextAssetProps>((props, ref) => (
-  <NativeAdTextAssetView ref={ref} assetType={NativeAdAssetType.BODY} {...props} />
-));
-const Price = forwardRef<Text, NativeAdTextAssetProps>((props, ref) => (
-  <NativeAdTextAssetView ref={ref} assetType={NativeAdAssetType.PRICE} {...props} />
-));
-const Advertiser = forwardRef<Text, NativeAdTextAssetProps>((props, ref) => (
-  <NativeAdTextAssetView ref={ref} assetType={NativeAdAssetType.ADVERTISER} {...props} />
-));
-const Store = forwardRef<Text, NativeAdTextAssetProps>((props, ref) => (
-  <NativeAdTextAssetView ref={ref} assetType={NativeAdAssetType.STORE} {...props} />
-));
-const StarRating = ({ style }: NativeAdAssetProps) => (
-  <CASNativeAdAssetView assetType={NativeAdAssetType.STAR_RATING} style={style} />
+const Body = forwardRef<Text, NativeAdTextAssetProps>(function NativeAdBodyView(props, ref) {
+  return <NativeAdTextAssetView ref={ref} assetType={NativeAdAssetType.BODY} {...props} />;
+});
+const Price = forwardRef<Text, NativeAdTextAssetProps>(function NativeAdPriceView(props, ref) {
+  return <NativeAdTextAssetView ref={ref} assetType={NativeAdAssetType.PRICE} {...props} />;
+});
+const Advertiser = forwardRef<Text, NativeAdTextAssetProps>(
+  function NativeAdAdvertiserView(props, ref) {
+    return <NativeAdTextAssetView ref={ref} assetType={NativeAdAssetType.ADVERTISER} {...props} />;
+  },
 );
-const ReviewCount = forwardRef<Text, NativeAdTextAssetProps>((props, ref) => (
-  <NativeAdTextAssetView ref={ref} assetType={NativeAdAssetType.REVIEW_COUNT} {...props} />
-));
-const AdLabel = forwardRef<Text, NativeAdTextAssetProps>((props, ref) => (
-  <NativeAdTextAssetView ref={ref} assetType={NativeAdAssetType.AD_LABEL} {...props} />
-));
+const Store = forwardRef<Text, NativeAdTextAssetProps>(function NativeAdStoreView(props, ref) {
+  return <NativeAdTextAssetView ref={ref} assetType={NativeAdAssetType.STORE} {...props} />;
+});
+const StarRating = function NativeAdStarRating({ style }: NativeAdAssetProps) {
+  return <CASNativeAdAssetView assetType={NativeAdAssetType.STAR_RATING} style={style} />;
+};
+const ReviewCount = forwardRef<Text, NativeAdTextAssetProps>(
+  function NativeAdReviewCountView(props, ref) {
+    return (
+      <NativeAdTextAssetView ref={ref} assetType={NativeAdAssetType.REVIEW_COUNT} {...props} />
+    );
+  },
+);
+const AdLabel = forwardRef<Text, NativeAdTextAssetProps>(function NativeAdLabelView(props, ref) {
+  return <NativeAdTextAssetView ref={ref} assetType={NativeAdAssetType.AD_LABEL} {...props} />;
+});
 const AdChoices = ({ style }: NativeAdAssetProps) => (
   <CASNativeAdAssetView assetType={NativeAdAssetType.AD_CHOICES} style={style} />
 );

@@ -63,11 +63,7 @@ export default function App() {
           options={{ title: ROUTE_TITLES.Setup }}
         />
 
-        <Stack.Screen
-          name="Menu"
-          component={MenuScreen}
-          options={{ title: ROUTE_TITLES.Menu }}
-        />
+        <Stack.Screen name="Menu" component={MenuScreen} options={{ title: ROUTE_TITLES.Menu }} />
 
         <Stack.Screen
           name="Interstitial"

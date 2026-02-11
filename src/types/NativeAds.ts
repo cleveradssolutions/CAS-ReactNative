@@ -98,7 +98,7 @@ export type NativeAdContent = {
    * Must be called when the ad is no longer displayed.
    */
   destroy: () => void;
-   /**
+  /**
    * Returns true if the native ad is no longer valid (expired) and should not be displayed.
    * Implemented on Android/iOS and checked by instanceId.
    */
