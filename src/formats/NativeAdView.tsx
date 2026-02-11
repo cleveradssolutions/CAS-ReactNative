@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 CleverAdsSolutions LTD, CAS.AI
+ * Copyright 2026 CleverAdsSolutions LTD, CAS.AI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,27 +23,13 @@ import type {
   NativeAdContent,
   NativeAdViewProps,
 } from '../types/NativeAds';
+import { NativeAdAssetType } from '../types/NativeAds';
 
 import CASNativeAdViewComponent, { Commands } from '../modules/NativeCASNativeAdViewComponent';
 import CASNativeAdAssetView from '../modules/NativeCASNativeAssetComponent';
 
 const getNumericSize = (value?: unknown): number | undefined =>
   typeof value === 'number' ? value : undefined;
-
-const enum NativeAdAssetType {
-  HEADLINE = 0,
-  BODY = 1,
-  CALL_TO_ACTION = 2,
-  ADVERTISER = 3,
-  STORE = 4,
-  PRICE = 5,
-  REVIEW_COUNT = 6,
-  STAR_RATING = 7,
-  AD_LABEL = 8,
-  ICON = 9,
-  MEDIA = 10,
-  AD_CHOICES = 11,
-}
 
 type NativeAdContextType = {
   nativeAd: NativeAdContent;
@@ -65,7 +51,6 @@ const NativeAdViewInner = ({
   const _width = width ?? getNumericSize(flattenedStyle.width);
   const _height = height ?? getNumericSize(flattenedStyle.height);
 
-  // TODO: rename backgroundColor property to templateBackgroundColor to avoid Android view conflict
   return (
     <CASNativeAdViewComponent
       ref={ref}
@@ -199,19 +184,86 @@ const AdChoices = ({ style }: NativeAdAssetProps) => (
   <CASNativeAdAssetView assetType={NativeAdAssetType.AD_CHOICES} style={style} />
 );
 
+/**
+ * This class is a View that publishers should use as the root for the `NativeAdContent`.
+ * A single NativeAdView corresponds to a single native ad.
+ * Each view used to display that ad's assets (the Image that displays the screenshot asset,
+ * for instance) should be a child of the NativeAdView.
+ *
+ * Advertising requirements:
+ * - The Ad View must be visible and non-transparent.
+ * - Don't edit the text content of assets.
+ * - Don't edit the content of images.
+ * - Native ads smaller than 32x32dp won't serve.
+ * Ads this small can be difficult to see or interact with and may adversely affect the display quality of advertiser assets.
+ * - At a single point in time, a loaded ad can only be served in one View.
+ * Simultaneous display of a single ad in multiple Views may result in the loss of impression.
+ * - The app must be active (not running in the background).
+ */
 type NativeAdViewComponentType = React.ForwardRefExoticComponent<NativeAdViewProps & ViewProps> & {
-  Headline: typeof Headline;
-  Icon: typeof Icon;
+  /**
+   * The MediaView is a special View designed to display the main media asset,
+   * either video or image. Can be defined in an XML layout or constructed dynamically.
+   * It should be placed within the view hierarchy of a NativeAdView, just like any other asset view.
+   * The media view will be populated automatically.
+   * Video ads won't serve to implementations with main asset CASMediaView smaller than 120dp in any dimension.
+   */
   Media: typeof Media;
-  CallToAction: typeof CallToAction;
-  Body: typeof Body;
-  Price: typeof Price;
-  Advertiser: typeof Advertiser;
-  Store: typeof Store;
-  StarRating: typeof StarRating;
-  ReviewCount: typeof ReviewCount;
-  AdLabel: typeof AdLabel;
+  /**
+   * Ad AdChoices overlay logo must be displayed at the top of the ad Each ad view must display
+   * an AdChoices overlay logo. Also, it's important that the AdChoices overlay be easily seen,
+   * so choose background colors and images appropriately.
+   *
+   * **An AdChoices overlay can be added by the SDK if view not registered.**
+   * Use `AdChoicesPlacement` constants to set preferred corner.
+   * And leave space in your preferred corner of your native ad view for the automatically
+   * inserted AdChoices logo.
+   */
   AdChoices: typeof AdChoices;
+  /**
+   * You must clearly display the text "Ad", "Advertisement", or "Sponsored" (localized appropriately).
+   * The badge is required to be a minimum of 15px height and width.
+   * Ad attribution must be displayed at the top of the ad.
+   */
+  AdLabel: typeof AdLabel;
+  /**
+   * Text for the headline text of the native ad.
+   */
+  Headline: typeof Headline;
+  /**
+   * The small app icon or advertiser logo with square aspect ratio (1:1).
+   */
+  Icon: typeof Icon;
+  /**
+   * Button that encourages users to take action (for example, "Visit site" or "Install").
+   * This text may truncate after 15 characters.
+   */
+  CallToAction: typeof CallToAction;
+  /**
+   * Text for the body text of the native ad. This text may truncate after 90 characters.
+   */
+  Body: typeof Body;
+  /**
+   * Text for the text that identifies the advertiser (for example, advertiser name, brand name, or visible URL).
+   * This text may truncate after 25 characters.
+   */
+  Price: typeof Price;
+  /**
+   * Text for the name of the store where the product or service is available.
+   */
+  Advertiser: typeof Advertiser;
+  /**
+   * Text for the price of the product or service advertised.
+   */
+  Store: typeof Store;
+  /**
+   * The rating from 0.0-5.0 that represents the average rating of the app in a store.
+   */
+  StarRating: typeof StarRating;
+  /**
+   * TextView for the number of reviews the app has received.
+   */
+  ReviewCount: typeof ReviewCount;
 };
 
 const NativeAdView = NativeAdViewInner as NativeAdViewComponentType;

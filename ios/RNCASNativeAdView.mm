@@ -355,7 +355,7 @@ using namespace facebook::react;
       [[RNCASNativeAdStore shared] findNativeAdWithId:@(self.appliedInstanceId)];
 
   if (ad) {
-    [self.nativeView bindAdContent:ad];
+    [self.nativeView bindAdContent:ad autoPopulateText:self.usesTemplate];
   } else {
     NSAssert(NO, @"Native ad content not found");
   }

@@ -3,19 +3,13 @@ import { View, Text, StyleSheet, ScrollView, useWindowDimensions } from 'react-n
 
 import AppButton from './components/AppButton';
 
-import {
-  NativeAdLoader,
-  NativeAdView,
-  AdChoicesPlacement,
-  NativeAdType,
-  AdError,
-  AdContentInfo,
-} from 'react-native-cas';
+import { NativeAdLoader, NativeAdView, AdChoicesPlacement } from 'react-native-cas';
+import type { NativeAdContent, AdError, AdContentInfo } from 'react-native-cas';
 
 export default function NativeAdExample() {
   const { width: winWidth } = useWindowDimensions();
 
-  const [loadedAd, setLoadedAd] = useState<NativeAdType | null>(null);
+  const [loadedAd, setLoadedAd] = useState<NativeAdContent | null>(null);
   const [muted, setMuted] = useState(false);
 
   const [placement, setPlacement] = useState<AdChoicesPlacement>(AdChoicesPlacement.topRightCorner);
@@ -24,7 +18,7 @@ export default function NativeAdExample() {
   const contentWidth = useMemo(() => Math.max(0, Math.round(cardWidth - 68)), [cardWidth]);
 
   useEffect(() => {
-    const unsubscribeLoaded = NativeAdLoader.addAdLoadedEventListener((ad: NativeAdType) => {
+    const unsubscribeLoaded = NativeAdLoader.addAdLoadedEventListener((ad: NativeAdContent) => {
       console.log('Native Ad loaded', ad.instanceId);
       setLoadedAd(ad);
     });
@@ -52,7 +46,7 @@ export default function NativeAdExample() {
       unsubscribeClicked();
       unsubscribeImpression();
 
-      setLoadedAd(prev => {
+      setLoadedAd((prev: NativeAdContent) => {
         prev?.destroyAd();
         return null;
       });
@@ -92,7 +86,6 @@ export default function NativeAdExample() {
       keyboardShouldPersistTaps="handled"
     >
       <View style={[S.card, cardDynamicStyle]}>
-
         <View style={S.row}>
           <AppButton title="Reload" onPress={onPressLoadButton} />
           <AppButton title={muted ? 'Unmute' : 'Mute'} onPress={onToggleMute} />

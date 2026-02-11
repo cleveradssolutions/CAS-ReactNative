@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 CleverAdsSolutions LTD, CAS.AI
+ * Copyright 2026 CleverAdsSolutions LTD, CAS.AI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,32 +19,47 @@ import type { AdError, AdContentInfo } from './AdContent';
 
 export type NativeAdLoaderType = {
   /**
-   * Manually retries loading multiple native ads with a specified maximum number.
+   * Starts loading a single native ad.
+   *
+   * This method initiates the loading of a single native ad.
+   *
+   * Ensure that the `addAdLoadedEventListener` is set before calling this method,
+   * as it is required to receive the loaded native ad content.
+   */
+  loadAd(): void;
+
+  /**
+   * Starts loading multiple native ads with a specified maximum number.
+   *
    * This method allows you to request multiple native ads in one load operation. It is not guaranteed that the exact
    * number of ads requested will be returned.
    *
-   * The ad view will try to fetch a new ad and will trigger:
-   * - `addAdLoadedEventListener` on success
-   * - `addAdFailedToLoadEventListener` on failure
+   * The `addAdLoadedEventListener` will be invoked once for each successfully loaded ad, up to the requested maximum.
+   * If the loading operation fails, the `addAdFailedToLoadEventListener` will be triggered with the error details.
    */
-  loadAds: (maxNumberOfAds: number) => void;
+  loadAds(maxNumberOfAds: number): void;
 
   /**
-   * Enables or disables native ad muting (UI and audio behavior).
+   * Sets the initial mute state for video ads.
    *
-   * @param muted - If true, the ad will start muted (if supported).
+   * By default, video ads will start with the sound muted. You can modify this setting to ensure that the video
+   * starts with sound enabled or muted, depending on your app's requirements.
    */
   setStartVideoMuted(muted: boolean): void;
 
   /**
-   * Sets the placement of the AdChoices icon.
+   * Configures the placement of the AdChoices icon within the ad content.
    *
-   * Implementation may vary depending on the underlying SDK.
+   * The `AdChoicesPlacement` allows you to define the location of the AdChoices icon, ensuring compliance
+   * with privacy and advertising regulations. Customize this property to align with your app's design and user experience.
    */
   setAdChoicesPlacement(placement: AdChoicesPlacement): void;
 
   /**
-   * Fired when an ad successfully loads.
+   * Fired when the native ad content has been successfully loaded.
+   *
+   * Always call the `NativeAdContent.destroy()` on all loaded native ads,
+   * even if they are not used or referenced. This ensures proper resource cleanup and prevents memory leaks.
    *
    * @returns a disposer function to remove the listener.
    */
@@ -84,28 +99,38 @@ export type NativeAdLoaderType = {
 };
 
 /**
- * Represents a loaded and managed Native Ad instance.
+ * Represents the content of a native ad.
  *
- * Provides lifecycle management (load, destroy), event handling,
- * and additional configuration parameters for muting, AdChoices, etc.
+ * You must pass an instance of this object to `NativeAdView`
+ * to populate and display the ad content within the view.
  */
 export type NativeAdContent = {
+  /**
+   * Temporary unique identifier of the loaded native ad content.
+   */
   instanceId: number;
+
+  /**
+   * Array of values for text assets, if available.
+   */
   content: (string | null)[];
 
   /**
-   * Frees all underlying native ad resources.
-   * Must be called when the ad is no longer displayed.
+   * Cleans up and releases resources associated with the native ad content.
+   *
+   * This method should be called when the native ad is no longer needed, ensuring proper resource management
+   * and preventing memory leaks.
    */
   destroy: () => void;
+
   /**
-   * Returns true if the native ad is no longer valid (expired) and should not be displayed.
-   * Implemented on Android/iOS and checked by instanceId.
+   * Indicates whether the native ad has expired.
+   *
+   * Returns `true` if the ad has expired or is no longer valid (e.g., past its display window).
+   * An expired ad may not be shown and interactions with it may be restricted or disabled.
    */
   isExpired: () => Promise<boolean>;
 };
-
-export type NativeAdType = NativeAdContent;
 
 /**
  * Defines the placement of the AdChoices icon inside the native ad view.
@@ -143,7 +168,7 @@ export interface NativeAdViewProps {
   /**
    * The native ad instance to be displayed within the view.
    */
-  ad: NativeAdType;
+  ad: NativeAdContent;
 
   /**
    * Desired width of the native ad view.
@@ -230,4 +255,19 @@ export interface NativeTemplateStyle {
    * Font style applied to secondary text elements.
    */
   secondaryFontStyle?: NativeTemplateFontStyle;
+}
+
+export const enum NativeAdAssetType {
+  HEADLINE = 0,
+  BODY = 1,
+  CALL_TO_ACTION = 2,
+  ADVERTISER = 3,
+  STORE = 4,
+  PRICE = 5,
+  REVIEW_COUNT = 6,
+  STAR_RATING = 7,
+  AD_LABEL = 8,
+  ICON = 9,
+  MEDIA = 10,
+  AD_CHOICES = 11,
 }

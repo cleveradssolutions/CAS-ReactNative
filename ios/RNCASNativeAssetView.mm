@@ -8,13 +8,12 @@
 
 #import <CleverAdsSolutions/CleverAdsSolutions-Swift.h>
 
-#import <objc/runtime.h>
 #import <React/RCTConversions.h>
+#import <objc/runtime.h>
 
 #import <react/renderer/components/RNCASMobileAdsSpec/ComponentDescriptors.h>
 #import <react/renderer/components/RNCASMobileAdsSpec/Props.h>
 #import <react/renderer/components/RNCASMobileAdsSpec/RCTComponentViewHelpers.h>
-
 
 #ifdef RCT_NEW_ARCH_ENABLED
 using namespace facebook::react;
@@ -22,7 +21,7 @@ using namespace facebook::react;
 
 @interface RNCASNativeAssetView ()
 #ifdef RCT_NEW_ARCH_ENABLED
-<RCTCASNativeAssetViewViewProtocol>
+    <RCTCASNativeAssetViewViewProtocol>
 @property(nonatomic, assign) NSInteger assetType;
 #endif
 @end
@@ -50,35 +49,32 @@ using namespace facebook::react;
 
 - (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &)oldProps {
   const auto &newProps = *std::static_pointer_cast<const CASNativeAssetViewProps>(props);
-  
+
   self.assetType = newProps.assetType;
   [super updateProps:props oldProps:oldProps];
 }
 
 #endif
 
-
-
 #pragma mark - Layout
 
 - (void)layoutSubviews {
   [super layoutSubviews];
-  
+
   if (CGRectIsEmpty(self.bounds)) {
     return;
   }
-  
+
   if (!self.subviews.count) {
     UIView *assetView = [self createSDKAssetView];
     assetView.frame = self.bounds;
-    
+
     RNCASNativeAdView *adView = [self findAdView];
     if (adView) {
       [adView registerAssetView:assetView assetType:self.assetType];
     }
   }
 }
-
 
 #pragma mark - Native Ad registration
 
@@ -100,57 +96,53 @@ using namespace facebook::react;
   return super.intrinsicContentSize;
 }
 
-
 #pragma mark - SDK Asset View Factory
 
 - (UIView *)createSDKAssetView {
   UIView *view;
   switch (self.assetType) {
-    case 2: { // CALL TO ACTION
-      UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-      button.frame = self.bounds;
-      button.autoresizingMask =
-      UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-      
-      button.backgroundColor = UIColor.clearColor;
-      [button setTitle:nil forState:UIControlStateNormal];
-      [button setTitleColor:UIColor.clearColor forState:UIControlStateNormal];
-      button.userInteractionEnabled = YES;
-      
-      view = button;
-      break;
-    }
-    case 9: { // ICON
-      UIImageView *icon = [[UIImageView alloc] initWithFrame:self.bounds];
-      icon.contentMode = UIViewContentModeScaleAspectFit;
-      icon.clipsToBounds = YES;
-      view = icon;
-      break;
-    }
-    case 7: { // STAR_RATING
-      RNCASStarRatingContainer *stars =
-      [[RNCASStarRatingContainer alloc] initWithFrame:self.bounds];
-      
-      stars.autoresizingMask =
-      UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-      
-      view = stars;
-      break;
-    }
-    case 10: { // MEDIA
-      view = [[CASMediaView alloc] initWithFrame:self.bounds];
-      break;
-    }
-    case 11: { // AD CHOICES
-      view = [[CASChoicesView alloc] initWithFrame:self.bounds];
-      break;
-    }
-      
-    default: {
-      @throw [NSException exceptionWithName:NSInvalidArgumentException
-                                     reason:@"Not supported asset type"
-                                   userInfo:nil];
-    }
+  case 2: { // CALL TO ACTION
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    button.frame = self.bounds;
+    button.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+
+    button.backgroundColor = UIColor.clearColor;
+    [button setTitle:nil forState:UIControlStateNormal];
+    [button setTitleColor:UIColor.clearColor forState:UIControlStateNormal];
+    button.userInteractionEnabled = YES;
+
+    view = button;
+    break;
+  }
+  case 9: { // ICON
+    UIImageView *icon = [[UIImageView alloc] initWithFrame:self.bounds];
+    icon.contentMode = UIViewContentModeScaleAspectFit;
+    icon.clipsToBounds = YES;
+    view = icon;
+    break;
+  }
+  case 7: { // STAR_RATING
+    CASStarRatingView *stars = [[CASStarRatingView alloc] initWithFrame:self.bounds];
+    stars.translatesAutoresizingMaskIntoConstraints = YES;
+    stars.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+
+    view = stars;
+    break;
+  }
+  case 10: { // MEDIA
+    view = [[CASMediaView alloc] initWithFrame:self.bounds];
+    break;
+  }
+  case 11: { // AD CHOICES
+    view = [[CASChoicesView alloc] initWithFrame:self.bounds];
+    break;
+  }
+
+  default: {
+    @throw [NSException exceptionWithName:NSInvalidArgumentException
+                                   reason:@"Not supported asset type"
+                                 userInfo:nil];
+  }
   }
   [self addSubview:view];
   return view;

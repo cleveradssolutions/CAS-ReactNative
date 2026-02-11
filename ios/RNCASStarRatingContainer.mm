@@ -8,9 +8,8 @@
   if (self = [super initWithFrame:frame]) {
     self.userInteractionEnabled = NO;
 
-    _starView = [[CASStarRatingView alloc] init];
+    _starView = [[CASStarRatingView alloc] initWithFrame:self.bounds];
     _starView.translatesAutoresizingMaskIntoConstraints = YES;
-    _starView.frame = self.bounds;
     _starView.autoresizingMask =
       UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 

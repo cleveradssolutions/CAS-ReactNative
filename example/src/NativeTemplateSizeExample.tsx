@@ -2,14 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, useWindowDimensions, PixelRatio } from 'react-native';
 
 import AppButton from './components/AppButton';
-import {
-  NativeAdLoader,
-  NativeAdView,
-  AdChoicesPlacement,
-  NativeAdType,
-  AdError,
-  AdContentInfo,
-} from 'react-native-cas';
+import { NativeAdLoader, NativeAdView, AdChoicesPlacement } from 'react-native-cas';
+import type { NativeAdContent, AdError, AdContentInfo } from 'react-native-cas';
 
 function pxToDp(px: number) {
   return Math.round(px / PixelRatio.get());
@@ -18,7 +12,7 @@ function pxToDp(px: number) {
 export default function NativeTemplateSizeExample() {
   const { width: winWidth } = useWindowDimensions();
 
-  const [loadedAd, setLoadedAd] = useState<NativeAdType | null>(null);
+  const [loadedAd, setLoadedAd] = useState<NativeAdContent | null>(null);
   const [muted, setMuted] = useState(false);
 
   const [placement, setPlacement] = useState<AdChoicesPlacement>(AdChoicesPlacement.topRightCorner);
@@ -44,7 +38,7 @@ export default function NativeTemplateSizeExample() {
   }, [availableWidth]);
 
   useEffect(() => {
-    const unsubLoaded = NativeAdLoader.addAdLoadedEventListener((ad: NativeAdType) => {
+    const unsubLoaded = NativeAdLoader.addAdLoadedEventListener((ad: NativeAdContent) => {
       console.log('Native Ad loaded', ad.instanceId);
       setLoadedAd(ad);
     });
@@ -70,7 +64,7 @@ export default function NativeTemplateSizeExample() {
       unsubClicked();
       unsubImpression();
 
-      setLoadedAd(prev => {
+      setLoadedAd((prev: NativeAdContent) => {
         prev?.destroyAd();
         return null;
       });
