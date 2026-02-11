@@ -37,7 +37,6 @@ export default function ScrolledAdViewExample() {
   return (
     <View style={S.screen}>
       <View style={S.card}>
-        <Text style={S.title}>Scrolled AdViews</Text>
         <Text style={S.subtitle}>Inline banner & MREC inside scroll</Text>
 
         <ScrollView style={{ maxHeight: 400 }} showsVerticalScrollIndicator={false}>

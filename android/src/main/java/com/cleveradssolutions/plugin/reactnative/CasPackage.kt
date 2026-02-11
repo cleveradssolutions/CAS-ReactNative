@@ -11,7 +11,9 @@ class CasPackage : TurboReactPackage() {
 
   override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
     return listOf(
-      CASMobileAdsViewManager()
+      CASMobileAdsViewManager(),
+      CASNativeAdViewManager(),
+      CASNativeAssetViewManager()
     )
   }
 

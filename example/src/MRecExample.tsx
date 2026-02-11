@@ -71,7 +71,6 @@ export default function MRecExample() {
   return (
     <View style={S.screen}>
       <View style={S.card}>
-        <Text style={S.title}>MREC</Text>
         <View style={S.stack}>
           <Button title={visible ? 'Hide' : 'Show'} onPress={() => setVisible(v => !v)} />
           <Button

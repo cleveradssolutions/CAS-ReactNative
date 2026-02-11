@@ -66,7 +66,6 @@ export default function BannerExample() {
   return (
     <View style={S.screen}>
       <View style={S.card}>
-        <Text style={S.title}>Banner</Text>
         <View style={S.stack}>
           <Button
             title={visible ? 'Hide Banner' : 'Show Banner'}

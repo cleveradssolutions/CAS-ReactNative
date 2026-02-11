@@ -4,3 +4,5 @@ export { InterstitialAd } from './formats/InterstitialAd';
 export { RewardedAd } from './formats/RewardedAd';
 export { AppOpenAd } from './formats/AppOpenAd';
 export { BannerAdView } from './formats/BannerAdView';
+export { NativeAdLoader } from './formats/NativeAdLoader';
+export { NativeAdView } from './formats/NativeAdView';

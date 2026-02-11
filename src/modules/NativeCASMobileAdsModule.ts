@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 CleverAdsSolutions LTD, CAS.AI
+ * Copyright 2026 CleverAdsSolutions LTD, CAS.AI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,6 +71,13 @@ export interface Spec extends TurboModule {
   setAppOpenAutoloadEnabled(enabled: boolean): void;
   setAppOpenAutoshowEnabled(enabled: boolean): void;
   destroyAppOpen(): void;
+
+  // Native
+  loadNativeAd(maxNumberOfAds: Int32): void;
+  setNativeMutedEnabled(enabled: boolean): void;
+  setNativeAdChoicesPlacement(adChoicesPlacement: Int32): void;
+  destroyNative(instanceId: Int32): void;
+  isNativeExpired(instanceId: Int32): Promise<boolean>;
 
   // EventEmitter bridge
   addListener(eventName: string): void;

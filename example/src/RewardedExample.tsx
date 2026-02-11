@@ -98,7 +98,6 @@ export default function RewardedExample() {
   return (
     <View style={S.screen}>
       <View style={S.card}>
-        <Text style={S.title}>Rewarded</Text>
         <View style={S.row}>
           <AppButton title="Load" onPress={onPressLoadButton} />
           <AppButton title="Show" onPress={onPressShowButton} enabled={loaded} />

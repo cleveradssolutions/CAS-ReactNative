@@ -50,6 +50,12 @@ class CASMobileAdsModule(reactContext: ReactApplicationContext) : ReactContextBa
   @ReactMethod fun setAppOpenAutoloadEnabled(enabled: Boolean) = impl.setAppOpenAutoloadEnabled(enabled)
   @ReactMethod fun setAppOpenAutoshowEnabled(enabled: Boolean) = impl.setAppOpenAutoshowEnabled(enabled)
   @ReactMethod fun destroyAppOpen() = impl.destroyAppOpen()
+  @ReactMethod fun loadNativeAd(maxNumberOfAds: Double) = impl.loadNativeAd(maxNumberOfAds.toInt())
+  @ReactMethod fun setNativeMutedEnabled(enabled: Boolean) = impl.setNativeMutedEnabled(enabled)
+  @ReactMethod fun setNativeAdChoicesPlacement(adChoicesPlacement: Double) = impl.setNativeAdChoicesPlacement(adChoicesPlacement.toInt())
+  @ReactMethod fun destroyNative(instanceId: Double) = impl.destroyNative(instanceId.toInt())
+  @ReactMethod fun isNativeExpired(instanceId: Double, promise: Promise) = impl.isNativeExpired(instanceId.toInt(), promise)
+
 
   @ReactMethod
   fun addListener(eventName: String?) {  }

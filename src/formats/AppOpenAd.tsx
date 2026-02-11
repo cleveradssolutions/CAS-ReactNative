@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 CleverAdsSolutions LTD, CAS.AI
+ * Copyright 2026 CleverAdsSolutions LTD, CAS.AI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import CASMobileAdsNative from '../modules/NativeCASMobileAdsModule';
 import type { AppOpenAdType } from '../types/FullscreenAds';
 import { addAdEventListener } from '../EventEmitter';
 
-enum AppOpenAdEvent {
+const enum AppOpenAdEvent {
   LOADED = 'onAppOpenLoaded',
   FAILED_TO_LOAD = 'onAppOpenFailedToLoad',
   FAILED_TO_SHOW = 'onAppOpenFailedToShow',

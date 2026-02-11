@@ -91,7 +91,6 @@ export default function AppOpenExample() {
   return (
     <View style={S.screen}>
       <View style={S.card}>
-        <Text style={S.title}>App Open</Text>
         <View style={S.row}>
           <AppButton title="Load" onPress={onPressLoadButton} />
           <AppButton title="Show" onPress={onPressShowButton} enabled={loaded} />

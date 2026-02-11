@@ -9,6 +9,7 @@ import {
   type AdContentInfo,
 } from 'react-native-cas';
 
+
 export default function AdaptiveBannerExample() {
   const bannerRef = useRef<BannerAdViewRef>(null);
 
@@ -30,9 +31,6 @@ export default function AdaptiveBannerExample() {
 
   return (
     <View style={S.screen}>
-      <View style={S.card}>
-        <Text style={S.title}>Adaptive Banner Ad</Text>
-      </View>
       <BannerAdView
         ref={bannerRef}
         size={BannerAdSize.ADAPTIVE}
