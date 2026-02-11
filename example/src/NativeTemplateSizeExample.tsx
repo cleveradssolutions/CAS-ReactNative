@@ -10,7 +10,6 @@ import {
   AdError,
   AdContentInfo,
 } from 'react-native-cas';
-import { ROUTE_TITLES } from './App';
 
 function pxToDp(px: number) {
   return Math.round(px / PixelRatio.get());
@@ -102,7 +101,6 @@ export default function NativeTemplateSizeExample() {
   return (
     <ScrollView style={S.screen} contentContainerStyle={S.content}>
       <View style={[S.card, cardDynamicStyle]}>
-        <Text style={S.title}>{ROUTE_TITLES.NativeSizeExample}</Text>
 
         <View style={S.row}>
           <AppButton title="Reload" onPress={onPressReload} />

@@ -9,7 +9,6 @@ import {
   type AdContentInfo,
 } from 'react-native-cas';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ROUTE_TITLES } from './App';
 
 export default function MRecExample() {
   const insets = useSafeAreaInsets();
@@ -72,7 +71,6 @@ export default function MRecExample() {
   return (
     <View style={S.screen}>
       <View style={S.card}>
-        <Text style={S.title}>{ROUTE_TITLES.MREC}</Text>
         <View style={S.stack}>
           <Button title={visible ? 'Hide' : 'Show'} onPress={() => setVisible(v => !v)} />
           <Button

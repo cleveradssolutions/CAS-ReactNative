@@ -3,7 +3,7 @@ import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 
 import AppButton from './components/AppButton';
-import { RootStackParamList, ROUTE_TITLES } from './App';
+import { RootStackParamList, ROUTE_TITLES } from './navigation/routes';
 
 type RouteName = keyof RootStackParamList;
 

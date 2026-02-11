@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import AppButton from './components/AppButton';
 import { InterstitialAd, type AdError, type AdContentInfo } from 'react-native-cas';
-import { ROUTE_TITLES } from './App';
 
 const isAutoloadEnabled = false;
 
@@ -100,7 +99,6 @@ export default function InterstitialExample() {
   return (
     <View style={S.screen}>
       <View style={S.card}>
-        <Text style={S.title}>{ROUTE_TITLES.Interstitial}</Text>
         <View style={S.row}>
           <AppButton title="Load" onPress={onPressLoadButton} />
           <AppButton title="Show" onPress={onPressShowButton} enabled={loaded} />

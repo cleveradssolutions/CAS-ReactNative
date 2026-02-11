@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import AppButton from './components/AppButton';
 import { RewardedAd, type AdError, type AdContentInfo } from 'react-native-cas';
-import { ROUTE_TITLES } from './App';
 
 const isAutoloadEnabled = true as const;
 
@@ -99,7 +98,6 @@ export default function RewardedExample() {
   return (
     <View style={S.screen}>
       <View style={S.card}>
-        <Text style={S.title}>{ROUTE_TITLES.Rewarded}</Text>
         <View style={S.row}>
           <AppButton title="Load" onPress={onPressLoadButton} />
           <AppButton title="Show" onPress={onPressShowButton} enabled={loaded} />

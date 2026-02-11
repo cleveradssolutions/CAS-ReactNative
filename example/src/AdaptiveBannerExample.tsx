@@ -8,7 +8,7 @@ import {
   type AdError,
   type AdContentInfo,
 } from 'react-native-cas';
-import { ROUTE_TITLES } from './App';
+
 
 export default function AdaptiveBannerExample() {
   const bannerRef = useRef<BannerAdViewRef>(null);
@@ -31,9 +31,6 @@ export default function AdaptiveBannerExample() {
 
   return (
     <View style={S.screen}>
-      <View style={S.card}>
-        <Text style={S.title}>{ROUTE_TITLES.Adaptive}</Text>
-      </View>
       <BannerAdView
         ref={bannerRef}
         size={BannerAdSize.ADAPTIVE}

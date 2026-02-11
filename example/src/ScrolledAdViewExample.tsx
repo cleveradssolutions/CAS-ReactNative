@@ -2,7 +2,6 @@ import React, { useRef, useState } from 'react';
 import { LayoutChangeEvent, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { BannerAdViewRef } from 'react-native-cas';
 import { BannerAdView, BannerAdSize } from 'react-native-cas';
-import { ROUTE_TITLES } from './App';
 
 const TXT = `Lorem ipsum dolor sit amet, consectetur adipiscing elit.`;
 
@@ -38,7 +37,6 @@ export default function ScrolledAdViewExample() {
   return (
     <View style={S.screen}>
       <View style={S.card}>
-        <Text style={S.title}>{ROUTE_TITLES.Scrolled}</Text>
         <Text style={S.subtitle}>Inline banner & MREC inside scroll</Text>
 
         <ScrollView style={{ maxHeight: 400 }} showsVerticalScrollIndicator={false}>

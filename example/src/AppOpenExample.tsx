@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import AppButton from './components/AppButton';
 import { AppOpenAd, type AdError, type AdContentInfo } from 'react-native-cas';
-import { ROUTE_TITLES } from './App';
 
 const isAutoloadEnabled = false;
 
@@ -92,7 +91,6 @@ export default function AppOpenExample() {
   return (
     <View style={S.screen}>
       <View style={S.card}>
-        <Text style={S.title}>{ROUTE_TITLES.AppOpen}</Text>
         <View style={S.row}>
           <AppButton title="Load" onPress={onPressLoadButton} />
           <AppButton title="Show" onPress={onPressShowButton} enabled={loaded} />

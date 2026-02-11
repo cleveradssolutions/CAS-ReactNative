@@ -11,7 +11,6 @@ import {
   AdError,
   AdContentInfo,
 } from 'react-native-cas';
-import { ROUTE_TITLES } from './App';
 
 export default function NativeAdExample() {
   const { width: winWidth } = useWindowDimensions();
@@ -93,7 +92,6 @@ export default function NativeAdExample() {
       keyboardShouldPersistTaps="handled"
     >
       <View style={[S.card, cardDynamicStyle]}>
-        <Text style={S.title}>{ROUTE_TITLES.Native}</Text>
 
         <View style={S.row}>
           <AppButton title="Reload" onPress={onPressLoadButton} />
