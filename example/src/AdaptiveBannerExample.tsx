@@ -9,7 +9,6 @@ import {
   type AdContentInfo,
 } from 'react-native-cas';
 
-
 export default function AdaptiveBannerExample() {
   const bannerRef = useRef<BannerAdViewRef>(null);
 

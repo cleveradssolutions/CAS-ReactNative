@@ -95,7 +95,6 @@ export default function NativeTemplateSizeExample() {
   return (
     <ScrollView style={S.screen} contentContainerStyle={S.content}>
       <View style={[S.card, cardDynamicStyle]}>
-
         <View style={S.row}>
           <AppButton title="Reload" onPress={onPressReload} />
           <AppButton title={muted ? 'Unmute' : 'Mute'} onPress={onToggleMute} />
