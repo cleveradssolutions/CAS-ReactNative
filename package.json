@@ -42,7 +42,8 @@
     "!android/gradle",
     "!android/gradlew",
     "!android/gradlew.bat",
-    "!android/local.properties"
+    "!android/local.properties",
+    "/app.plugin.js"
   ],
   "scripts": {
     "clean": "rimraf build && rimraf android/build && rimraf android/app/build && rimraf example/ios/build && rimraf lib && rimraf example/android/build",
@@ -62,6 +63,7 @@
     "@babel/core": "^7.28.5",
     "@eslint/js": "^9.38.0",
     "@evilmartians/lefthook": "^1.5.0",
+    "@expo/config-plugins": "^9.0.0",
     "@react-native-community/cli": "latest",
     "@types/react": "19.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
@@ -76,7 +78,7 @@
     "react-native": "0.79.5",
     "react-native-builder-bob": "^0.20.4",
     "rimraf": "^3.0.2",
-    "typescript": "^5.2.2"
+    "typescript": "^5.9.3"
   },
   "peerDependencies": {
     "react": "*",
