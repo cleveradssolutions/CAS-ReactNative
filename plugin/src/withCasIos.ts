@@ -1,13 +1,13 @@
-import {
-  ConfigPlugin,
-  withInfoPlist,
-  withDangerousMod,
-  withXcodeProject,
-} from "@expo/config-plugins";
-import type { CasExpoPluginProps } from "./index";
+import { ConfigPlugin, withInfoPlist, withDangerousMod } from "@expo/config-plugins";
+import type { CasExpoPluginProps, CasSolution } from "./index";
 import fs from "fs";
 import path from "path";
 import { execSync } from "child_process";
+
+//Default CAS version = npm package version
+//eslint-disable-next-line @typescript-eslint/no-var-requires
+const pkg = require("react-native-cas/package.json");
+const CAS_VERSION: string = pkg.version;
 
 //iOS pod mapping
 const ADAPTER_TO_IOS_POD: Record<string, string> = {
@@ -40,13 +40,17 @@ const ADAPTER_TO_IOS_POD: Record<string, string> = {
   ysoNetwork: "CASMediationYsoNetwork",
 };
 
-function hasGoogleAds(props: CasExpoPluginProps) {
-  if (!props.adSolution || props.adSolution === "optimal") return true;
-  if (props.adSolution === "families") return false;
-  return Array.isArray(props.adapters) && props.adapters.includes("googleAds");
+function normalizeSolutions(props: CasExpoPluginProps): CasSolution[] {
+  const s = Array.isArray(props.solutions) ? props.solutions.filter(Boolean) : [];
+  return s.length ? s : ["optimal"];
 }
 
- //Podfile
+function usesGoogleAds(props: CasExpoPluginProps): boolean {
+  const solutions = normalizeSolutions(props);
+  return solutions.includes("optimal") || (Array.isArray(props.adapters) && props.adapters.includes("googleAds"));
+}
+
+//Podfile
 function withCasIosPodfile(config: any, props: CasExpoPluginProps) {
   return withDangerousMod(config, [
     "ios",
@@ -56,7 +60,7 @@ function withCasIosPodfile(config: any, props: CasExpoPluginProps) {
 
       let contents = fs.readFileSync(podfilePath, "utf8");
 
-      //Add CAS Specs source on top
+      // Add CAS Specs source on top
       if (!contents.includes("CAS-Specs.git")) {
         const sources = [
           "source 'https://github.com/CocoaPods/Specs.git'",
@@ -68,31 +72,38 @@ function withCasIosPodfile(config: any, props: CasExpoPluginProps) {
 
       //Add CAS pods once
       if (!contents.includes("CAS Ads Mediation")) {
-        const ver = props.casVersion || "4.6.2";
-        let podLines: string[] = [];
+        const solutions = normalizeSolutions(props);
 
-        if (props.adSolution === "choice" && props.adapters && props.adapters.length) {
-          podLines.push("  # CAS Ads Mediation (Choice networks)");
+        const podLines: string[] = [];
+        podLines.push("  # CAS Ads Mediation");
+
+        // Solutions: can be enabled together
+        if (solutions.includes("optimal")) {
+          podLines.push(`  pod 'CleverAdsSolutions-SDK/Optimal', '${CAS_VERSION}'`);
+        }
+        if (solutions.includes("families")) {
+          podLines.push(`  pod 'CleverAdsSolutions-SDK/Families', '${CAS_VERSION}'`);
+        }
+
+        // Adapters: can be enabled together with solutions
+        if (Array.isArray(props.adapters) && props.adapters.length) {
+          podLines.push("  # CAS Ads Mediation (Adapters)");
           for (const a of props.adapters) {
             const podName = ADAPTER_TO_IOS_POD[a];
             if (podName) podLines.push(`  pod '${podName}'`);
           }
-        } else if (props.adSolution === "families") {
-          podLines = [
-            "  # CAS Ads Mediation",
-            `  pod 'CleverAdsSolutions-SDK/Families', '${ver}'`,
-          ];
-        } else {
-          podLines = [
-            "  # CAS Ads Mediation",
-            `  pod 'CleverAdsSolutions-SDK/Optimal', '${ver}'`,
-          ];
         }
 
         if (contents.includes("use_expo_modules!")) {
-          contents = contents.replace(/use_expo_modules!\s*\n/, (m) => `${m}\n${podLines.join("\n")}\n\n`);
+          contents = contents.replace(
+            /use_expo_modules!\s*\n/,
+            (m) => `${m}\n${podLines.join("\n")}\n\n`
+          );
         } else {
-          contents = contents.replace(/target\s+['"][^'"]+['"]\s+do\s*\n/, (m) => `${m}\n${podLines.join("\n")}\n\n`);
+          contents = contents.replace(
+            /target\s+['"][^'"]+['"]\s+do\s*\n/,
+            (m) => `${m}\n${podLines.join("\n")}\n\n`
+          );
         }
       }
 
@@ -102,18 +113,29 @@ function withCasIosPodfile(config: any, props: CasExpoPluginProps) {
   ]);
 }
 
- //casconfig.rb
+// casconfig.rb
 function withCasConfigScript(config: any, props: CasExpoPluginProps) {
+  if (props.runCasConfig === false) return config;
+
   return withDangerousMod(config, [
     "ios",
     async (c) => {
       const iosDir = c.modRequest.platformProjectRoot;
 
       const pkgRoot = path.dirname(require.resolve("react-native-cas/package.json"));
-      const scriptSrc = path.join(pkgRoot, "src", "plugin", "casconfig.rb");
+
+      // Support both layouts:
+      // - old: src/plugin/casconfig.rb
+      // - new: plugin/src/casconfig.rb
+      const candidates = [
+        path.join(pkgRoot, "plugin", "src", "casconfig.rb"),
+        path.join(pkgRoot, "src", "plugin", "casconfig.rb"),
+      ];
+
+      const scriptSrc = candidates.find((p) => fs.existsSync(p));
       const scriptDst = path.join(iosDir, "casconfig.rb");
 
-      if (!fs.existsSync(scriptSrc)) {
+      if (!scriptSrc) {
         console.warn("[CAS][iOS] casconfig.rb not found in package, skipping.");
         return c;
       }
@@ -123,7 +145,7 @@ function withCasConfigScript(config: any, props: CasExpoPluginProps) {
       const casId = props.casId || "demo";
       const args: string[] = [casId];
 
-      if (!hasGoogleAds(props)) {
+      if (!usesGoogleAds(props)) {
         args.push("--no-gad");
       }
 
@@ -145,7 +167,7 @@ function withCasConfigScript(config: any, props: CasExpoPluginProps) {
   ]);
 }
 
- //Info.plist:
+// Info.plist
 function withCasInfoPlist(config: any, props: CasExpoPluginProps) {
   return withInfoPlist(config, (c) => {
     const plist: any = c.modResults;
@@ -157,12 +179,14 @@ function withCasInfoPlist(config: any, props: CasExpoPluginProps) {
         "Your data will remain confidential and will only be used to provide you a better and personalised ad experience.";
     }
 
+    // Keep current behavior: allow cleartext HTTP for ad networks
     plist.NSAppTransportSecurity = {
       ...(plist.NSAppTransportSecurity || {}),
       NSAllowsArbitraryLoads: true,
     };
 
-    if (hasGoogleAds(props)) {
+    // Google Ads keys if Google Ads is used
+    if (usesGoogleAds(props)) {
       if (!plist.GADApplicationIdentifier) {
         plist.GADApplicationIdentifier = "ca-app-pub-3940256099942544~1458002511";
       }
@@ -173,50 +197,13 @@ function withCasInfoPlist(config: any, props: CasExpoPluginProps) {
   });
 }
 
-//Xcode build settings
-function withCasXcodeProject(config: any) {
-  return withXcodeProject(config, (c) => {
-    const project: any = c.modResults;
-    const targets = project.pbxNativeTargetSection();
-
-    const hasFlag = (flags: any[], flag: string) =>
-      flags.some((f) => f === flag || f === `"${flag}"`);
-
-    for (const key in targets) {
-      const target = targets[key];
-      if (typeof target !== "object" || !target.buildConfigurationList) continue;
-
-      const configList = project.pbxXCConfigurationList()[target.buildConfigurationList];
-      if (!configList) continue;
-
-      for (const buildConfig of configList.buildConfigurations) {
-        const cfg = project.pbxXCBuildConfigurationSection()[buildConfig.value];
-        if (!cfg || !cfg.buildSettings) continue;
-
-        let flags = cfg.buildSettings.OTHER_LDFLAGS || [];
-        if (typeof flags === "string") flags = [flags];
-
-        let modified = false;
-        if (!hasFlag(flags, "$(inherited)")) {
-          flags.unshift('"$(inherited)"');
-          modified = true;
-        }
-        if (!hasFlag(flags, "-ObjC")) {
-          flags.push('"-ObjC"');
-          modified = true;
-        }
-        if (modified) cfg.buildSettings.OTHER_LDFLAGS = flags;
-      }
-    }
-
-    return c;
-  });
-}
-
 export const withCasIos: ConfigPlugin<CasExpoPluginProps> = (config, props) => {
   config = withCasIosPodfile(config, props);
   config = withCasConfigScript(config, props);
   config = withCasInfoPlist(config, props);
-  config = withCasXcodeProject(config);
+
+  // Temporarily disabled (as requested)
+  // config = withCasXcodeProject(config);
+
   return config;
 };

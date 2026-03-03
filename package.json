@@ -43,7 +43,8 @@
     "!android/gradlew",
     "!android/gradlew.bat",
     "!android/local.properties",
-    "/app.plugin.js"
+    "/app.plugin.js",
+    "/plugin/**"
   ],
   "scripts": {
     "clean": "rimraf build && rimraf android/build && rimraf android/app/build && rimraf example/ios/build && rimraf lib && rimraf example/android/build",
@@ -51,7 +52,7 @@
     "format": "prettier --write '**/*.{js,jsx,ts,tsx}'",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "codegen": "react-native codegen",
-    "prepare": "bob build",
+    "prepare": "bob build && tsc -p plugin/tsconfig.json",
     "test:android": "cd example/android && ./gradlew assembleDebug --no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a",
     "test:ios": "cd example/ios && pod update --no-repo-update && xcodebuild -workspace CASExample.xcworkspace -scheme CASExample -configuration Debug -sdk iphonesimulator CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ GCC_OPTIMIZATION_LEVEL=0 GCC_PRECOMPILE_PREFIX_HEADER=YES ASSETCATALOG_COMPILER_OPTIMIZATION=time DEBUG_INFORMATION_FORMAT=dwarf COMPILER_INDEX_STORE_ENABLE=NO",
     "release": "npm publish --access public"
