@@ -1,209 +1,162 @@
-import { ConfigPlugin, withInfoPlist, withDangerousMod } from "@expo/config-plugins";
-import type { CasExpoPluginProps, CasSolution } from "./index";
-import fs from "fs";
-import path from "path";
-import { execSync } from "child_process";
+import {
+  ConfigPlugin,
+  withInfoPlist,
+  withDangerousMod,
+  InfoPlist,
+  WarningAggregator,
+} from '@expo/config-plugins';
+import { type CASPluginParameters, CAS_VERSION } from './index';
+import fs from 'fs';
+import path from 'path';
+const { spawnSync } = require('child_process');
 
-//Default CAS version = npm package version
-//eslint-disable-next-line @typescript-eslint/no-var-requires
-const pkg = require("react-native-cas/package.json");
-const CAS_VERSION: string = pkg.version;
-
-//iOS pod mapping
-const ADAPTER_TO_IOS_POD: Record<string, string> = {
-  appLovin: "CASMediationAppLovin",
-  audienceNetwork: "CASMediationAudienceNetwork",
-  bigoAds: "CASMediationBigo",
-  casExchange: "CASMediationCASExchange",
-  chartboost: "CASMediationChartboost",
-  crossPromo: "CASMediationCrossPromo",
-  dtExchange: "CASMediationDTExchange",
-  googleAds: "CASMediationGoogleAds",
-  hyprMX: "CASMediationHyprMX",
-  inMobi: "CASMediationInMobi",
-  ironSource: "CASMediationIronSource",
-  kidoz: "CASMediationKidoz",
-  liftoffMonetize: "CASMediationLiftoffMonetize",
-  madex: "CASMediationMadex",
-  maticoo: "CASMediationMaticoo",
-  mintegral: "CASMediationMintegral",
-  ogury: "CASMediationOgury",
-  pangle: "CASMediationPangle",
-  prado: "CASMediationPrado",
-  pubmatic: "CASMediationPubMatic",
-  smaato: "CASMediationSmaato",
-  startIO: "CASMediationStartIO",
-  superAwesome: "CASMediationSuperAwesome",
-  unityAds: "CASMediationUnityAds",
-  verve: "CASMediationVerve",
-  yangoAds: "CASMediationYangoAds",
-  ysoNetwork: "CASMediationYsoNetwork",
-};
-
-function normalizeSolutions(props: CasExpoPluginProps): CasSolution[] {
-  const s = Array.isArray(props.solutions) ? props.solutions.filter(Boolean) : [];
-  return s.length ? s : ["optimal"];
+function getPodNameForAdapter(adapter: string): string {
+  switch (adapter) {
+    case 'casExchange':
+      return 'CASExchange';
+    case 'dtExchange':
+      return 'DTExchange';
+    case 'pubmatic':
+      return 'PubMatic';
+    default:
+      return adapter.charAt(0).toUpperCase() + adapter.slice(1);
+  }
 }
 
-function usesGoogleAds(props: CasExpoPluginProps): boolean {
-  const solutions = normalizeSolutions(props);
-  return solutions.includes("optimal") || (Array.isArray(props.adapters) && props.adapters.includes("googleAds"));
+function getPodLineForAdapter(adapter: string): string {
+  let podName = getPodNameForAdapter(adapter);
+  return `  pod 'CleverAdsSolutions-SDK/${podName}', '${CAS_VERSION}'`;
 }
 
-//Podfile
-function withCasIosPodfile(config: any, props: CasExpoPluginProps) {
+function withCASIOSPodfile(config: any, props: CASPluginParameters) {
   return withDangerousMod(config, [
-    "ios",
-    async (c) => {
-      const podfilePath = path.join(c.modRequest.platformProjectRoot, "Podfile");
-      if (!fs.existsSync(podfilePath)) return c;
+    'ios',
+    async config => {
+      const GLOBAL_SOURCE_SPECS = "source 'https://github.com/CocoaPods/Specs.git'";
+      const CAS_SOURCE_SPECS = "source 'https://github.com/cleveradssolutions/CAS-Specs.git'";
+      const PODS_START = '  # CAS.AI Ads Mediation pods';
+      const PODS_END = '  # End CAS.AI Ads Mediation pods';
 
-      let contents = fs.readFileSync(podfilePath, "utf8");
-
-      // Add CAS Specs source on top
-      if (!contents.includes("CAS-Specs.git")) {
-        const sources = [
-          "source 'https://github.com/CocoaPods/Specs.git'",
-          "source 'https://github.com/cleveradssolutions/CAS-Specs.git'",
-          "",
-        ].join("\n");
-        contents = sources + contents;
+      const podfilePath = path.join(config.modRequest.platformProjectRoot, 'Podfile');
+      if (!fs.existsSync(podfilePath)) {
+        WarningAggregator.addWarningIOS('react-native-cas', 'Not found: ' + podfilePath);
+        return config;
       }
 
-      //Add CAS pods once
-      if (!contents.includes("CAS Ads Mediation")) {
-        const solutions = normalizeSolutions(props);
+      const lines = fs.readFileSync(podfilePath, 'utf8').split('\n');
 
-        const podLines: string[] = [];
-        podLines.push("  # CAS Ads Mediation");
-
-        // Solutions: can be enabled together
-        if (solutions.includes("optimal")) {
-          podLines.push(`  pod 'CleverAdsSolutions-SDK/Optimal', '${CAS_VERSION}'`);
-        }
-        if (solutions.includes("families")) {
-          podLines.push(`  pod 'CleverAdsSolutions-SDK/Families', '${CAS_VERSION}'`);
-        }
-
-        // Adapters: can be enabled together with solutions
-        if (Array.isArray(props.adapters) && props.adapters.length) {
-          podLines.push("  # CAS Ads Mediation (Adapters)");
-          for (const a of props.adapters) {
-            const podName = ADAPTER_TO_IOS_POD[a];
-            if (podName) podLines.push(`  pod '${podName}'`);
-          }
-        }
-
-        if (contents.includes("use_expo_modules!")) {
-          contents = contents.replace(
-            /use_expo_modules!\s*\n/,
-            (m) => `${m}\n${podLines.join("\n")}\n\n`
-          );
-        } else {
-          contents = contents.replace(
-            /target\s+['"][^'"]+['"]\s+do\s*\n/,
-            (m) => `${m}\n${podLines.join("\n")}\n\n`
-          );
-        }
+      if (!lines.includes(CAS_SOURCE_SPECS)) {
+        lines.unshift(GLOBAL_SOURCE_SPECS, CAS_SOURCE_SPECS);
+      }
+      var podLines: string[] = [PODS_START];
+      if (props.includeOptimalAds === true) {
+        podLines.push(getPodLineForAdapter('Optimal'));
+      }
+      if (props.includeFamiliesAds === true) {
+        podLines.push(getPodLineForAdapter('Families'));
+      }
+      if (props.includeVPNCompliantAds === true) {
+        podLines.push(getPodLineForAdapter('VPNCompliant'));
+      }
+      if (props.includeTenjinSDK === true) {
+        podLines.push(getPodLineForAdapter('Tenjin'));
       }
 
-      fs.writeFileSync(podfilePath, contents, "utf8");
-      return c;
-    },
-  ]);
-}
-
-// casconfig.rb
-function withCasConfigScript(config: any, props: CasExpoPluginProps) {
-  if (props.runCasConfig === false) return config;
-
-  return withDangerousMod(config, [
-    "ios",
-    async (c) => {
-      const iosDir = c.modRequest.platformProjectRoot;
-
-      const pkgRoot = path.dirname(require.resolve("react-native-cas/package.json"));
-
-      // Support both layouts:
-      // - old: src/plugin/casconfig.rb
-      // - new: plugin/src/casconfig.rb
-      const candidates = [
-        path.join(pkgRoot, "plugin", "src", "casconfig.rb"),
-        path.join(pkgRoot, "src", "plugin", "casconfig.rb"),
-      ];
-
-      const scriptSrc = candidates.find((p) => fs.existsSync(p));
-      const scriptDst = path.join(iosDir, "casconfig.rb");
-
-      if (!scriptSrc) {
-        console.warn("[CAS][iOS] casconfig.rb not found in package, skipping.");
-        return c;
+      if (Array.isArray(props.adapters) && props.adapters.length) {
+        for (const adapter of props.adapters) {
+          podLines.push(getPodLineForAdapter(adapter));
+        }
       }
+      podLines.push(PODS_END);
 
-      fs.copyFileSync(scriptSrc, scriptDst);
+      const startIndex = lines.indexOf(PODS_START);
+      const endIndex = lines.indexOf(PODS_END);
 
-      const casId = props.casId || "demo";
-      const args: string[] = [casId];
-
-      if (!usesGoogleAds(props)) {
-        args.push("--no-gad");
-      }
-
-      try {
-        console.log(`[CAS][iOS] Running casconfig.rb ${args.join(" ")}`);
-        execSync(`ruby casconfig.rb ${args.join(" ")}`, {
-          cwd: iosDir,
-          stdio: "inherit",
+      if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
+        lines.splice(startIndex, endIndex - startIndex + 1, ...podLines);
+      } else {
+        const targetIndex = lines.findIndex(l => {
+          const t = l.trim();
+          return t.startsWith('target ') && t.endsWith(' do');
         });
-        console.log("[CAS][iOS] casconfig.rb completed.");
-      } catch (e: any) {
-        console.warn(`[CAS][iOS] casconfig.rb failed: ${e?.message ?? e}`);
-        console.warn("[CAS][iOS] Install xcodeproj gem if needed: gem install xcodeproj");
-        console.warn("[CAS][iOS] Continuing with plugin-only configuration...");
+
+        if (targetIndex !== -1) {
+          lines.splice(targetIndex + 1, 0, ...podLines);
+        } else {
+          WarningAggregator.addWarningIOS('react-native-cas', 'App Target block in ' + podfilePath);
+        }
       }
 
-      return c;
+      fs.writeFileSync(podfilePath, lines.join('\n'));
+      return config;
     },
   ]);
 }
 
-// Info.plist
-function withCasInfoPlist(config: any, props: CasExpoPluginProps) {
-  return withInfoPlist(config, (c) => {
-    const plist: any = c.modResults;
+function withCASIOSConfigScript(config: any, props: CASPluginParameters) {
+  return withDangerousMod(config, [
+    'ios',
+    async config => {
+      const iosRoot = config.modRequest.platformProjectRoot;
+      const xcodeproj = path.join(iosRoot, config.modRequest.projectName + `.xcodeproj`);
+      const pkgRoot = path.dirname(require.resolve('react-native-cas/package.json'));
+      const rubyScript = path.join(pkgRoot, 'plugin', 'casconfig.rb');
 
-    if (!plist.NSUserTrackingUsageDescription && props.trackingDescription) {
-      plist.NSUserTrackingUsageDescription = props.trackingDescription;
-    } else if (!plist.NSUserTrackingUsageDescription) {
-      plist.NSUserTrackingUsageDescription =
-        "Your data will remain confidential and will only be used to provide you a better and personalised ad experience.";
-    }
-
-    // Keep current behavior: allow cleartext HTTP for ad networks
-    plist.NSAppTransportSecurity = {
-      ...(plist.NSAppTransportSecurity || {}),
-      NSAllowsArbitraryLoads: true,
-    };
-
-    // Google Ads keys if Google Ads is used
-    if (usesGoogleAds(props)) {
-      if (!plist.GADApplicationIdentifier) {
-        plist.GADApplicationIdentifier = "ca-app-pub-3940256099942544~1458002511";
+      if (!fs.existsSync(rubyScript)) {
+        WarningAggregator.addWarningIOS(
+          'react-native-cas',
+          'casconfig.rb not found in package. Please reimport package',
+        );
+        return config;
       }
-      plist.GADDelayAppMeasurementInit = true;
-    }
 
-    return c;
+      const casId = props.iosCASAppId || 'demo';
+      const result = spawnSync('ruby', [rubyScript, casId, '--project=' + xcodeproj], {
+        encoding: 'utf8',
+      });
+
+      if (result.error) {
+        WarningAggregator.addWarningIOS(
+          'react-native-cas',
+          'Error spawning CAS Ruby script: ' + result.error,
+        );
+      } else {
+        console.log('[CAS.AI] Ruby script:', result.stdout);
+
+        if (result.stderr) {
+          console.error(result.stderr);
+        }
+        if (result.status != 0) {
+          WarningAggregator.addWarningIOS(
+            'react-native-cas',
+            'Ruby script error status: ' + result.status,
+          );
+        }
+      }
+      return config;
+    },
+  ]);
+}
+
+function withCASIOSInfoPlist(config: any, props: CASPluginParameters) {
+  return withInfoPlist(config, config => {
+    const plist: InfoPlist = config.modResults;
+    if (props.useAdvertisingId === false) {
+      delete plist.NSUserTrackingUsageDescription;
+    } else if (props.userTrackingUsageDescription) {
+      plist.NSUserTrackingUsageDescription = props.userTrackingUsageDescription;
+    }
+    return config;
   });
 }
 
-export const withCasIos: ConfigPlugin<CasExpoPluginProps> = (config, props) => {
-  config = withCasIosPodfile(config, props);
-  config = withCasConfigScript(config, props);
-  config = withCasInfoPlist(config, props);
-
-  // Temporarily disabled (as requested)
-  // config = withCasXcodeProject(config);
-
+export const withReactNativeCASMobileAdsIOS: ConfigPlugin<CASPluginParameters> = (
+  config,
+  props,
+) => {
+  config = withCASIOSPodfile(config, props);
+  config = withCASIOSConfigScript(config, props);
+  // Process InfoPlist after Config Script
+  config = withCASIOSInfoPlist(config, props);
   return config;
 };

@@ -1,12 +1,8 @@
 {
+  "extends": "expo-module-scripts/tsconfig.plugin",
   "compilerOptions": {
-    "target": "ES2019",
-    "module": "commonjs",
-    "outDir": "dist",
-    "rootDir": "src",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "strict": false
+    "outDir": "build",
+    "rootDir": "src"
   },
-  "include": ["src/**/*.ts"]
+  "include": ["./src/*.ts"]
 }

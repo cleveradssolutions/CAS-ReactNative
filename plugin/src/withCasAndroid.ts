@@ -3,42 +3,55 @@ import {
   withSettingsGradle,
   withProjectBuildGradle,
   withAppBuildGradle,
-} from "@expo/config-plugins";
-import type { CasExpoPluginProps, CasSolution } from "./index";
-import path from "path";
+} from '@expo/config-plugins';
+import { type CASPluginParameters, CAS_VERSION } from './index';
 
-//Default CAS version = npm package version
-//eslint-disable-next-line @typescript-eslint/no-var-requires
-const pkg = require(path.join(__dirname, "..", "..", "package.json"));
-const CAS_VERSION: string = pkg.version;
+const CAS_MEDIATION_REPOS = [
+  {
+    url: 'https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea',
+    content: ['com.mbridge.msdk.oversea'],
+  },
+  {
+    url: 'https://artifact.bytedance.com/repository/pangle',
+    content: ['com.pangle.global'],
+  },
+  {
+    url: 'https://cboost.jfrog.io/artifactory/chartboost-ads/',
+    content: ['com.chartboost', 'com.iab.omid.library'],
+  },
+  {
+    url: 'https://ysonetwork.s3.eu-west-3.amazonaws.com/sdk/android',
+    content: ['com.ysocorp'],
+  },
+  {
+    url: 'https://maven.ogury.co',
+    content: ['co.ogury', 'co.ogury.module'],
+  },
+  {
+    url: 'https://s3.amazonaws.com/smaato-sdk-releases/',
+    content: ['com.smaato.android.sdk'],
+  },
+  {
+    url: 'https://verve.jfrog.io/artifactory/verve-gradle-release',
+    content: ['net.pubnative', 'com.verve'],
+  },
+  {
+    url: 'https://repo.pubmatic.com/artifactory/public-repos',
+    content: ['com.pubmatic.sdk'],
+  },
+  {
+    url: 'https://sdkpkg.sspnet.tech',
+    content: ['sspnet.tech', 'sspnet.tech.adapters'],
+  },
+];
 
-const CAS_ADAPTER_REPOS = [
-  `    // CAS Ad Network Repositories`,
-  `    maven { url 'https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea' }`,
-  `    maven { url 'https://artifact.bytedance.com/repository/pangle' }`,
-  `    maven { url 'https://cboost.jfrog.io/artifactory/chartboost-ads/' }`,
-  `    maven { url 'https://ysonetwork.s3.eu-west-3.amazonaws.com/sdk/android' }`,
-  `    maven { url 'https://maven.ogury.co' }`,
-  `    maven { url 'https://aa-sdk.s3-eu-west-1.amazonaws.com/android_repo' }`,
-  `    maven { url 'https://s3.amazonaws.com/smaato-sdk-releases/' }`,
-  `    maven { url 'https://verve.jfrog.io/artifactory/verve-gradle-release' }`,
-  `    maven { url 'https://repo.pubmatic.com/artifactory/public-repos' }`,
-  `    maven { url 'https://sdkpkg.sspnet.tech' }`,
-].join("\n");
-
-function normalizeSolutions(props: CasExpoPluginProps): CasSolution[] {
-  const s = Array.isArray(props.solutions) ? props.solutions.filter(Boolean) : [];
-  return s.length ? s : ["optimal"];
-}
-
-//Ensure pluginManagement repositories contains gradlePluginPortal/google/mavenCentral
-function ensurePluginManagementRepos(settingsGradle: string) {
-  const requiredLines = ["    gradlePluginPortal()", "    google()", "    mavenCentral()"];
+function withApplyPluginManagementRepos(settingsGradle: string) {
+  const requiredLines = ['    gradlePluginPortal()', '    google()', '    mavenCentral()'];
 
   const hasPluginManagement = /(^|\n)\s*pluginManagement\s*\{/m.test(settingsGradle);
 
   const ensureLinesInsideRepos = (src: string, reposOpenRegex: RegExp) => {
-    return src.replace(reposOpenRegex, (m) => {
+    return src.replace(reposOpenRegex, m => {
       let out = m;
       for (const line of requiredLines) {
         if (!out.includes(line)) out += `\n${line}`;
@@ -55,166 +68,183 @@ function ensurePluginManagementRepos(settingsGradle: string) {
 
     return settingsGradle.replace(
       /(pluginManagement\s*\{)/m,
-      (m) => `${m}\n  repositories {\n${requiredLines.join("\n")}\n  }\n`
+      m => `${m}\n  repositories {\n${requiredLines.join('\n')}\n  }\n`,
     );
   }
 
-  const header = ["pluginManagement {", "  repositories {", ...requiredLines, "  }", "}", ""].join(
-    "\n"
+  const header = ['pluginManagement {', '  repositories {', ...requiredLines, '  }', '}', ''].join(
+    '\n',
   );
 
   return header + settingsGradle;
 }
 
-//Add ad-network Maven repositories to allprojects.repositories
-function ensureAllprojectsRepositories(projectBuildGradle: string) {
-  if (projectBuildGradle.includes("CAS Ad Network Repositories")) return projectBuildGradle;
+function withApplyCASClasspath(projectBuildGradle: string): string {
+  const DEPENDENCY = 'com.cleveradssolutions:gradle-plugin:';
+  const CLASSPATH_LINE = '        classpath("' + DEPENDENCY + CAS_VERSION + '")';
+  let lines = projectBuildGradle.split('\n');
+  let casClassPathIndex = lines.findLastIndex(line => line.includes(DEPENDENCY));
 
-  const allprojectsRepoBlock =
-    /(allprojects\s*\{\s*repositories\s*\{)([\s\S]*?)(\n\s*\}\s*\}\s*)/m;
+  if (casClassPathIndex > 0) {
+    lines[casClassPathIndex] = CLASSPATH_LINE;
+  } else {
+    let lastClasspathIndex = lines.findLastIndex(line => line.includes(' classpath '));
+    if (lastClasspathIndex > 0) {
+      lines.splice(lastClasspathIndex + 1, 0, CLASSPATH_LINE);
+    }
+  }
+  return lines.join('\n');
+}
 
-  if (allprojectsRepoBlock.test(projectBuildGradle)) {
-    return projectBuildGradle.replace(allprojectsRepoBlock, (_m, start, middle, end) => {
-      return `${start}\n${CAS_ADAPTER_REPOS}\n${middle}${end}`;
+function withApplyCASMediationRepositories(projectBuildGradle: string): string {
+  const START = '    // CAS Mediation repositories';
+  if (projectBuildGradle.includes(START)) {
+    return projectBuildGradle;
+  }
+
+  var repositories = CAS_MEDIATION_REPOS.map(({ url, content }) => {
+    let groups = content.map(group => 'includeGroup("' + group + '")').join(' ');
+    return [
+      '    maven {',
+      '      url = uri("' + url + '")',
+      '      content { ' + groups + ' }',
+      '    }',
+    ].join('\n');
+  }).join('\n');
+  repositories = START + '\n' + repositories;
+
+  const repoBlockRegex = /(allprojects\s*\{\s*repositories\s*\{)([\s\S]*?)(\n\s*\}\s*\})/;
+
+  if (repoBlockRegex.test(projectBuildGradle)) {
+    return projectBuildGradle.replace(repoBlockRegex, (_m, start, body, end) => {
+      return start + body + repositories + '\n' + end;
     });
   }
 
-  const snippet = `
-allprojects {
-  repositories {
-    mavenCentral()
-${CAS_ADAPTER_REPOS}
-  }
-}
-`.trim();
+  let block = [
+    'allprojects {',
+    '  repositories {',
+    '    mavenCentral()',
+    repositories,
+    '  }',
+    '}',
+  ].join('\n');
 
-  return projectBuildGradle.trimEnd() + "\n\n" + snippet + "\n";
-}
-
-//Ensure CAS Gradle plugin is applied using plugins { id(...) version "..." }
-function ensureCasPluginsDsl(appBuildGradle: string) {
-  if (appBuildGradle.includes("com.cleveradssolutions.gradle-plugin")) return appBuildGradle;
-
-  //If file already has plugins { }, inject CAS plugin line after com.android.application if possible
-  const pluginsBlockOpen = /(^|\n)\s*plugins\s*\{\s*\n/m;
-  if (pluginsBlockOpen.test(appBuildGradle)) {
-    //Try to insert after android application plugin line
-    const androidPluginLine =
-      /(plugins\s*\{[\s\S]*?id\s*\(\s*["']com\.android\.application["']\s*\)[\s\S]*?\n)/m;
-
-    const casLine = `    id("com.cleveradssolutions.gradle-plugin") version "${CAS_VERSION}"\n`;
-
-    if (androidPluginLine.test(appBuildGradle)) {
-      return appBuildGradle.replace(androidPluginLine, (m) => {
-        //Avoid double insert
-        if (m.includes("com.cleveradssolutions.gradle-plugin")) return m;
-        return m + casLine;
-      });
-    }
-
-    //insert at the beginning of plugins block
-    return appBuildGradle.replace(pluginsBlockOpen, (m) => `${m}${casLine}`);
-  }
-
-  //Otherwise convert common Expo/RN "apply plugin" style into plugins { } style
-  const applyAndroid = `apply plugin: "com.android.application"`;
-  const applyKotlin = `apply plugin: "org.jetbrains.kotlin.android"`;
-  const applyReact = `apply plugin: "com.facebook.react"`;
-
-  const hasAllApplies =
-    appBuildGradle.includes(applyAndroid) &&
-    appBuildGradle.includes(applyKotlin) &&
-    appBuildGradle.includes(applyReact);
-
-  if (hasAllApplies) {
-    const pluginsDsl = [
-      "plugins {",
-      '    id("com.android.application")',
-      '    id("org.jetbrains.kotlin.android")',
-      '    id("com.facebook.react")',
-      `    id("com.cleveradssolutions.gradle-plugin") version "${CAS_VERSION}"`,
-      "}",
-    ].join("\n");
-
-    return appBuildGradle
-      .replace(
-        `${applyAndroid}\n${applyKotlin}\n${applyReact}`,
-        pluginsDsl
-      )
-      .trimStart();
-  }
-
-  const header = [
-    "plugins {",
-    `    id("com.cleveradssolutions.gradle-plugin") version "${CAS_VERSION}"`,
-    "}",
-    "",
-  ].join("\n");
-
-  return header + appBuildGradle;
+  return projectBuildGradle.trimEnd() + '\n\n' + block + '\n';
 }
 
-function ensureCasConfigBlock(appBuildGradle: string, props: CasExpoPluginProps) {
-  if (appBuildGradle.includes("\ncas {")) return appBuildGradle;
-
-  const solutions = normalizeSolutions(props);
-  const includeOptimal = solutions.includes("optimal");
-  const includeFamilies = solutions.includes("families");
-
-  const useAdvertisingId =
-    includeFamilies ? false : props.useAdvertisingId !== false;
-
-  const lines: string[] = [];
-  lines.push("");
-  lines.push("// CAS Ads configuration (added by react-native-cas Expo config plugin)");
-  lines.push("cas {");
-
-  //Solutions 
-  if (includeOptimal) lines.push("    includeOptimalAds = true");
-  if (includeFamilies) lines.push("    includeFamiliesAds = true");
-
-  //If no solution explicitly enabled 
-  if (!includeOptimal && !includeFamilies) {
-    lines.push("    includeOptimalAds = true");
+function withApplyCASGradlePlugin(appBuildGradleLines: string[]): string[] {
+  const DEPENDENCY = 'com.cleveradssolutions.gradle-plugin';
+  let casPluginIncluded = appBuildGradleLines.some(line => line.includes(DEPENDENCY));
+  if (casPluginIncluded) {
+    return appBuildGradleLines;
   }
 
-  //Adapters
+  if (appBuildGradleLines[0].startsWith('plugins')) {
+    let closePluginsIndex = appBuildGradleLines.indexOf('}');
+    const casPluginVersionLine = `    id("${DEPENDENCY}") version "${CAS_VERSION}"`;
+    appBuildGradleLines.splice(closePluginsIndex, 0, casPluginVersionLine);
+    return appBuildGradleLines;
+  }
+
+  const casPluginLine = `apply plugin: "${DEPENDENCY}"`;
+  let lastPluginIndex = appBuildGradleLines.findLastIndex(line => line.startsWith('apply plugin:'));
+  if (lastPluginIndex > 0) {
+    appBuildGradleLines.splice(lastPluginIndex + 1, 0, casPluginLine);
+  } else {
+    appBuildGradleLines.push(casPluginLine);
+  }
+
+  return appBuildGradleLines;
+}
+
+function getAdapterNameForAndroid(adapter: string): string {
+  switch (adapter) {
+    case 'CASExchange':
+      return 'casExchange';
+    case 'DTExchange':
+      return 'dtExchange';
+    case 'PubMatic':
+      return 'pubmatic';
+    default:
+      return adapter.charAt(0).toLowerCase() + adapter.slice(1);
+  }
+}
+
+function withApplyCASPluginConfig(
+  appBuildGradleLines: string[],
+  props: CASPluginParameters,
+): string[] {
+  const CONFIG_START = '// CAS Plugin configuration';
+  const CONFIG_END = '// End CAS Plugin configuration';
+
+  const lines: string[] = [CONFIG_START];
+  lines.push('');
+  lines.push('// CAS Plugin configuration');
+  lines.push('cas {');
+
+  if (props.includeOptimalAds === true) {
+    lines.push('    includeOptimalAds = true');
+  }
+  if (props.includeFamiliesAds === true) {
+    lines.push('    includeFamiliesAds = true');
+  }
+  if (props.includeVPNCompliantAds === true) {
+    lines.push('    includeVPNCompliantAds = true');
+  }
+  if (props.includeTenjinSDK === true) {
+    lines.push('    includeTenjinSDK = true');
+  }
+
   if (Array.isArray(props.adapters) && props.adapters.length) {
-    lines.push("    adapters {");
-    for (const a of props.adapters) {
-      lines.push(`        ${a} = true`);
+    lines.push('    adapters {');
+    for (const adapter of props.adapters) {
+      lines.push(`        ${getAdapterNameForAndroid(adapter)} = true`);
     }
-    lines.push("    }");
+    lines.push('    }');
   }
 
-  lines.push(`    useAdvertisingId = ${useAdvertisingId}`);
-  lines.push("}");
-  lines.push("");
+  if (props.useAdvertisingId === false) {
+    lines.push(`    useAdvertisingId = false`);
+  }
+  lines.push('}');
+  lines.push(CONFIG_END);
 
-  return appBuildGradle.trimEnd() + "\n" + lines.join("\n");
+  const startIndex = appBuildGradleLines.indexOf(CONFIG_START);
+  const endIndex = appBuildGradleLines.indexOf(CONFIG_END);
+  if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
+    lines.splice(startIndex, endIndex - startIndex + 1, ...lines);
+  } else {
+    lines.push('');
+    lines.push(...lines);
+  }
+
+  return lines;
 }
 
-export const withCasAndroid: ConfigPlugin<CasExpoPluginProps> = (config, props) => {
-  //settings.gradle
-  config = withSettingsGradle(config, (c) => {
-    c.modResults.contents = ensurePluginManagementRepos(c.modResults.contents);
-    return c;
+export const withReactNativeCASMobileAdsAndroid: ConfigPlugin<CASPluginParameters> = (
+  config,
+  props,
+) => {
+  config = withSettingsGradle(config, config => {
+    config.modResults.contents = withApplyPluginManagementRepos(config.modResults.contents);
+    return config;
   });
 
-  //add only ad-network repositories 
-  config = withProjectBuildGradle(config, (c) => {
-    let s = c.modResults.contents;
-    s = ensureAllprojectsRepositories(s);
-    c.modResults.contents = s;
-    return c;
+  config = withProjectBuildGradle(config, config => {
+    var content = config.modResults.contents;
+    content = withApplyCASClasspath(content);
+    content = withApplyCASMediationRepositories(content);
+    config.modResults.contents = content;
+    return config;
   });
 
-  config = withAppBuildGradle(config, (c) => {
-    let s = c.modResults.contents;
-    s = ensureCasPluginsDsl(s);
-    s = ensureCasConfigBlock(s, props);
-    c.modResults.contents = s;
-    return c;
+  config = withAppBuildGradle(config, config => {
+    var contentLines = config.modResults.contents.split('\n');
+    contentLines = withApplyCASGradlePlugin(contentLines);
+    contentLines = withApplyCASPluginConfig(contentLines, props);
+    config.modResults.contents = contentLines.join('\n');
+    return config;
   });
 
   return config;

@@ -43,6 +43,9 @@ local.properties
 android.iml
 android/app/build
 android/build
+android/gradle
+android/gradlew
+android/gradlew.bat
 
 # Cocoapods
 #

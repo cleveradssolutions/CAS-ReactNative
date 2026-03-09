@@ -32,7 +32,9 @@
     "/src/",
     "/android/",
     "/ios/",
+    "/plugin/",
     "/package.json",
+    "/app.plugin.js",
     "/babel.config.js",
     "/react-native-cas.podspec",
     "/react-native.config.js",
@@ -42,13 +44,10 @@
     "!android/gradle",
     "!android/gradlew",
     "!android/gradlew.bat",
-    "!android/local.properties",
-    "/app.plugin.js",
-    "/plugin/**"
+    "!android/local.properties"
   ],
   "scripts": {
     "clean": "rimraf build && rimraf android/build && rimraf android/app/build && rimraf example/ios/build && rimraf lib && rimraf example/android/build",
-    "typecheck": "tsc",
     "format": "prettier --write '**/*.{js,jsx,ts,tsx}'",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "codegen": "react-native codegen",
@@ -58,7 +57,8 @@
     "release": "npm publish --access public"
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "devDependencies": {
     "@babel/core": "^7.28.5",
@@ -73,6 +73,8 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-react": "^7.31.10",
+    "expo": "^54.0.18",
+    "expo-module-scripts": "^5.0.7",
     "globals": "^16.4.0",
     "prettier": "^3.0.0",
     "react": "19.0.0",
@@ -82,8 +84,14 @@
     "typescript": "^5.9.3"
   },
   "peerDependencies": {
+    "expo": ">=47.0.0",
     "react": "*",
     "react-native": "*"
+  },
+  "peerDependenciesMeta": {
+    "expo": {
+      "optional": true
+    }
   },
   "workspaces": [
     "example"
