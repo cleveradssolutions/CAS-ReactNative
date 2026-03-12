@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import { TurboModuleRegistry } from 'react-native';
-import type { TurboModule } from 'react-native';
+import { TurboModuleRegistry, type TurboModule } from 'react-native';
 import type { Int32 } from 'react-native/Libraries/Types/CodegenTypes';
 import type { InitializationStatus } from '../types/Initialization';
 

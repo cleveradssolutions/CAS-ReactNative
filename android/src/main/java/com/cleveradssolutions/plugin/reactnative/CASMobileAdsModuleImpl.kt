@@ -281,10 +281,8 @@ class CASMobileAdsModuleImpl(private val reactContext: ReactApplicationContext) 
   }
 
   fun isNativeExpired(instanceId: Int, promise: Promise) {
-    CASHandler.main {
-      val content = NativeAdStore.find(instanceId)
-      promise.resolve(content?.isExpired ?: true)
-    }
+    val content = NativeAdStore.find(instanceId)
+    promise.resolve(content?.isExpired ?: true)
   }
   
   fun setNativeMutedEnabled(enabled: Boolean) {

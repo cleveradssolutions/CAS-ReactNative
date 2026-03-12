@@ -1,3 +1,0 @@
-{
-  "prepare": "bob build && tsc -p plugin/tsconfig.json"
-}

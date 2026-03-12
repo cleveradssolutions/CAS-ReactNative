@@ -70,7 +70,9 @@ export const BannerAdView = forwardRef<BannerAdViewRef, BannerAdViewProps & View
       ref,
       () => ({
         loadAd: () => {
-          adViewRef.current && Commands.loadAd(adViewRef.current);
+          if (adViewRef.current) {
+            Commands.loadAd(adViewRef.current);
+          }
         },
       }),
       [],

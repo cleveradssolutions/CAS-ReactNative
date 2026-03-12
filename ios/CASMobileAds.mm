@@ -66,8 +66,8 @@ static NSString *_casIdentifier = @"";
     auto vec = options.testDeviceIds().value();
     NSMutableArray *devices = [NSMutableArray arrayWithCapacity:vec.size()];
 
-    for (size_t i = 0; i < vec.size(); i++) {
-      [devices addObject:vec.at(i)];
+    for (const auto &device : vec) {
+      [devices addObject:device];
     }
 
     map[@"testDeviceIds"] = devices;
@@ -463,7 +463,7 @@ RCT_EXPORT_METHOD(destroyRewarded) {
 
 #pragma mark - Native
 
-RCT_EXPORT_METHOD(loadNativeAd:(NSInteger)maxNumberOfAds) {
+RCT_EXPORT_METHOD(loadNativeAd : (NSInteger)maxNumberOfAds) {
   if (!self.nativeLoader) {
     [self sendAdEvent:kOnNativeAdFailedToLoad withError:CASError.notInitialized];
     return;
@@ -483,6 +483,14 @@ RCT_EXPORT_METHOD(setNativeAdChoicesPlacement : (NSInteger)adChoicesPlacement) {
   if (self.nativeLoader) {
     self.nativeLoader.adChoicesPlacement = RNCASChoicesPlacementFromLong(adChoicesPlacement);
   }
+}
+
+RCT_EXPORT_METHOD(isNativeExpired : (NSInteger)instanceId resolve : (RCTPromiseResolveBlock)
+                      resolve reject : (RCTPromiseRejectBlock)reject) {
+  NSNumber *instanceNumber = @(instanceId);
+  CASNativeAdContent *content = [[RNCASNativeAdStore shared] findNativeAdWithId:instanceNumber];
+
+  resolve(@(!content || content.isExpired));
 }
 
 RCT_EXPORT_METHOD(destroyNative : (NSInteger)instanceId) {
@@ -629,7 +637,7 @@ RCT_EXPORT_METHOD(destroyNative : (NSInteger)instanceId) {
   } else {
     [content addObject:[NSNull null]];
   }
-  
+
   // 8 — AD LABEL
   [content addObject:ad.adLabel ?: [NSNull null]];
 

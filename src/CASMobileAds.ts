@@ -15,8 +15,11 @@
  */
 
 import CASMobileAdsNative from './modules/NativeCASMobileAdsModule';
-import type { InitializationStatus, InitializationParams } from './types/Initialization';
-import { ConsentFlowStatus } from './types/Initialization';
+import {
+  type InitializationStatus,
+  type InitializationParams,
+  ConsentFlowStatus,
+} from './types/Initialization';
 import { version as reactNativeVersion } from 'react-native/Libraries/Core/ReactNativeVersion';
 import { Gender, MobileAds as MobileAdsModule } from './types/MobileAds';
 

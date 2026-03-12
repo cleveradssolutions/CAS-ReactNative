@@ -4,7 +4,7 @@ import {
   withProjectBuildGradle,
   withAppBuildGradle,
 } from '@expo/config-plugins';
-import { type CASPluginParameters, CAS_VERSION } from './index';
+import { type CASPluginParameters, CAS_VERSION, CAS_NAMES_DIFF } from './index';
 
 const CAS_MEDIATION_REPOS = [
   {
@@ -81,14 +81,14 @@ function withApplyPluginManagementRepos(settingsGradle: string) {
 
 function withApplyCASClasspath(projectBuildGradle: string): string {
   const DEPENDENCY = 'com.cleveradssolutions:gradle-plugin:';
-  const CLASSPATH_LINE = '        classpath("' + DEPENDENCY + CAS_VERSION + '")';
+  const CLASSPATH_LINE = '    classpath("' + DEPENDENCY + CAS_VERSION + '")';
   let lines = projectBuildGradle.split('\n');
   let casClassPathIndex = lines.findLastIndex(line => line.includes(DEPENDENCY));
 
   if (casClassPathIndex > 0) {
     lines[casClassPathIndex] = CLASSPATH_LINE;
   } else {
-    let lastClasspathIndex = lines.findLastIndex(line => line.includes(' classpath '));
+    let lastClasspathIndex = lines.findLastIndex(line => line.includes('classpath'));
     if (lastClasspathIndex > 0) {
       lines.splice(lastClasspathIndex + 1, 0, CLASSPATH_LINE);
     }
@@ -103,7 +103,7 @@ function withApplyCASMediationRepositories(projectBuildGradle: string): string {
   }
 
   var repositories = CAS_MEDIATION_REPOS.map(({ url, content }) => {
-    let groups = content.map(group => 'includeGroup("' + group + '")').join(' ');
+    let groups = content.map(group => 'includeGroup("' + group + '")').join('; ');
     return [
       '    maven {',
       '      url = uri("' + url + '")',
@@ -117,7 +117,7 @@ function withApplyCASMediationRepositories(projectBuildGradle: string): string {
 
   if (repoBlockRegex.test(projectBuildGradle)) {
     return projectBuildGradle.replace(repoBlockRegex, (_m, start, body, end) => {
-      return start + body + repositories + '\n' + end;
+      return start + body + '\n' + repositories + end;
     });
   }
 
@@ -179,8 +179,6 @@ function withApplyCASPluginConfig(
   const CONFIG_END = '// End CAS Plugin configuration';
 
   const lines: string[] = [CONFIG_START];
-  lines.push('');
-  lines.push('// CAS Plugin configuration');
   lines.push('cas {');
 
   if (props.includeOptimalAds === true) {
@@ -196,10 +194,14 @@ function withApplyCASPluginConfig(
     lines.push('    includeTenjinSDK = true');
   }
 
-  if (Array.isArray(props.adapters) && props.adapters.length) {
+  if (Array.isArray(props.androidAdapters) && props.androidAdapters.length) {
+    let reverseAdapters: Record<string, string> = Object.fromEntries(
+      Object.entries(CAS_NAMES_DIFF).map(([k, v]) => [v, k]),
+    );
     lines.push('    adapters {');
-    for (const adapter of props.adapters) {
-      lines.push(`        ${getAdapterNameForAndroid(adapter)} = true`);
+    for (const adapter of props.androidAdapters) {
+      let name = reverseAdapters[adapter] ?? adapter.charAt(0).toLowerCase() + adapter.slice(1);
+      lines.push(`        ${name} = true`);
     }
     lines.push('    }');
   }
@@ -213,13 +215,13 @@ function withApplyCASPluginConfig(
   const startIndex = appBuildGradleLines.indexOf(CONFIG_START);
   const endIndex = appBuildGradleLines.indexOf(CONFIG_END);
   if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
-    lines.splice(startIndex, endIndex - startIndex + 1, ...lines);
+    appBuildGradleLines.splice(startIndex, endIndex - startIndex + 1, ...lines);
   } else {
-    lines.push('');
-    lines.push(...lines);
+    appBuildGradleLines.push('');
+    appBuildGradleLines.push(...lines);
   }
 
-  return lines;
+  return appBuildGradleLines;
 }
 
 export const withReactNativeCASMobileAdsAndroid: ConfigPlugin<CASPluginParameters> = (

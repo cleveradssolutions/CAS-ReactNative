@@ -1,7 +1,8 @@
 import os
+import shutil
 
-_PLUGIN_VERSION = "4.6.3"
-_CAS_VERSION = _PLUGIN_VERSION
+_PLUGIN_VERSION = "4.6.4"
+_CAS_VERSION = "4.6.3"
 
 # Plugin publishing flow (from the project root):
 # python3 updater.py
@@ -13,6 +14,7 @@ _CAS_VERSION = _PLUGIN_VERSION
 # yarn test:android
 # yarn test:ios
 # yarn release
+
 
 def update_version_in_file(file_path, prefix, suffix):
     with open(file_path, 'r', encoding='utf-8') as file:
@@ -26,44 +28,40 @@ def update_version_in_file(file_path, prefix, suffix):
                 success = True
             else:
                 file.write(line)
-    
+
     if success:
         print("Updated " + file_path)
     else:
         raise RuntimeError(f"Prefix {prefix} not found in file: {file_path}")
 
-        
-def update_package_json():
-    update_version_in_file(
-        file_path=os.path.join("package.json"),
-        prefix='  "version": "',
-        suffix=_PLUGIN_VERSION + '",'
-    )
-    
 
-def update_podspec():   
-    update_version_in_file(
-        file_path=os.path.join("react-native-cas.podspec"),
-        prefix="  s.dependency 'CleverAdsSolutions-Base', '",
-        suffix=f"~> {_CAS_VERSION}'"
-    )
-
-def update_android_gradle_sdk():  
-    update_version_in_file(
-        file_path=os.path.join("android", "build.gradle"),
-        prefix='  implementation "com.cleveradssolutions:cas-sdk:',
-        suffix=_CAS_VERSION + '"'
-    )
-
-def update_android_gradle_example():  
-    update_version_in_file(
-        file_path=os.path.join("example", "android", "app", "build.gradle"),
-        prefix="  id 'com.cleveradssolutions.gradle-plugin' version '",
-        suffix=_CAS_VERSION + "'"
-    )
-      
-if __name__ == "__main__":
-    update_package_json()
-    update_podspec()
-    update_android_gradle_sdk()
-    update_android_gradle_example()
+update_version_in_file(
+    file_path=os.path.join("package.json"),
+    prefix='  "version": "',
+    suffix=_PLUGIN_VERSION + '",'
+)
+update_version_in_file(
+    file_path=os.path.join("react-native-cas.podspec"),
+    prefix="  s.dependency 'CleverAdsSolutions-Base', '",
+    suffix=f"~> {_CAS_VERSION}'"
+)
+update_version_in_file(
+    file_path=os.path.join("android", "build.gradle"),
+    prefix='  implementation "com.cleveradssolutions:cas-sdk:',
+    suffix=_CAS_VERSION + '"'
+)
+update_version_in_file(
+    file_path=os.path.join("example", "android", "app", "build.gradle"),
+    prefix="  id 'com.cleveradssolutions.gradle-plugin' version '",
+    suffix=_CAS_VERSION + "'"
+)
+update_version_in_file(
+    file_path=os.path.join("plugin", "src", "index.ts"),
+    prefix="export const CAS_VERSION: string = '",
+    suffix=_CAS_VERSION + "';"
+)
+shutil.copy2(
+    src=os.path.join('..', 'CAS-Swift', 'PublicSamplesRepo',
+                     'Script XCodeConfig', 'casconfig.rb'),
+    dst=os.path.join("plugin", "casconfig.rb")
+)

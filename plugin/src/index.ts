@@ -1,15 +1,15 @@
 import { ConfigPlugin, createRunOncePlugin } from '@expo/config-plugins';
 
 import path from 'path';
-import { withReactNativeCASMobileAdsAndroid } from './withCasAndroid';
-import { withReactNativeCASMobileAdsIOS } from './withCasIos';
+import { withReactNativeCASMobileAdsAndroid } from './withAndroid';
+import { withReactNativeCASMobileAdsIOS } from './withIos';
 
 export type CASPluginParameters = {
   /**
-   * CAS App Id fro iOS platform. In most cases, a CASID is the same as your app store ID.
+   * App Id for iOS platform. The App ID is the same as your App Store (iTunes) ID.
    * You can find an app store ID in the URL of your app’s Apple App Store URL
    */
-  iosCASAppId?: string;
+  iosAppId?: string;
 
   /**
    * The Optimal Ads Solutions by the CAS.AI contains a number of stable partner networks
@@ -37,36 +37,48 @@ export type CASPluginParameters = {
   includeVPNCompliantAds?: boolean;
 
   /**
-   * The Tenjin SDK
+   * Include the Tenjin SDK to build.
    */
   includeTenjinSDK?: boolean;
 
   /**
-   * Include CAS Mediation Adapters to build.
+   * Include CAS Mediation Adapters to Android build.
+   * Array of names (first column) from Adapters table:
+   * https://github.com/cleveradssolutions/CAS-Android/blob/master/Adapters/README.md
    */
-  adapters?: string[];
+  androidAdapters?: string[];
+
+  /**
+   * Include CAS Mediation Adapters to iOS build.
+   * Array of names (first column) from Adapters table:
+   * https://github.com/cleveradssolutions/CAS-iOS/blob/master/Adapters/README.md
+   */
+  iosAdapters?: string[];
 
   /**
    * The Advertising ID is a unique, user-resettable, and user-deletable ID for advertising,
    * provided by Google Play services.
    *
-   * Set false if app are building for devices that do not utilize Google Play Services. 
+   * Set false if app are building for devices that do not utilize Google Play Services.
    * For example Amazon or Huawei.
    */
   useAdvertisingId?: boolean;
 
   /**
-   * IOS Only. 
-   * To display the App Tracking Transparency authorization request for accessing the IDFA, 
+   * To display the App Tracking Transparency authorization request for accessing the IDFA,
    * update your Info.plist to add the NSUserTrackingUsageDescription key with a custom message describing your usage.
+   * IOS Only. Allowed with useAdvertisingId property only.
    */
   userTrackingUsageDescription?: string;
 };
 
-// Default CAS version = npm package version
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const pkg = require(path.join(__dirname, '..', '..', 'package.json'));
-export const CAS_VERSION: string = pkg.version;
+export const CAS_VERSION: string = '4.6.3';
+
+export const CAS_NAMES_DIFF: Record<string, string> = {
+  casExchange: 'CASExchange',
+  dtExchange: 'DTExchange',
+  pubmatic: 'PubMatic',
+};
 
 const withReactNativeCASMobileAds: ConfigPlugin<CASPluginParameters | void> = (config, props) => {
   let casProps: CASPluginParameters = props ?? {};
@@ -75,4 +87,6 @@ const withReactNativeCASMobileAds: ConfigPlugin<CASPluginParameters | void> = (c
   return config;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const pkg = require(path.join(__dirname, '..', '..', 'package.json'));
 export default createRunOncePlugin(withReactNativeCASMobileAds, pkg.name, pkg.version);

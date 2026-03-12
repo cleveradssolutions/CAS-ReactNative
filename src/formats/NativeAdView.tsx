@@ -17,13 +17,13 @@
 import React, { createContext, forwardRef, RefObject, useContext, useEffect, useRef } from 'react';
 import { findNodeHandle, StyleSheet, Text, View, ViewProps } from 'react-native';
 
-import type {
-  NativeAdAssetProps,
-  NativeAdTextAssetProps,
-  NativeAdContent,
-  NativeAdViewProps,
+import {
+  type NativeAdAssetProps,
+  type NativeAdTextAssetProps,
+  type NativeAdContent,
+  type NativeAdViewProps,
+  NativeAdAssetType,
 } from '../types/NativeAds';
-import { NativeAdAssetType } from '../types/NativeAds';
 
 import CASNativeAdViewComponent, { Commands } from '../modules/NativeCASNativeAdViewComponent';
 import CASNativeAdAssetView from '../modules/NativeCASNativeAssetComponent';

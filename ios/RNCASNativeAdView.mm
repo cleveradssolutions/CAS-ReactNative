@@ -347,10 +347,11 @@ using namespace facebook::react;
 
 - (void)applyNativeAdIfNeeded {
   // if (!self.window) return;
-  if (self.appliedInstanceId == self.instanceId)
+  if (self.appliedInstanceId == self.instanceId) {
     return;
+  }
 
-  self.appliedInstanceId = self.instanceId;
+  self.appliedInstanceId = (int)self.instanceId;
   CASNativeAdContent *ad =
       [[RNCASNativeAdStore shared] findNativeAdWithId:@(self.appliedInstanceId)];
 

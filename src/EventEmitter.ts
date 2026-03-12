@@ -39,7 +39,8 @@ export function addAdEventListener<T = void>(
     sub.remove();
     CASMobileAdsNative.removeListeners(1);
     const next = (counts.get(event) ?? 1) - 1;
-    next <= 0 ? counts.delete(event) : counts.set(event, next);
+    if (next <= 0) counts.delete(event);
+    else counts.set(event, next);
   };
 }
 
