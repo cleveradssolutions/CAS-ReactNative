@@ -18,7 +18,7 @@ module CASConfig
     SCRIPT_VERSION = '2.0'
 
     class << self
-        attr_accessor :casId, :project_path, :gad_included, :clean_install, :ignore_id
+        attr_accessor :casId, :project_path, :gad_included, :clean_install, :require_id
 
         def config
             Dir.chdir __dir__
@@ -58,6 +58,10 @@ module CASConfig
             if instance.dirt?
                 instance.project.save()
                 puts "Updated: " + relative_path(instance.project.path)
+                if running_in_xcode?
+                    error("The build was cancelled to complete the project modification for CAS.AI Mediation. Please run the build again. If this message appears more than once, please contact support.")
+                    exit 1
+                end
             end
         end
 
@@ -148,20 +152,40 @@ module CASConfig
             source.split(startStr).last.split(endStr).first
         end
 
+        def running_in_xcode?
+            !ENV['PROJECT_FILE_PATH'].nil?
+        end
+
         def error(message)
-            STDERR.puts colortxt(message, 31)
+            if running_in_xcode?
+                STDERR.puts "error: " + message 
+            else
+                STDERR.puts colortxt(message, 31)
+            end
         end
 
         def success(message)
-            puts colortxt(message, 32)
+            if running_in_xcode?
+                puts "note: " + message 
+            else
+                puts colortxt(message, 32)
+            end
         end
 
         def warning(message)
-            puts colortxt(message, 33)
+            if running_in_xcode?
+                puts "warning: " + message 
+            else
+                puts colortxt(message, 33)
+            end
         end
 
         def thin_text(message)
-            colortxt(message, 2)
+            if running_in_xcode?
+                return message
+            else
+                return colortxt(message, 2)
+            end
         end
 
         def colortxt(txt, term_color_code)
@@ -169,12 +193,14 @@ module CASConfig
         end
 
         def print_footer
+            return if running_in_xcode?
             puts ""
             puts thin_text("XCode project configuration script version " + SCRIPT_VERSION)
             puts thin_text("   Powered by ") + colortxt("CAS.ai", 36)
         end
 
         def exit_with_help
+            return if running_in_xcode?
             puts ""
             warning "Usage:"
             puts "   Place the script in the directory with the " + XC_PROJECT_FILE + " file"
@@ -340,7 +366,17 @@ module CASConfig
             @is_dirt = true
         end
 
-        def get_path_to_new_file(name, group)
+        def get_file_path_in_group(name, group)
+            if group.nil?
+                return File.join(@project.path.dirname, name)
+            elsif group.isa == 'PBXFileSystemSynchronizedRootGroup'
+                return File.join(@project.path.dirname, group.display_name, name)
+            else
+                return File.join(group.real_path, name)
+            end
+        end
+
+        def create_new_resource_file(name, group)
             @is_dirt = true
             if group.nil?
                 xcFile = @project.new_file(name)
@@ -358,7 +394,7 @@ module CASConfig
         def get_plist_path()
             path = get_setting("INFOPLIST_FILE")
             if path.empty?
-                path = get_path_to_new_file("Info.plist", @project.groups.find{ |group| !group.path.empty? })
+                path = create_new_resource_file("Info.plist", @project.groups.find{ |group| !group.path.empty? })
                 set_setting("INFOPLIST_FILE", path)
                 return path
             end
@@ -377,11 +413,12 @@ module CASConfig
             return if configBody.empty?
             configName = "cas_settings.json" if configName.empty?
             groupPath = File.dirname(get_plist_path())
-            filePath = groupPath + "/" + configName
+            xGroup = @project[groupPath]
+            filePath = get_file_path_in_group(configName, xGroup)
 
             if CASConfig.file_expired?(filePath)
                 CASConfig.success "- Config file has been " + (if File.exist?(filePath) then "updated" else "created" end)
-                newFilePath = get_path_to_new_file(configName, @project[groupPath])
+                newFilePath = create_new_resource_file(configName, xGroup)
                 puts "   " + CASConfig.thin_text(newFilePath)
                 File.open(newFilePath, 'w') { |file| file.write(configBody) }
             else
