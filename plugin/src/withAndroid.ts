@@ -29,15 +29,23 @@ const CAS_MEDIATION_REPOS = [
   },
   {
     url: 'https://s3.amazonaws.com/smaato-sdk-releases/',
-    content: ['com.smaato.android.sdk'],
+    content: ['com.smaato.android.sdk', 'com.verve'],
   },
   {
     url: 'https://verve.jfrog.io/artifactory/verve-gradle-release',
-    content: ['net.pubnative', 'com.verve'],
+    content: ['net.pubnative', 'com.verve', 'com.smaato.android.sdk'],
   },
   {
     url: 'https://repo.pubmatic.com/artifactory/public-repos',
     content: ['com.pubmatic.sdk'],
+  },
+  {
+    url: 'https://aa-sdk.s3-eu-west-1.amazonaws.com/android_repo',
+    content: ['tv.superawesome.sdk.publisher'],
+  },
+  {
+    url: 'https://repo.repsy.io/mvn/cleveradssolutions/proxy',
+    content: ['sspnet.tech', 'sspnet.tech.adapters'],
   },
   {
     url: 'https://sdkpkg.sspnet.tech',
