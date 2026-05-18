@@ -4,8 +4,12 @@ import {
   InfoPlist,
   WarningAggregator,
   withPodfile,
+  withDangerousMod,
 } from '@expo/config-plugins';
 import { type CASPluginParameters, CAS_NAMES_DIFF, CAS_VERSION } from './index';
+import path from 'path';
+import fs from 'fs';
+const { spawnSync } = require('child_process');
 
 function withCASIOSInfoPlist(config: any, props: CASPluginParameters) {
   return withInfoPlist(config, config => {
@@ -95,11 +99,58 @@ function withCASIOSPodfile(config: any, props: CASPluginParameters) {
   });
 }
 
+function withCASIOSConfigScript(config: any, props: CASPluginParameters) {
+  return withDangerousMod(config, [
+    'ios',
+    async config => {
+      if (config.modRequest.introspect) return config;
+
+      const iosRoot = config.modRequest.platformProjectRoot;
+      const xcodeproj = path.join(iosRoot, config.modRequest.projectName + `.xcodeproj`);
+      const rubyScript = path.join(__dirname, '..', 'casconfig.rb');
+
+      if (!fs.existsSync(rubyScript)) {
+        WarningAggregator.addWarningIOS(
+          'react-native-cas',
+          rubyScript + ' not found in package. Please reimport package',
+        );
+        return config;
+      }
+
+      const casId = props.iosAppId || 'demo';
+      const result = spawnSync('ruby', [rubyScript, casId, '--project=' + xcodeproj], {
+        encoding: 'utf8',
+      });
+
+      if (result.error) {
+        WarningAggregator.addWarningIOS(
+          'react-native-cas',
+          'Error spawning CAS Ruby script: ' + result.error,
+        );
+      } else {
+      //console.log('[CAS.AI] Configuration:', result.stdout);
+
+        if (result.stderr) {
+          console.error(result.stderr);
+        }
+        if (result.status != 0) {
+          WarningAggregator.addWarningIOS(
+            'react-native-cas',
+            'Ruby script error status: ' + result.status,
+          );
+        }
+      }
+      return config;
+    },
+  ]);
+}
+
 export const withReactNativeCASMobileAdsIOS: ConfigPlugin<CASPluginParameters> = (
   config,
   props,
 ) => {
   config = withCASIOSInfoPlist(config, props);
   config = withCASIOSPodfile(config, props);
+  config = withCASIOSConfigScript(config, props);
   return config;
 };
