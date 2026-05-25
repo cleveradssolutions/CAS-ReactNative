@@ -1,8 +1,8 @@
 import os
 import shutil
 
-_PLUGIN_VERSION = "4.7.0"
-_CAS_VERSION = "4.7.0"
+_PLUGIN_VERSION = "4.7.1"
+_CAS_VERSION = "4.7.1"
 
 # Plugin publishing flow (from the project root):
 # python3 updater.py
