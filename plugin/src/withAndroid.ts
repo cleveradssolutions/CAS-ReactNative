@@ -51,6 +51,10 @@ const CAS_MEDIATION_REPOS = [
     url: 'https://sdkpkg.sspnet.tech',
     content: ['sspnet.tech', 'sspnet.tech.adapters'],
   },
+  {
+    url: 'https://maven.display.io/',
+    content: ['com.brandio.ads'],
+  },
 ];
 
 function withApplyPluginManagementRepos(settingsGradle: string) {
