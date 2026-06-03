@@ -36,8 +36,9 @@ export default function AdaptiveBannerExample() {
         // The Adaptive size has the width of the screen.
         // You can limit it by specifying a maxWidth.
         //maxWidth={}
-        autoReload={true}
-        refreshInterval={30}
+        autoReload={true} // default true
+        refreshInterval={30} // default 30 sec
+        placement={'TestPlace'} // optional
         onAdViewLoaded={onLoadedCallback}
         onAdViewFailed={onFailedCallback}
         onAdViewClicked={onClickedCallback}

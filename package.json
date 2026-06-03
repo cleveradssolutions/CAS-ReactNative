@@ -1,6 +1,6 @@
 {
   "name": "react-native-cas",
-  "version": "4.7.2",
+  "version": "4.7.3",
   "description": "The CAS.AI React Native plugin allows you to easily monetize your apps for iOS and Android using lot of Ads SDKs in mediation.",
   "author": "Clever Ads Solutions LTD <support@cas.ai> (https://cas.ai)",
   "license": "Apache-2.0",
@@ -52,8 +52,9 @@
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "codegen": "react-native codegen",
     "prepare": "bob build && rimraf plugin/build && tsc -p plugin/tsconfig.json",
-    "test:android": "cd example/android && ./gradlew assembleDebug --no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a",
-    "test:ios": "cd example/ios && pod update --no-repo-update && xcodebuild -workspace CASExample.xcworkspace -scheme CASExample -configuration Debug -sdk iphonesimulator CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ GCC_OPTIMIZATION_LEVEL=0 GCC_PRECOMPILE_PREFIX_HEADER=YES ASSETCATALOG_COMPILER_OPTIMIZATION=time DEBUG_INFORMATION_FORMAT=dwarf COMPILER_INDEX_STORE_ENABLE=NO",
+    "bundle:android": "cd example && npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res",
+    "test:android": "cd example/android && ./gradlew assembleDebug --no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a -PbundleInDebug=true",
+    "test:ios": "cd example/ios && pod update --no-repo-update && xcodebuild -workspace CASExample.xcworkspace -scheme CASExample -configuration Debug -sdk iphonesimulator -destination \"generic/platform=iOS Simulator\" CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO COMPILER_INDEX_STORE_ENABLE=NO build",
     "release": "npm publish --access public"
   },
   "publishConfig": {
@@ -98,7 +99,7 @@
   "workspaces": [
     "example"
   ],
-  "packageManager": "yarn@3.6.1",
+  "packageManager": "yarn@4.10.3",
   "react-native-builder-bob": {
     "source": "src",
     "output": "lib",

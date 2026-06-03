@@ -33,6 +33,7 @@ export const InterstitialAd: InterstitialAdType = {
   loadAd: CASMobileAdsNative.loadInterstitialAd,
   showAd: CASMobileAdsNative.showInterstitialAd,
 
+  setPlacement: CASMobileAdsNative.setInterstitialPlacement,
   setAutoloadEnabled: CASMobileAdsNative.setInterstitialAutoloadEnabled,
   setAutoshowEnabled: CASMobileAdsNative.setInterstitialAutoshowEnabled,
   setMinInterval: CASMobileAdsNative.setInterstitialMinInterval,

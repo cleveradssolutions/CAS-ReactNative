@@ -5,22 +5,22 @@ import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.ViewManagerDelegate
+import com.facebook.react.uimanager.annotations.ReactProp
 import com.facebook.react.viewmanagers.CASNativeAssetViewManagerDelegate
 import com.facebook.react.viewmanagers.CASNativeAssetViewManagerInterface
 
-@ReactModule(name = CASMobileAdsModuleImpl.NAME_NATIVE_ASSET)
+@ReactModule(name = CASMobileAdsModule.NAME_NATIVE_ASSET)
 class CASNativeAssetViewManager : SimpleViewManager<NativeAdAssetContainer>(),
   CASNativeAssetViewManagerInterface<NativeAdAssetContainer> {
+  private val delegate = CASNativeAssetViewManagerDelegate(this)
 
-  private val delegate: ViewManagerDelegate<NativeAdAssetContainer> =
-    CASNativeAssetViewManagerDelegate(this)
-
+  override fun getName(): String = CASMobileAdsModule.NAME_NATIVE_ASSET
   override fun getDelegate(): ViewManagerDelegate<NativeAdAssetContainer> = delegate
-  override fun getName(): String = CASMobileAdsModuleImpl.NAME_NATIVE_ASSET
 
   override fun createViewInstance(ctx: ThemedReactContext): NativeAdAssetContainer =
     NativeAdAssetContainer(ctx)
 
+  @ReactProp(name = "assetType")
   override fun setAssetType(view: NativeAdAssetContainer, value: Int) {
     view.assetType = value
   }

@@ -69,9 +69,10 @@ export default function RewardedExample() {
       console.log('Rewarded Ad impression:', info);
     });
 
-    if (isAutoloadEnabled) {
-      RewardedAd.setAutoloadEnabled(isAutoloadEnabled);
-    } else {
+    RewardedAd.setPlacement('TestPlace'); // optional
+    RewardedAd.setServerSideVerificationData('TestSSVData'); // optional
+    RewardedAd.setAutoloadEnabled(isAutoloadEnabled); // default false
+    if (!isAutoloadEnabled) {
       RewardedAd.loadAd();
     }
 

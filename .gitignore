@@ -89,6 +89,7 @@ lib/
 # React Native Codegen
 ios/generated
 android/generated
+example/android/app/src/main/assets/index.android.bundle
 
 # React Native Nitro Modules
 nitrogen/

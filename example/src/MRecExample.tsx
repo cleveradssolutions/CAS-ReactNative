@@ -97,8 +97,9 @@ export default function MRecExample() {
           <BannerAdView
             ref={adRef}
             size={BannerAdSize.MEDIUM_RECTANGLE}
-            autoReload={false}
-            refreshInterval={30}
+            autoReload={false} // default true
+            refreshInterval={30} // default 30 sec
+            placement={'TestPlace'} // optional
             onAdViewLoaded={onAdLoadedCallback}
             onAdViewFailed={onAdFailedCallback}
             onAdViewClicked={onAdClickedCallback}

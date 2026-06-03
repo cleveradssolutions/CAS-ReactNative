@@ -1,13 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, View, Text, StyleSheet } from 'react-native';
 import AppButton from './components/AppButton';
-import CASMobileAds, { Audience, PrivacyGeography } from 'react-native-cas';
+import CASMobileAds, { Audience, Gender, PrivacyGeography } from 'react-native-cas';
 import { useNavigation } from '@react-navigation/native';
-
-const CAS_IDS = {
-  android: 'demo',
-  ios: 'demo',
-};
 
 export default function SetupScreen() {
   const nav = useNavigation();
@@ -32,19 +27,28 @@ export default function SetupScreen() {
     setError(null);
     setStatusText('Initializing…');
 
-    CASMobileAds.setDebugLoggingEnabled(__DEV__);
+    CASMobileAds.setDebugLoggingEnabled(__DEV__); // default false
+    CASMobileAds.setUserId('TestUserID'); // optional
+    CASMobileAds.setUserAge(18); // optional, for test
+    CASMobileAds.setUserGender(Gender.MALE); // optional, for test
+    CASMobileAds.setLocationCollectionEnabled(true); // default false
+    CASMobileAds.setAdSoundsMuted(false); // default false
+    CASMobileAds.setTrialAdFreeInterval(0); // default 0
 
-    const casId = Platform.select({ android: CAS_IDS.android, ios: CAS_IDS.ios });
+    const casId = Platform.select({
+      android: 'demo',
+      ios: 'demo',
+    })!;
     const status = await CASMobileAds.initialize(casId, {
-      targetAudience: Audience.UNDEFINED,
-      showConsentFormIfRequired: true,
-      forceTestAds: __DEV__,
+      targetAudience: Audience.UNDEFINED, // default UNDEFINED
+      showConsentFormIfRequired: true, // default true
+      forceTestAds: __DEV__, // default false
       testDeviceIds: [
         // Test Devide ID
       ],
-      debugGeography: PrivacyGeography.europeanEconomicArea,
+      debugGeography: PrivacyGeography.EUROPEAN_ECONOMIC_AREA,
       mediationExtras: {
-        testKey: 'testValue',
+        testKey: 'testValue', // optional, just for test
       },
     });
 

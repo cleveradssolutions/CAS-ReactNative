@@ -34,6 +34,8 @@ export const RewardedAd: RewardedAdType = {
   loadAd: CASMobileAdsNative.loadRewardedAd,
   showAd: CASMobileAdsNative.showRewardedAd,
   setAutoloadEnabled: CASMobileAdsNative.setRewardedAutoloadEnabled,
+  setPlacement: CASMobileAdsNative.setRewardedPlacement,
+  setServerSideVerificationData: CASMobileAdsNative.setRewardedSSVerificationData,
   destroy: CASMobileAdsNative.destroyRewarded,
 
   addAdUserEarnRewardEventListener: l => addAdEventListener(RewardedAdEvent.REWARD, l),

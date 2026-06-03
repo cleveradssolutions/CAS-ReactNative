@@ -61,9 +61,10 @@ export default function AppOpenExample() {
       console.log('AppOpen Ad impression:', info);
     });
 
-    if (isAutoloadEnabled) {
-      AppOpenAd.setAutoloadEnabled(isAutoloadEnabled);
-    } else {
+    AppOpenAd.setPlacement('TestPlace'); // optional
+    AppOpenAd.setAutoshowEnabled(true); // default false
+    AppOpenAd.setAutoloadEnabled(isAutoloadEnabled); // default false
+    if (!isAutoloadEnabled) {
       AppOpenAd.loadAd();
     }
 

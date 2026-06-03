@@ -100,6 +100,15 @@ RCT_EXPORT_METHOD(initialize : (NSString *)casId options : (NSDictionary *)optio
     return;
   }
 
+  if (_casIdentifier.length > 0 && ![_casIdentifier isEqualToString:casId]) {
+    NSMutableDictionary *configDict = [NSMutableDictionary dictionary];
+    configDict[@"error"] = @"Only one CAS ID is supported per session";
+    configDict[@"isConsentRequired"] = @(NO);
+    configDict[@"consentFlowStatus"] = @(CASConsentFlowStatusUnknown);
+    resolve(configDict);
+    return;
+  }
+
   _casIdentifier = casId;
 
   // Tagged audience
@@ -108,27 +117,6 @@ RCT_EXPORT_METHOD(initialize : (NSString *)casId options : (NSDictionary *)optio
   if (audience != nil) {
     CAS.settings.taggedAudience = (CASAudience)[audience integerValue];
   }
-
-  // Initialize ad types
-  CASInterstitial *interstitial = [[CASInterstitial alloc] initWithCasID:casId];
-  interstitial.delegate = self;
-  interstitial.impressionDelegate = self;
-  self.interstitialAds = interstitial;
-
-  CASRewarded *rewarded = [[CASRewarded alloc] initWithCasID:casId];
-  rewarded.delegate = self;
-  rewarded.impressionDelegate = self;
-  self.rewardedAds = rewarded;
-
-  CASAppOpen *appOpen = [[CASAppOpen alloc] initWithCasID:casId];
-  appOpen.delegate = self;
-  appOpen.impressionDelegate = self;
-  self.appOpenAds = appOpen;
-
-  CASNativeLoader *nativeLoader = [[CASNativeLoader alloc] initWithCasID:casId];
-  nativeLoader.delegate = self;
-
-  self.nativeLoader = nativeLoader;
 
   CASManagerBuilder *builder = [CAS buildManager];
 
@@ -150,18 +138,20 @@ RCT_EXPORT_METHOD(initialize : (NSString *)casId options : (NSDictionary *)optio
 
   __block RCTPromiseResolveBlock resolveBlock = resolve;
   [builder withCompletionHandler:^(CASInitialConfig *_Nonnull config) {
-    self.casInitConfig = [NSMutableDictionary dictionary];
-
-    if (config.error) {
-      self.casInitConfig[@"error"] = config.error;
-    }
+    NSMutableDictionary *configDict = [NSMutableDictionary dictionary];
 
     if (config.countryCode) {
-      self.casInitConfig[@"countryCode"] = config.countryCode;
+      configDict[@"countryCode"] = config.countryCode;
     }
 
-    self.casInitConfig[@"isConsentRequired"] = @(config.isConsentRequired);
-    self.casInitConfig[@"consentFlowStatus"] = @(config.consentFlowStatus);
+    configDict[@"isConsentRequired"] = @(config.isConsentRequired);
+    configDict[@"consentFlowStatus"] = @(config.consentFlowStatus);
+
+    if (config.error) {
+      configDict[@"error"] = config.error;
+    } else {
+      self.casInitConfig = configDict;
+    }
 
     if (resolveBlock) {
       resolveBlock(self.casInitConfig);
@@ -177,6 +167,10 @@ RCT_EXPORT_METHOD(isInitialized : (RCTPromiseResolveBlock)resolve reject : (RCTP
   BOOL initialized = (self.casInitConfig != nil);
 
   resolve(@(initialized));
+}
+
+- (void)logErrorCallBeforeInitialize {
+  NSLog(@"[CAS.AI-RN] CASMobileAds must be initialized before calling ads functions");
 }
 
 RCT_EXPORT_METHOD(getSDKVersion : (RCTPromiseResolveBlock)resolve reject : (RCTPromiseRejectBlock)
@@ -229,9 +223,8 @@ RCT_EXPORT_METHOD(showConsentFlow : (nonnull RCTPromiseResolveBlock)
   __block RCTPromiseResolveBlock resolveBlock = resolve;
 
   flow.completionHandler = ^(enum CASConsentFlowStatus status) {
-    NSNumber *statusNumber = @(status);
-
     if (resolveBlock) {
+      NSNumber *statusNumber = @(status);
       resolveBlock(statusNumber);
       resolveBlock = nil;
     }
@@ -241,215 +234,251 @@ RCT_EXPORT_METHOD(showConsentFlow : (nonnull RCTPromiseResolveBlock)
 
 #pragma mark - Settings
 
-RCT_EXPORT_METHOD(setAdSoundsMuted : (BOOL)muted) {
-  CASSettings *nativeSettings = CAS.settings;
-
-  nativeSettings.mutedAdSounds = muted;
-}
+RCT_EXPORT_METHOD(setAdSoundsMuted : (BOOL)muted) { CAS.settings.mutedAdSounds = muted; }
 
 RCT_EXPORT_METHOD(setAppContentUrl : (NSString *)contentUrl) {
-  CASTargetingOptions *targetingOptions = CAS.targetingOptions;
-
-  targetingOptions.contentUrl = contentUrl;
+  CAS.targetingOptions.contentUrl = contentUrl;
 }
 
 RCT_EXPORT_METHOD(setAppKeywords : (NSArray *)keywords) {
-  CASTargetingOptions *targetingOptions = CAS.targetingOptions;
-
-  targetingOptions.keywords = keywords;
+  CAS.targetingOptions.keywords = keywords;
 }
 
-RCT_EXPORT_METHOD(setDebugLoggingEnabled : (BOOL)enabled) {
-  CASSettings *nativeSettings = CAS.settings;
-
-  nativeSettings.debugMode = enabled;
-}
+RCT_EXPORT_METHOD(setDebugLoggingEnabled : (BOOL)enabled) { CAS.settings.debugMode = enabled; }
 
 RCT_EXPORT_METHOD(setTrialAdFreeInterval : (long)interval) {
-  CASSettings *nativeSettings = CAS.settings;
-
-  nativeSettings.trialAdFreeInterval = interval;
+  CAS.settings.trialAdFreeInterval = interval;
 }
 
-RCT_EXPORT_METHOD(setUserAge : (long)age) {
-  CASTargetingOptions *targetingOptions = CAS.targetingOptions;
-
-  targetingOptions.age = age;
+RCT_EXPORT_METHOD(setUserId : (NSString *_Nullable)identifier) {
+  CAS.targetingOptions.userID = identifier;
 }
+
+RCT_EXPORT_METHOD(setUserAge : (long)age) { CAS.targetingOptions.age = age; }
 
 RCT_EXPORT_METHOD(setUserGender : (long)gender) {
-  CASTargetingOptions *targetingOptions = CAS.targetingOptions;
-
-  targetingOptions.gender = (CASGender)((NSInteger)gender);
+  CAS.targetingOptions.gender = (CASGender)((NSInteger)gender);
 }
 
 RCT_EXPORT_METHOD(setLocationCollectionEnabled : (BOOL)enabled) {
-  CASTargetingOptions *targetingOptions = CAS.targetingOptions;
-
-  targetingOptions.locationCollectionEnabled = enabled;
+  CAS.targetingOptions.locationCollectionEnabled = enabled;
 }
 
-#pragma mark - Interstitial
+#pragma mark - Interstitial Ads
+
+- (BOOL)tryCreateInterstitialAds {
+  if (self.interstitialAds) {
+    return YES;
+  }
+  if (_casIdentifier.length == 0) {
+    [self logErrorCallBeforeInitialize];
+    return NO;
+  }
+  CASInterstitial *interstitial = [[CASInterstitial alloc] initWithCasID:_casIdentifier];
+  interstitial.delegate = self;
+  interstitial.impressionDelegate = self;
+  self.interstitialAds = interstitial;
+  return YES;
+}
 
 RCT_EXPORT_METHOD(isInterstitialAdLoaded : (RCTPromiseResolveBlock)
                       resolve reject : (RCTPromiseRejectBlock)reject) {
-  if (!self.interstitialAds) {
+  if (self.interstitialAds) {
+    resolve(@([self.interstitialAds isAdLoaded]));
+  } else {
     resolve(@(NO));
-    return;
   }
-
-  resolve(@([self.interstitialAds isAdLoaded]));
 }
 
 RCT_EXPORT_METHOD(loadInterstitialAd) {
-  if (!self.interstitialAds) {
+  if ([self tryCreateInterstitialAds]) {
+    [self.interstitialAds loadAd];
+  } else {
     [self sendAdEvent:kOnInterstitialLoadFailed withError:CASError.notInitialized];
-    return;
   }
-
-  [self.interstitialAds loadAd];
 }
 
 RCT_EXPORT_METHOD(showInterstitialAd) {
-  if (!self.interstitialAds) {
+  if ([self tryCreateInterstitialAds]) {
+    [self.interstitialAds presentFromViewController:nil];
+  } else {
     [self sendAdEvent:kOnInterstitialFailedToShow withError:CASError.notInitialized];
-    return;
   }
-
-  [self.interstitialAds presentFromViewController:nil];
 }
 
 RCT_EXPORT_METHOD(setInterstitialMinInterval : (NSInteger)seconds) {
-  if (self.interstitialAds) {
+  if ([self tryCreateInterstitialAds]) {
     self.interstitialAds.minInterval = seconds;
   }
 }
 
 RCT_EXPORT_METHOD(restartInterstitialInterval) {
-  if (self.interstitialAds) {
+  if ([self tryCreateInterstitialAds]) {
     [self.interstitialAds restartInterval];
   }
 }
 
 RCT_EXPORT_METHOD(setInterstitialAutoloadEnabled : (BOOL)enabled) {
-  if (self.interstitialAds) {
+  if ([self tryCreateInterstitialAds]) {
     self.interstitialAds.isAutoloadEnabled = enabled;
   }
 }
 
 RCT_EXPORT_METHOD(setInterstitialAutoshowEnabled : (BOOL)enabled) {
-  if (self.interstitialAds) {
+  if ([self tryCreateInterstitialAds]) {
     self.interstitialAds.isAutoshowEnabled = enabled;
+  }
+}
+
+RCT_EXPORT_METHOD(setInterstitialPlacement : (NSString *_Nullable)placement) {
+  if ([self tryCreateInterstitialAds]) {
+    self.interstitialAds.placement = placement;
   }
 }
 
 RCT_EXPORT_METHOD(destroyInterstitial) {
   if (self.interstitialAds) {
     [self.interstitialAds destroy];
-    self.interstitialAds = [[CASInterstitial alloc] initWithCasID:_casIdentifier];
-    self.interstitialAds.delegate = self;
-    self.interstitialAds.impressionDelegate = self;
+    self.interstitialAds = nil;
   }
 }
 
-#pragma mark - AppOpen
+#pragma mark - AppOpen Ads
+
+- (BOOL)tryCreateAppOpenAds {
+  if (self.appOpenAds) {
+    return YES;
+  }
+  if (_casIdentifier.length == 0) {
+    [self logErrorCallBeforeInitialize];
+    return NO;
+  }
+  CASAppOpen *appOpen = [[CASAppOpen alloc] initWithCasID:_casIdentifier];
+  appOpen.delegate = self;
+  appOpen.impressionDelegate = self;
+  self.appOpenAds = appOpen;
+  return YES;
+}
 
 RCT_EXPORT_METHOD(isAppOpenAdLoaded : (RCTPromiseResolveBlock)
                       resolve reject : (RCTPromiseRejectBlock)reject) {
-  if (!self.appOpenAds) {
+  if (self.appOpenAds) {
+    resolve(@([self.appOpenAds isAdLoaded]));
+  } else {
     resolve(@(NO));
-    return;
   }
-
-  resolve(@([self.appOpenAds isAdLoaded]));
 }
 
 RCT_EXPORT_METHOD(loadAppOpenAd) {
-  if (!self.appOpenAds) {
+  if ([self tryCreateAppOpenAds]) {
+    [self.appOpenAds loadAd];
+  } else {
     [self sendAdEvent:kOnAppOpenLoadFailed withError:CASError.notInitialized];
-    return;
   }
-
-  [self.appOpenAds loadAd];
 }
 
 RCT_EXPORT_METHOD(showAppOpenAd) {
-  if (!self.appOpenAds) {
+  if ([self tryCreateAppOpenAds]) {
+    [self.appOpenAds presentFromViewController:nil];
+  } else {
     [self sendAdEvent:kOnAppOpenFailedToShow withError:CASError.notInitialized];
-    return;
   }
-
-  [self.appOpenAds presentFromViewController:nil];
 }
 
 RCT_EXPORT_METHOD(setAppOpenAutoloadEnabled : (BOOL)enabled) {
-  if (self.appOpenAds) {
+  if ([self tryCreateAppOpenAds]) {
     self.appOpenAds.isAutoloadEnabled = enabled;
   }
 }
 
 RCT_EXPORT_METHOD(setAppOpenAutoshowEnabled : (BOOL)enabled) {
-  if (self.appOpenAds) {
+  if ([self tryCreateAppOpenAds]) {
     self.appOpenAds.isAutoshowEnabled = enabled;
+  }
+}
+
+RCT_EXPORT_METHOD(setAppOpenPlacement : (NSString *_Nullable)placement) {
+  if ([self tryCreateAppOpenAds]) {
+    self.appOpenAds.placement = placement;
   }
 }
 
 RCT_EXPORT_METHOD(destroyAppOpen) {
   if (self.appOpenAds) {
     [self.appOpenAds destroy];
-    self.appOpenAds = [[CASAppOpen alloc] initWithCasID:_casIdentifier];
-    self.appOpenAds.delegate = self;
-    self.appOpenAds.impressionDelegate = self;
+    self.appOpenAds = nil;
   }
 }
 
-#pragma mark - Rewarded
+#pragma mark - Rewarded Ads
+
+- (BOOL)tryCreateRewardedAds {
+  if (self.rewardedAds) {
+    return YES;
+  }
+  if (_casIdentifier.length == 0) {
+    [self logErrorCallBeforeInitialize];
+    return NO;
+  }
+  CASRewarded *rewarded = [[CASRewarded alloc] initWithCasID:_casIdentifier];
+  rewarded.delegate = self;
+  rewarded.impressionDelegate = self;
+  self.rewardedAds = rewarded;
+  return YES;
+}
 
 RCT_EXPORT_METHOD(isRewardedAdLoaded : (RCTPromiseResolveBlock)
                       resolve reject : (RCTPromiseRejectBlock)reject) {
-  if (!self.rewardedAds) {
+  if (self.rewardedAds) {
+    resolve(@([self.rewardedAds isAdLoaded]));
+  } else {
     resolve(@(NO));
-    return;
   }
-
-  resolve(@([self.rewardedAds isAdLoaded]));
 }
 
 RCT_EXPORT_METHOD(loadRewardedAd) {
-  if (!self.rewardedAds) {
+  if ([self tryCreateRewardedAds]) {
+    [self.rewardedAds loadAd];
+  } else {
     [self sendAdEvent:kOnRewardedLoadFailed withError:CASError.notInitialized];
-    return;
   }
-
-  [self.rewardedAds loadAd];
 }
 
 RCT_EXPORT_METHOD(showRewardedAd) {
-  if (!self.rewardedAds) {
+  if ([self tryCreateRewardedAds]) {
+    [self.rewardedAds presentFromViewController:nil
+                       userDidEarnRewardHandler:^(CASContentInfo *_Nonnull info) {
+                         if (self.hasListeners) {
+                           [self sendEventWithName:kOnRewardedCompleted body:nil];
+                         }
+                       }];
+  } else {
     [self sendAdEvent:kOnRewardedFailedToShow withError:CASError.notInitialized];
-    return;
   }
-
-  [self.rewardedAds presentFromViewController:nil
-                     userDidEarnRewardHandler:^(CASContentInfo *_Nonnull info) {
-                       if (self.hasListeners) {
-                         [self sendEventWithName:kOnRewardedCompleted body:nil];
-                       }
-                     }];
 }
 
 RCT_EXPORT_METHOD(setRewardedAutoloadEnabled : (BOOL)enabled) {
-  if (self.rewardedAds) {
+  if ([self tryCreateRewardedAds]) {
     self.rewardedAds.isAutoloadEnabled = enabled;
+  }
+}
+
+RCT_EXPORT_METHOD(setRewardedPlacement : (NSString *_Nullable)placement) {
+  if ([self tryCreateRewardedAds]) {
+    self.rewardedAds.placement = placement;
+  }
+}
+
+RCT_EXPORT_METHOD(setRewardedSSVerificationData : (NSString *_Nullable)data) {
+  if ([self tryCreateRewardedAds]) {
+    self.rewardedAds.serverSideVerificationData = data;
   }
 }
 
 RCT_EXPORT_METHOD(destroyRewarded) {
   if (self.rewardedAds) {
     [self.rewardedAds destroy];
-    self.rewardedAds = [[CASRewarded alloc] initWithCasID:_casIdentifier];
-    self.rewardedAds.delegate = self;
-    self.rewardedAds.impressionDelegate = self;
+    self.rewardedAds = nil;
   }
 }
 
@@ -461,27 +490,45 @@ RCT_EXPORT_METHOD(destroyRewarded) {
   [self sendEventWithName:event body:@{@"code" : @(error.code), @"message" : error.description}];
 }
 
-#pragma mark - Native
+#pragma mark - Native Ads
+
+- (BOOL)tryCreateNativeLoader {
+  if (self.nativeLoader) {
+    return YES;
+  }
+  if (_casIdentifier.length == 0) {
+    [self logErrorCallBeforeInitialize];
+    return NO;
+  }
+  CASNativeLoader *loader = [[CASNativeLoader alloc] initWithCasID:_casIdentifier];
+  loader.delegate = self;
+  self.nativeLoader = loader;
+  return YES;
+}
 
 RCT_EXPORT_METHOD(loadNativeAd : (NSInteger)maxNumberOfAds) {
-  if (!self.nativeLoader) {
+  if ([self tryCreateNativeLoader]) {
+    [self.nativeLoader loadWithMaxNumberOfAds:maxNumberOfAds];
+  } else {
     [self sendAdEvent:kOnNativeAdFailedToLoad withError:CASError.notInitialized];
-    return;
   }
-  self.nativeLoader.delegate = self;
-
-  [self.nativeLoader loadWithMaxNumberOfAds:maxNumberOfAds];
 }
 
 RCT_EXPORT_METHOD(setNativeMutedEnabled : (BOOL)enabled) {
-  if (self.nativeLoader) {
+  if ([self tryCreateNativeLoader]) {
     self.nativeLoader.isStartVideoMuted = enabled;
   }
 }
 
 RCT_EXPORT_METHOD(setNativeAdChoicesPlacement : (NSInteger)adChoicesPlacement) {
-  if (self.nativeLoader) {
+  if ([self tryCreateNativeLoader]) {
     self.nativeLoader.adChoicesPlacement = RNCASChoicesPlacementFromLong(adChoicesPlacement);
+  }
+}
+
+RCT_EXPORT_METHOD(setNativePlacement : (NSString *_Nullable)placement) {
+  if ([self tryCreateNativeLoader]) {
+    self.nativeLoader.placement = placement;
   }
 }
 

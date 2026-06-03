@@ -45,6 +45,7 @@ export const BannerAdView = forwardRef<BannerAdViewRef, BannerAdViewProps & View
       maxHeight,
       autoReload = true,
       refreshInterval = 30,
+      placement,
       onAdViewLoaded,
       onAdViewFailed,
       onAdViewClicked,
@@ -114,6 +115,7 @@ export const BannerAdView = forwardRef<BannerAdViewRef, BannerAdViewProps & View
         sizeConfig={sizeConfig}
         autoReload={autoReload}
         refreshInterval={refreshInterval}
+        placement={placement}
         onAdViewLoaded={onLoadedCallback}
         onAdViewFailed={onFailedCallback}
         onAdViewClicked={onClickedCallback}

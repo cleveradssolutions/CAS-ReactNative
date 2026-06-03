@@ -49,6 +49,7 @@ export interface NativeProps extends ViewProps {
   autoReload?: WithDefault<boolean, true>;
   casId?: string;
   refreshInterval?: Int32;
+  placement?: string;
 
   onAdViewLoaded?: DirectEventHandler<OnAdLoadedEvent>;
   onAdViewFailed?: DirectEventHandler<OnAdFailedEvent>;

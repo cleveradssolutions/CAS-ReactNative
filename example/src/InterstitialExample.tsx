@@ -67,9 +67,11 @@ export default function InterstitialExample() {
       },
     );
 
-    if (isAutoloadEnabled) {
-      InterstitialAd.setAutoloadEnabled(isAutoloadEnabled);
-    } else {
+    InterstitialAd.setPlacement('TestPlace'); // optional
+    InterstitialAd.setMinInterval(0); // default 0 sec
+    InterstitialAd.setAutoshowEnabled(false); // default false
+    InterstitialAd.setAutoloadEnabled(isAutoloadEnabled); // default false
+    if (!isAutoloadEnabled) {
       InterstitialAd.loadAd();
     }
 

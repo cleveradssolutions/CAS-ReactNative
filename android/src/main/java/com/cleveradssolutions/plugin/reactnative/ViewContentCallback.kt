@@ -12,8 +12,7 @@ import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import kotlin.math.roundToInt
 
-
-class BannerViewListener(
+internal class ViewContentCallback(
   val context: ThemedReactContext
 ) : AdViewListener, OnAdImpressionListener {
   var viewId: Int = View.NO_ID
@@ -65,6 +64,7 @@ class BannerViewListener(
     emitAdEvent("onAdViewClicked", WritableNativeMap())
   }
 
+  @Suppress("DEPRECATION")
   private fun emitAdEvent(name: String, map: WritableMap?) {
     context.getJSModule(RCTEventEmitter::class.java)
       .receiveEvent(viewId, name, map)

@@ -56,6 +56,13 @@ export type NativeAdLoaderType = {
   setAdChoicesPlacement(placement: AdChoicesPlacement): void;
 
   /**
+   * An optional placement name for the ad instance that helps categorize
+   * and track statistics across different ad placements.
+   * Maximum 100 characters allowed for the placement name.
+   */
+  setPlacement(placement: string): void;
+
+  /**
    * Fired when the native ad content has been successfully loaded.
    *
    * Always call the `NativeAdContent.destroy()` on all loaded native ads,

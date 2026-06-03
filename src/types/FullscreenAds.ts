@@ -29,6 +29,13 @@ export type Unsubscribe = () => void;
  */
 export type FullscreenAdBase = {
   /**
+   * An optional placement name for the ad instance that helps categorize
+   * and track statistics across different ad placements.
+   * Maximum 100 characters allowed for the placement name.
+   */
+  setPlacement(placement: string | null): void;
+
+  /**
    * Enables automatic loading of the next ad.
    * When enabled, the SDK loads a new ad after dismissal and retries on load errors.
    */
@@ -92,7 +99,7 @@ export type FullscreenAdBase = {
   addAdDismissedEventListener(l: () => void): Unsubscribe;
 };
 
-/** App-open specific options. */
+/** AppOpen ads specific options. */
 export type AppOpenAdType = FullscreenAdBase & {
   /**
    * Controls whether the ad should be automatically displayed when the user returns to the app.
@@ -101,6 +108,7 @@ export type AppOpenAdType = FullscreenAdBase & {
   setAutoshowEnabled(enabled: boolean): void;
 };
 
+/** Interstitial ads specific options. */
 export type InterstitialAdType = FullscreenAdBase & {
   /**
    * Controls whether the ad should be automatically displayed when the user returns to the app.
@@ -110,7 +118,7 @@ export type InterstitialAdType = FullscreenAdBase & {
 
   /**
    * The minimum interval between showing interstitial ads, in seconds.
-   * Showing earlier will trigger onAdFailedToShow with codeNotPassedInterval.
+   * Showing earlier will trigger onAdFailedToShow with AdErrorCode.NOT_PASSED_INTERVAL.
    * The timer is shared across instances; values may differ per instance.
    */
   setMinInterval(seconds: number): void;
@@ -122,11 +130,22 @@ export type InterstitialAdType = FullscreenAdBase & {
   restartInterval(): void;
 };
 
-/** Rewarded specific events. */
+/** Rewarded ads specific options. */
 export type RewardedAdType = FullscreenAdBase & {
   /**
    * Called when the user has earned the reward.
    * Note: This differs from the dismissed callback — a user might dismiss without earning a reward.
    */
   addAdUserEarnRewardEventListener(l: () => void): Unsubscribe;
+
+  /**
+   * Sets custom data to be included in server-side verification callbacks.
+   * Maximum 8192 characters allowed for the custom data.
+   *
+   * The callbacks contain query parameters that describe the rewarded ad interaction,
+   * including the `placement` and `CASMobileAds.setUserId` alongside any custom data provided here.
+   *
+   * This feature is currently in closed beta.
+   */
+  setServerSideVerificationData(data: string | null): void;
 };

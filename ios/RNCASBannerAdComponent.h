@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 // MARK: - Properties are updated from RN layer via the view manager
 @property (nonatomic, copy) NSDictionary *sizeConfig;
 @property (nonatomic, copy) NSString *casID;
+@property (nonatomic, copy) NSString *placement;
 @property (nonatomic) BOOL autoReload;
 @property (nonatomic) NSInteger refreshInterval;
 

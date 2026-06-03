@@ -32,7 +32,7 @@ export interface MobileAds {
    *
    * **Note:** This {@link Promise} may take an unexpectedly long time to complete,
    * as it will only resolve once the SDK has either successfully initialized
-   * or failed with a error.
+   * or failed with an error.
    *
    * If an error occurs, the SDK will attempt automatic reinitialization internally.
    * However, this {@link Promise} will not be updated with subsequent {@link InitializationStatus}.
@@ -73,6 +73,13 @@ export interface MobileAds {
   setAdSoundsMuted(muted: boolean): void;
 
   /**
+   * The userID is a unique identifier supplied by your application and must be static for each user across sessions.
+   * Your userID should not contain any personally identifiable information such as
+   * an email address, screen name, Android ID (AID), or Google Advertising ID (GAID).
+   */
+  setUserId(id: string | null): void;
+
+  /**
    * Sets the user’s age.
    *
    * Limitation: 1–99, and 0 is 'unknown'.
@@ -99,7 +106,7 @@ export interface MobileAds {
    * Limitation: max URL length 512.
    * Pass `undefined` to clear the value.
    */
-  setAppContentUrl(contentUrl?: string): void;
+  setAppContentUrl(contentUrl: string | null): void;
 
   /**
    * Collect from the device the latitude and longitude coordinates truncated to the

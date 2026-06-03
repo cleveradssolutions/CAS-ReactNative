@@ -23,11 +23,11 @@ export type AdContentInfo = {
    */
   format: string;
   /**
-   * The display name of the mediated network that purchased the impression.
+   * The Ad Unit ID from the mediated network that purchased the impression.
    */
   sourceUnitId: string;
   /**
-   * The Ad Unit ID from the mediated network that purchased the impression.
+   * The display name of the mediated network that purchased the impression.
    */
   sourceName: string;
   /**

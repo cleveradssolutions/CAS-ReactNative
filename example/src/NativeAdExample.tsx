@@ -12,7 +12,9 @@ export default function NativeAdExample() {
   const [loadedAd, setLoadedAd] = useState<NativeAdContent | null>(null);
   const [muted, setMuted] = useState(false);
 
-  const [placement, setPlacement] = useState<AdChoicesPlacement>(AdChoicesPlacement.topRightCorner);
+  const [choicesPlacement, setChoicesPlacement] = useState<AdChoicesPlacement>(
+    AdChoicesPlacement.TOP_RIGHT,
+  );
 
   const cardWidth = useMemo(() => Math.min(winWidth - 40, 420), [winWidth]);
   const contentWidth = useMemo(() => Math.max(0, Math.round(cardWidth - 68)), [cardWidth]);
@@ -20,7 +22,10 @@ export default function NativeAdExample() {
   useEffect(() => {
     const unsubscribeLoaded = NativeAdLoader.addAdLoadedEventListener((ad: NativeAdContent) => {
       console.log('Native Ad loaded', ad.instanceId);
-      setLoadedAd(ad);
+      setLoadedAd((prev: NativeAdContent | null) => {
+        prev?.destroy();
+        return ad;
+      });
     });
 
     const unsubscribeLoadFailed = NativeAdLoader.addAdFailedToLoadEventListener((e: AdError) => {
@@ -38,6 +43,9 @@ export default function NativeAdExample() {
       },
     );
 
+    NativeAdLoader.setAdChoicesPlacement(choicesPlacement); // default TOP_RIGHT
+    NativeAdLoader.setStartVideoMuted(muted); // default true
+    NativeAdLoader.setPlacement('TestPlace'); // optional
     NativeAdLoader.loadAds(1);
 
     return () => {
@@ -46,8 +54,8 @@ export default function NativeAdExample() {
       unsubscribeClicked();
       unsubscribeImpression();
 
-      setLoadedAd((prev: NativeAdContent) => {
-        prev?.destroyAd();
+      setLoadedAd((prev: NativeAdContent | null) => {
+        prev?.destroy();
         return null;
       });
     };
@@ -58,14 +66,14 @@ export default function NativeAdExample() {
   };
 
   const onToggleMute = () => {
-    NativeAdLoader.setNativeMutedEnabled(!muted);
     setMuted(!muted);
+    NativeAdLoader.setStartVideoMuted(muted);
   };
 
   const onChangePlacement = () => {
-    const next = ((placement as number) + 1) % 4;
-    NativeAdLoader.setNativeAdChoicesPlacement(next);
-    setPlacement(next as any);
+    const next = ((choicesPlacement as number) + 1) % 4;
+    NativeAdLoader.setAdChoicesPlacement(next);
+    setChoicesPlacement(next as any);
   };
 
   const cardDynamicStyle = useMemo(() => ({ width: cardWidth }), [cardWidth]);

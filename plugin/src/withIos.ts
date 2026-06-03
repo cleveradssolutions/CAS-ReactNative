@@ -128,7 +128,7 @@ function withCASIOSConfigScript(config: any, props: CASPluginParameters) {
           'Error spawning CAS Ruby script: ' + result.error,
         );
       } else {
-      //console.log('[CAS.AI] Configuration:', result.stdout);
+        //console.log('[CAS.AI] Configuration:', result.stdout);
 
         if (result.stderr) {
           console.error(result.stderr);

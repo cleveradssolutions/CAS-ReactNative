@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
   s.public_header_files = "ios/**/*.h"
 
   s.frameworks = "UIKit", "Foundation"
-  s.dependency 'CleverAdsSolutions-Base', '~> 4.7.1'
+  s.dependency 'CleverAdsSolutions-Base', '~> 4.7.3'
 
   if defined?(install_modules_dependencies)
     install_modules_dependencies(s)

@@ -37,9 +37,10 @@ export interface Spec extends TurboModule {
   showConsentFlow(): Promise<number>;
 
   // App/Targeting
+  setUserId(identifier: string | null): void;
   setUserAge(age: Int32): void;
   setUserGender(gender: Int32): void;
-  setAppContentUrl(contentUrl?: string): void;
+  setAppContentUrl(contentUrl: string | null): void;
   setAppKeywords(keywords: string[]): void;
   setDebugLoggingEnabled(enabled: boolean): void;
   setAdSoundsMuted(muted: boolean): void;
@@ -50,6 +51,7 @@ export interface Spec extends TurboModule {
   isInterstitialAdLoaded(): Promise<boolean>;
   loadInterstitialAd(): void;
   showInterstitialAd(): void;
+  setInterstitialPlacement(placement: string | null): void;
   setInterstitialAutoloadEnabled(enabled: boolean): void;
   setInterstitialAutoshowEnabled(enabled: boolean): void;
   setInterstitialMinInterval(seconds: Int32): void;
@@ -60,13 +62,16 @@ export interface Spec extends TurboModule {
   isRewardedAdLoaded(): Promise<boolean>;
   loadRewardedAd(): void;
   showRewardedAd(): void;
+  setRewardedPlacement(placement: string | null): void;
   setRewardedAutoloadEnabled(enabled: boolean): void;
+  setRewardedSSVerificationData(data: string | null): void;
   destroyRewarded(): void;
 
   // App Open
   isAppOpenAdLoaded(): Promise<boolean>;
   loadAppOpenAd(): void;
   showAppOpenAd(): void;
+  setAppOpenPlacement(placement: string | null): void;
   setAppOpenAutoloadEnabled(enabled: boolean): void;
   setAppOpenAutoshowEnabled(enabled: boolean): void;
   destroyAppOpen(): void;
@@ -75,6 +80,7 @@ export interface Spec extends TurboModule {
   loadNativeAd(maxNumberOfAds: Int32): void;
   setNativeMutedEnabled(enabled: boolean): void;
   setNativeAdChoicesPlacement(adChoicesPlacement: Int32): void;
+  setNativePlacement(placement: string | null): void;
   destroyNative(instanceId: Int32): void;
   isNativeExpired(instanceId: Int32): Promise<boolean>;
 

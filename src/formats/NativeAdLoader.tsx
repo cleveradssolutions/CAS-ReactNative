@@ -17,6 +17,7 @@ export const NativeAdLoader: NativeAdLoaderType = {
   setAdChoicesPlacement: (placement: AdChoicesPlacement) => {
     CASMobileAdsNative.setNativeAdChoicesPlacement(Number(placement));
   },
+  setPlacement: CASMobileAdsNative.setNativePlacement,
 
   addAdLoadedEventListener: l =>
     addAdEventListener(

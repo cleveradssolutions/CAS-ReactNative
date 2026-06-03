@@ -32,6 +32,7 @@ export const AppOpenAd: AppOpenAdType = {
   isAdLoaded: CASMobileAdsNative.isAppOpenAdLoaded,
   loadAd: CASMobileAdsNative.loadAppOpenAd,
   showAd: CASMobileAdsNative.showAppOpenAd,
+  setPlacement: CASMobileAdsNative.setAppOpenPlacement,
   setAutoloadEnabled: CASMobileAdsNative.setAppOpenAutoloadEnabled,
   setAutoshowEnabled: CASMobileAdsNative.setAppOpenAutoshowEnabled,
   destroy: CASMobileAdsNative.destroyAppOpen,

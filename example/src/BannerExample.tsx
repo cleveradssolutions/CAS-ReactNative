@@ -3,7 +3,7 @@ import { Platform, StyleSheet, View, Button, Text, Animated } from 'react-native
 import {
   BannerAdView,
   BannerAdSize,
-  type AdViewRef,
+  type BannerAdViewRef,
   type AdViewInfo,
   type AdError,
   type AdContentInfo,
@@ -15,7 +15,7 @@ export default function BannerExample() {
   const [visible, setVisible] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-  const bannerRef = useRef<AdViewRef>(null);
+  const bannerRef = useRef<BannerAdViewRef>(null);
   const translateY = useRef(new Animated.Value(120)).current;
   const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -95,8 +95,9 @@ export default function BannerExample() {
           <BannerAdView
             ref={bannerRef}
             size={BannerAdSize.SMART}
-            autoReload={false}
-            refreshInterval={30}
+            autoReload={false} // default true
+            refreshInterval={30} // default 30 sec
+            placement={'TestPlace'} // optional
             onAdViewLoaded={onAdLoadedCallback}
             onAdViewFailed={onAdFailedCallback}
             onAdViewClicked={onAdClickedCallback}

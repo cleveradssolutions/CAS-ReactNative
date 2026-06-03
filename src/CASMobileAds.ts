@@ -62,6 +62,10 @@ class MobileAds implements MobileAdsModule {
     CASMobileAdsNative.setAdSoundsMuted(muted);
   }
 
+  setUserId(id: string | null): void {
+    CASMobileAdsNative.setUserId(id);
+  }
+
   setUserAge(age: number): void {
     CASMobileAdsNative.setUserAge(age);
   }
@@ -70,7 +74,7 @@ class MobileAds implements MobileAdsModule {
     CASMobileAdsNative.setUserGender(Number(gender));
   }
 
-  setAppContentUrl(contentUrl?: string): void {
+  setAppContentUrl(contentUrl: string | null): void {
     CASMobileAdsNative.setAppContentUrl(contentUrl);
   }
 

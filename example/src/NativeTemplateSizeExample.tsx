@@ -5,18 +5,11 @@ import AppButton from './components/AppButton';
 import { NativeAdLoader, NativeAdView, AdChoicesPlacement } from 'react-native-cas';
 import type { NativeAdContent, AdError, AdContentInfo } from 'react-native-cas';
 
-function pxToDp(px: number) {
-  return Math.round(px / PixelRatio.get());
-}
-
 export default function NativeTemplateSizeExample() {
   const { width: winWidth } = useWindowDimensions();
 
   const [loadedAd, setLoadedAd] = useState<NativeAdContent | null>(null);
   const [muted, setMuted] = useState(false);
-
-  const [placement, setPlacement] = useState<AdChoicesPlacement>(AdChoicesPlacement.topRightCorner);
-
   const [templateHeightDp] = useState(250);
 
   const MIN_INLINE_WIDTH = 300;
@@ -40,7 +33,10 @@ export default function NativeTemplateSizeExample() {
   useEffect(() => {
     const unsubLoaded = NativeAdLoader.addAdLoadedEventListener((ad: NativeAdContent) => {
       console.log('Native Ad loaded', ad.instanceId);
-      setLoadedAd(ad);
+      setLoadedAd((prev: NativeAdContent | null) => {
+        prev?.destroy();
+        return ad;
+      });
     });
 
     const unsubFailed = NativeAdLoader.addAdFailedToLoadEventListener((e: AdError) => {
@@ -56,7 +52,10 @@ export default function NativeTemplateSizeExample() {
       console.log('Native Ad impression', info);
     });
 
-    NativeAdLoader.loadAds(1);
+    NativeAdLoader.setAdChoicesPlacement(AdChoicesPlacement.TOP_RIGHT); // default TOP_RIGHT
+    NativeAdLoader.setStartVideoMuted(muted); // default true
+    NativeAdLoader.setPlacement('TestPlace'); // optional
+    NativeAdLoader.loadAd();
 
     return () => {
       unsubLoaded();
@@ -64,8 +63,8 @@ export default function NativeTemplateSizeExample() {
       unsubClicked();
       unsubImpression();
 
-      setLoadedAd((prev: NativeAdContent) => {
-        prev?.destroyAd();
+      setLoadedAd((prev: NativeAdContent | null) => {
+        prev?.destroy();
         return null;
       });
     };
@@ -76,14 +75,8 @@ export default function NativeTemplateSizeExample() {
   };
 
   const onToggleMute = () => {
-    NativeAdLoader.setNativeMutedEnabled(!muted);
     setMuted(!muted);
-  };
-
-  const onChangePlacement = () => {
-    const next = ((placement as number) + 1) % 4;
-    NativeAdLoader.setNativeAdChoicesPlacement(next);
-    setPlacement(next as any);
+    NativeAdLoader.setStartVideoMuted(muted);
   };
 
   const cardDynamicStyle = useMemo(() => ({ width: cardWidthPx }), [cardWidthPx]);
@@ -98,7 +91,6 @@ export default function NativeTemplateSizeExample() {
         <View style={S.row}>
           <AppButton title="Reload" onPress={onPressReload} />
           <AppButton title={muted ? 'Unmute' : 'Mute'} onPress={onToggleMute} />
-          <AppButton title="Change AdChoices" onPress={onChangePlacement} />
         </View>
 
         {!loadedAd ? (
@@ -107,10 +99,9 @@ export default function NativeTemplateSizeExample() {
           <View style={S.adShell}>
             <NativeAdView
               ad={loadedAd}
-              usesTemplate
               width={effectiveTemplateWidth}
               height={templateHeightDp}
-              style={[S.nativeRoot, nativeRootDynamicStyle]}
+              style={nativeRootDynamicStyle}
               templateStyle={S.templateStyle}
             />
           </View>

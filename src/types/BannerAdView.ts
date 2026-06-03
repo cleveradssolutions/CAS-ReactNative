@@ -17,7 +17,7 @@
 import type { AdError, AdViewInfo, AdContentInfo } from './AdContent';
 
 /**
- *  Represents the size of a banner ad.
+ * Represents the size of a banner ad.
  */
 export enum BannerAdSize {
   /**
@@ -96,6 +96,13 @@ export type BannerAdViewProps = {
    * Works regardless of `autoReload`.
    */
   refreshInterval?: number;
+
+  /**
+   * An optional placement name for the ad instance that helps categorize
+   * and track statistics across different ad placements.
+   * Maximum 100 characters allowed for the placement name.
+   */
+  placement?: string;
 
   /**
    * Callback to be invoked when the ad content has been successfully loaded.
