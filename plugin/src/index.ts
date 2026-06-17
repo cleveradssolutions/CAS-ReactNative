@@ -72,7 +72,7 @@ export type CASPluginParameters = {
   userTrackingUsageDescription?: string;
 };
 
-export const CAS_VERSION: string = '4.7.3';
+export const CAS_VERSION: string = '4.7.4';
 
 export const CAS_NAMES_DIFF: Record<string, string> = {
   casExchange: 'CASExchange',

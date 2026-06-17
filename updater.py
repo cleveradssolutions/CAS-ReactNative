@@ -1,8 +1,8 @@
 import os
 import shutil
 
-_PLUGIN_VERSION = "4.7.3"
-_CAS_VERSION = "4.7.3"
+_PLUGIN_VERSION = "4.7.4"
+_CAS_VERSION = "4.7.4"
 
 # Plugin publishing flow (from the project root):
 # python3 updater.py
@@ -15,6 +15,7 @@ _CAS_VERSION = "4.7.3"
 # yarn test:android
 # yarn test:ios
 # yarn release
+# https://github.com/cleveradssolutions/CAS-ReactNative/releases
 
 
 def update_version_in_file(file_path, prefix, suffix):
