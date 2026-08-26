@@ -44,14 +44,6 @@ const CAS_MEDIATION_REPOS = [
     content: ['tv.superawesome.sdk.publisher'],
   },
   {
-    url: 'https://repo.repsy.io/mvn/cleveradssolutions/proxy',
-    content: ['sspnet.tech', 'sspnet.tech.adapters'],
-  },
-  {
-    url: 'https://sdkpkg.sspnet.tech',
-    content: ['sspnet.tech', 'sspnet.tech.adapters'],
-  },
-  {
     url: 'https://maven.display.io/',
     content: ['com.brandio.ads'],
   },
