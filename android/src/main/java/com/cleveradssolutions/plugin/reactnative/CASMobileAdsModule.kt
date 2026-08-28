@@ -171,9 +171,9 @@ class CASMobileAdsModule(
   }
 
   override fun reportPurchase(purchase: ReadableMap) {
-    val productId = purchase.getString("productId") ?: return
+    val productId = purchase.getString("productId")!!
     val price = purchase.getDouble("price")
-    val currency = purchase.getString("currency") ?: return
+    val currency = purchase.getString("currency")!!
     val quantity = purchase.getInt("quantity")
     val isSubscription = purchase.getBoolean("isSubscription")
 
