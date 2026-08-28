@@ -20,6 +20,8 @@ import type {
   ConsentFlowStatus,
 } from './Initialization.ts';
 
+import type { PurchaseInfo } from './PurchaseInfo.ts';
+
 export interface MobileAds {
   /**
    * Initializes the CAS Mobile Ads SDK.
@@ -127,6 +129,14 @@ export interface MobileAds {
    * Default: 0 seconds.
    */
   setTrialAdFreeInterval(interval: number): void;
+
+  /**
+  * Reports information about an in-app purchase.
+  *
+  * Platform-specific validation fields are optional and depend on
+  * the IAP implementation used by the application.
+  */
+  reportPurchase(purchase: PurchaseInfo): void;
 }
 
 /** Optional targeting value. */

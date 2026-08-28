@@ -6,6 +6,7 @@ import android.app.Activity
 import android.util.Log
 import com.cleveradssolutions.plugin.reactnative.native.NativeAdStore
 import com.cleveradssolutions.sdk.AdFormat
+import com.cleveradssolutions.sdk.PurchaseInfo
 import com.cleveradssolutions.sdk.base.CASHandler
 import com.cleveradssolutions.sdk.nativead.CASNativeLoader
 import com.cleveradssolutions.sdk.screen.CASAppOpen
@@ -167,6 +168,76 @@ class CASMobileAdsModule(
     CASHandler.main {
       ConsentFlow().withUIContext(activity).withDismissListener(CompletionListener(promise)).show()
     }
+  }
+
+  override fun reportPurchase(purchase: ReadableMap) {
+    val productId = purchase.getString("productId") ?: return
+    val price = purchase.getDouble("price")
+    val currency = purchase.getString("currency") ?: return
+    val quantity = purchase.getInt("quantity")
+    val isSubscription = purchase.getBoolean("isSubscription")
+
+    val info = PurchaseInfo(
+      productId,
+      price,
+      currency,
+      quantity
+    )
+
+    val xsollaOrderId = purchase.optStringOrNull("xsollaOrderId")
+    val xsollaUserId = purchase.optStringOrNull("xsollaUserId")
+
+    val amazonReceipt = purchase.optStringOrNull("amazonReceipt")
+    val amazonReceiptId = purchase.optStringOrNull("amazonReceiptId")
+    val amazonUserId = purchase.optStringOrNull("amazonUserId")
+
+    val googlePurchaseData =
+      purchase.optStringOrNull("googlePurchaseData")
+    val googleDataSignature =
+      purchase.optStringOrNull("googleDataSignature")
+    val googlePurchaseToken =
+      purchase.optStringOrNull("googlePurchaseToken")
+
+    val googlePurchaseTime =
+      purchase.getDouble("googlePurchaseTime").toLong()
+
+    when {
+      !xsollaOrderId.isNullOrEmpty() -> {
+        info.setXsollaValidation(
+          xsollaOrderId,
+          xsollaUserId
+        )
+      }
+
+      !amazonReceipt.isNullOrEmpty() -> {
+        info.setAmazonValidation(amazonReceipt)
+      }
+
+      !amazonReceiptId.isNullOrEmpty() -> {
+        info.setAmazonValidation(
+          amazonReceiptId,
+          amazonUserId
+        )
+      }
+
+      isSubscription -> {
+        info.setSubsValidation(
+          googlePurchaseData,
+          googleDataSignature,
+          googlePurchaseToken,
+          googlePurchaseTime
+        )
+      }
+
+      else -> {
+        info.setValidation(
+          googlePurchaseData,
+          googleDataSignature
+        )
+      }
+    }
+
+    CAS.reportPurchase(info)
   }
 
   override fun getSDKVersion(promise: Promise) {

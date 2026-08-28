@@ -4,3 +4,4 @@ export * from './AdContent';
 export * from './BannerAdView';
 export * from './FullscreenAds';
 export * from './NativeAds';
+export * from './PurchaseInfo';
