@@ -7,7 +7,7 @@ const isAutoloadEnabled = true as const;
 
 // Number of ads kept loaded, 1...4. Default 1.
 // Out of range values are clamped by the plugin, see the [CAS.AI-RN] log.
-const preloadedBufferSize = 2;
+const preloadedBufferSize = 4;
 
 export default function RewardedExample() {
   const [loadedCount, setLoadedCount] = useState(0);

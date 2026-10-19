@@ -3,11 +3,11 @@ import { View, StyleSheet, Text } from 'react-native';
 import AppButton from './components/AppButton';
 import { AppOpenAd, type AdError, type AdContentInfo } from 'react-native-cas';
 
-const isAutoloadEnabled = false;
+const isAutoloadEnabled = true;
 
 // Number of ads kept loaded, 1...4. Default 1.
 // Out of range values are clamped by the plugin, see the [CAS.AI-RN] log.
-const preloadedBufferSize = 2;
+const preloadedBufferSize = 4;
 
 export default function AppOpenExample() {
   const [loadedCount, setLoadedCount] = useState(0);
@@ -74,7 +74,7 @@ export default function AppOpenExample() {
     });
 
     AppOpenAd.setPlacement('TestPlace'); // optional
-    AppOpenAd.setAutoshowEnabled(true); // default false
+    AppOpenAd.setAutoshowEnabled(false); // default false
     AppOpenAd.setAutoloadEnabled(isAutoloadEnabled); // default false
     AppOpenAd.setPreloadedBufferSize(preloadedBufferSize); // default 1
     if (!isAutoloadEnabled) {

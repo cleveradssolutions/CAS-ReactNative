@@ -274,13 +274,13 @@ class CASMobileAdsModule(reactContext: ReactApplicationContext) : NativeCASMobil
 
   // MARK: Interstitial ads
 
-  fun setInterstitialPreloadedBufferSize(size: Double) {
+  override fun setInterstitialPreloadedBufferSize(size: Double) {
     CASHandler.main {
       getInterstitialPool()?.setTargetCount(size.toInt(), true)
     }
   }
 
-  fun getInterstitialLoadedAdCount(promise: Promise) {
+  override fun getInterstitialLoadedAdCount(promise: Promise) {
     CASHandler.main {
       promise.resolve(getInterstitialPool()?.getLoadedAdCount() ?: 0)
     }
@@ -386,13 +386,13 @@ class CASMobileAdsModule(reactContext: ReactApplicationContext) : NativeCASMobil
 
   // MARK: Rewarded ads
 
-  fun setRewardedPreloadedBufferSize(size: Double) {
+  override fun setRewardedPreloadedBufferSize(size: Double) {
     CASHandler.main {
       getRewardedPool()?.setTargetCount(size.toInt(), true)
     }
   }
 
-  fun getRewardedLoadedAdCount(promise: Promise) {
+  override fun getRewardedLoadedAdCount(promise: Promise) {
     CASHandler.main {
       promise.resolve(getRewardedPool()?.getLoadedAdCount() ?: 0)
     }
@@ -480,13 +480,13 @@ class CASMobileAdsModule(reactContext: ReactApplicationContext) : NativeCASMobil
 
   // MARK: AppOpen ads
 
-  fun setAppOpenPreloadedBufferSize(size: Double) {
+  override fun setAppOpenPreloadedBufferSize(size: Double) {
     CASHandler.main {
       getAppOpenPool()?.setTargetCount(size.toInt(), true)
     }
   }
 
-  fun getAppOpenLoadedAdCount(promise: Promise) {
+  override fun getAppOpenLoadedAdCount(promise: Promise) {
     CASHandler.main {
       promise.resolve(getAppOpenPool()?.getLoadedAdCount() ?: 0)
     }

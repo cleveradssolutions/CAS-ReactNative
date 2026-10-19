@@ -33,7 +33,24 @@ internal class ScreenAdPool<T : ScreenAdContent>(private val createAd: () -> T) 
 
   fun getLoadedAdCount(): Int = ads.count { it.isLoaded }
   fun isLoaded(): Boolean = ads.any { it.isLoaded }
-  fun getReadyAdToShow(): T? = ads.filter { it.isLoaded }.maxByOrNull { it.contentInfo?.revenue ?: -1.0 }
+
+  fun getReadyAdToShow(): T? {
+    var bestAd: T? = null
+    var bestRevenue = -1.0
+
+    for (ad in ads) {
+      if (!ad.isLoaded) continue
+
+      val revenue = ad.contentInfo?.revenue ?: -1.0
+
+      if (bestAd == null || revenue > bestRevenue) {
+        bestAd = ad
+        bestRevenue = revenue
+      }
+    }
+
+    return bestAd
+  }
 
   fun forEachAd(action: (T) -> Unit) {
     ads.forEach(action)

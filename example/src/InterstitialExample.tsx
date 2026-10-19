@@ -3,11 +3,11 @@ import { View, Text, StyleSheet } from 'react-native';
 import AppButton from './components/AppButton';
 import { InterstitialAd, type AdError, type AdContentInfo } from 'react-native-cas';
 
-const isAutoloadEnabled = false;
+const isAutoloadEnabled = true;
 
 // Number of ads kept loaded, 1...4. Default 1.
 // Out of range values are clamped by the plugin, see the [CAS.AI-RN] log.
-const preloadedBufferSize = 2;
+const preloadedBufferSize = 4;
 
 export default function InterstitialExample() {
   const [loadedCount, setLoadedCount] = useState(0);
