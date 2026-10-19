@@ -15,15 +15,14 @@ import com.cleversolutions.ads.AdError
 import com.cleversolutions.ads.ConsentFlow
 import com.cleversolutions.ads.InitialConfiguration
 import com.cleversolutions.ads.InitializationListener
+import com.cleversolutions.ads.LoadingManagerMode
 import com.cleversolutions.ads.android.CAS
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.DeviceEventManagerModule
 
 @ReactModule(name = NativeCASMobileAdsModuleSpec.NAME)
-class CASMobileAdsModule(
-  reactContext: ReactApplicationContext
-) : NativeCASMobileAdsModuleSpec(reactContext) {
+class CASMobileAdsModule(reactContext: ReactApplicationContext) : NativeCASMobileAdsModuleSpec(reactContext) {
 
   companion object {
     const val NAME_BANNER = "CASAdView"
@@ -34,51 +33,29 @@ class CASMobileAdsModule(
     var casIdentifier: String = ""
   }
 
+  private var interstitialPool: ScreenAdPool<CASInterstitial>? = null
+  private var rewardedPool: ScreenAdPool<CASRewarded>? = null
+  private var appOpenPool: ScreenAdPool<CASAppOpen>? = null
+
+  // Interstitial settings
+  private var interstitialPlacement: String? = null
+  private var interstitialMinInterval: Int? = null
+  private var interstitialAutoloadEnabled: Boolean? = null
+  private var interstitialAutoshowEnabled: Boolean? = null
+
+  // Rewarded settings
+  private var rewardedPlacement: String? = null
+  private var rewardedSSVData: String? = null
+  private var rewardedAutoloadEnabled: Boolean? = null
+
+  // App Open settings
+  private var appOpenPlacement: String? = null
+  private var appOpenAutoloadEnabled: Boolean? = null
+  private var appOpenAutoshowEnabled: Boolean? = null
+
   private val screenContentCallback = ScreenContentCallback(this)
   private val nativeContentCallback = NativeContentCallback(this)
   private var initResult: InitialConfiguration? = null
-
-  private var appOpenAd: CASAppOpen? = null
-    get() = if (field != null) {
-      field
-    } else if (casIdentifier.isEmpty()) {
-      logErrorCallBeforeInitialize()
-      null
-    } else {
-      CASAppOpen(reactApplicationContext, casIdentifier).also {
-        field = it
-        it.contentCallback = screenContentCallback
-        it.onImpressionListener = screenContentCallback
-      }
-    }
-
-  private var interstitialAd: CASInterstitial? = null
-    get() = if (field != null) {
-      field
-    } else if (casIdentifier.isEmpty()) {
-      logErrorCallBeforeInitialize()
-      null
-    } else {
-      CASInterstitial(reactApplicationContext, casIdentifier).also {
-        field = it
-        it.contentCallback = screenContentCallback
-        it.onImpressionListener = screenContentCallback
-      }
-    }
-
-  private var rewardedAd: CASRewarded? = null
-    get() = if (field != null) {
-      field
-    } else if (casIdentifier.isEmpty()) {
-      logErrorCallBeforeInitialize()
-      null
-    } else {
-      CASRewarded(reactApplicationContext, casIdentifier).also {
-        field = it
-        it.contentCallback = screenContentCallback
-        it.onImpressionListener = screenContentCallback
-      }
-    }
 
   private var nativeAdLoader: CASNativeLoader? = null
     get() = if (field != null) {
@@ -90,6 +67,91 @@ class CASMobileAdsModule(
       field = CASNativeLoader(reactApplicationContext, casIdentifier, nativeContentCallback)
       field
     }
+
+  private fun getInterstitialPool(): ScreenAdPool<CASInterstitial>? {
+    interstitialPool?.let { return it }
+
+    if (casIdentifier.isEmpty()) {
+      logErrorCallBeforeInitialize()
+      return null
+    }
+
+    return ScreenAdPool(
+      createAd = {
+        CASInterstitial(reactApplicationContext, casIdentifier).apply {
+          contentCallback = screenContentCallback
+          onImpressionListener = screenContentCallback
+          placement = interstitialPlacement
+
+          interstitialMinInterval?.let {
+            minInterval = it
+          }
+
+          interstitialAutoshowEnabled?.let {
+            isAutoshowEnabled = it
+          }
+        }
+      }
+    ).also { pool ->
+      interstitialPool = pool
+      pool.setTargetCount(1, isAutoloadEnabled(interstitialAutoloadEnabled))
+    }
+  }
+
+  private fun getRewardedPool(): ScreenAdPool<CASRewarded>? {
+    rewardedPool?.let { return it }
+
+    if (casIdentifier.isEmpty()) {
+      logErrorCallBeforeInitialize()
+      return null
+    }
+
+    return ScreenAdPool(
+      createAd = {
+        CASRewarded(reactApplicationContext, casIdentifier).apply {
+          contentCallback = screenContentCallback
+          onImpressionListener = screenContentCallback
+          placement = rewardedPlacement
+          serverSideVerificationData = rewardedSSVData
+        }
+      }
+    ).also { pool ->
+      rewardedPool = pool
+      pool.setTargetCount(1, isAutoloadEnabled(rewardedAutoloadEnabled))
+    }
+  }
+
+  private fun getAppOpenPool(): ScreenAdPool<CASAppOpen>? {
+    appOpenPool?.let { return it }
+
+    if (casIdentifier.isEmpty()) {
+      logErrorCallBeforeInitialize()
+      return null
+    }
+
+    return ScreenAdPool(
+      createAd = {
+        CASAppOpen(reactApplicationContext, casIdentifier).apply {
+          contentCallback = screenContentCallback
+          onImpressionListener = screenContentCallback
+          placement = appOpenPlacement
+
+          appOpenAutoshowEnabled?.let {
+            isAutoshowEnabled = it
+          }
+        }
+      }
+    ).also { pool ->
+      appOpenPool = pool
+      pool.setTargetCount(1, isAutoloadEnabled(appOpenAutoloadEnabled, appOpen = true))
+    }
+  }
+
+  private fun isAutoloadEnabled(enabled: Boolean?, appOpen: Boolean = false): Boolean {
+    return enabled ?: (
+      !appOpen && CAS.settings.loadingMode != LoadingManagerMode.Manual
+      )
+  }
 
   private fun logErrorCallBeforeInitialize() {
     Log.e(
@@ -212,115 +274,303 @@ class CASMobileAdsModule(
 
   // MARK: Interstitial ads
 
-  override fun setInterstitialPlacement(placement: String?) {
-    interstitialAd?.placement = placement
+  fun setInterstitialPreloadedBufferSize(size: Double) {
+    CASHandler.main {
+      getInterstitialPool()?.setTargetCount(size.toInt(), true)
+    }
+  }
+
+  fun getInterstitialLoadedAdCount(promise: Promise) {
+    CASHandler.main {
+      promise.resolve(getInterstitialPool()?.getLoadedAdCount() ?: 0)
+    }
   }
 
   override fun isInterstitialAdLoaded(promise: Promise) {
-    promise.resolve(interstitialAd?.isLoaded == true)
+    CASHandler.main {
+      promise.resolve(getInterstitialPool()?.isLoaded() == true)
+    }
   }
 
   override fun loadInterstitialAd() {
-    interstitialAd?.load(reactApplicationContext)
-      ?: screenContentCallback.onAdFailedToLoad(AdFormat.INTERSTITIAL, AdError.NOT_INITIALIZED)
+    CASHandler.main {
+      val pool = getInterstitialPool()
+
+      if (pool == null) {
+        screenContentCallback.onAdFailedToLoad(AdFormat.INTERSTITIAL, AdError.NOT_INITIALIZED)
+        return@main
+      }
+
+      val autoload = isAutoloadEnabled(interstitialAutoloadEnabled)
+      pool.setTargetCount(1, autoload)
+      pool.loadMissing()
+    }
   }
 
   override fun showInterstitialAd() {
-    interstitialAd?.show(activity) ?: screenContentCallback.onAdFailedToShow(
-      AdFormat.INTERSTITIAL,
-      AdError.NOT_INITIALIZED
-    )
+    CASHandler.main {
+      val pool = getInterstitialPool()
+
+      if (pool == null) {
+        screenContentCallback.onAdFailedToShow(AdFormat.INTERSTITIAL, AdError.NOT_INITIALIZED)
+        return@main
+      }
+
+      val ad = pool.getReadyAdToShow()
+
+      if (ad == null) {
+        screenContentCallback.onAdFailedToShow(AdFormat.INTERSTITIAL, AdError.NOT_READY)
+        return@main
+      }
+
+      Log.d("CAS.AI-RN", "Showing Interstitial. Loaded: ${pool.getLoadedAdCount()}, revenue: ${ad.contentInfo?.revenue}")
+      ad.placement = interstitialPlacement
+      ad.show(activity)
+    }
+  }
+
+  override fun setInterstitialPlacement(placement: String?) {
+    CASHandler.main {
+      interstitialPlacement = placement?.takeIf { it.isNotEmpty() }
+
+      getInterstitialPool()?.forEachAd {
+        it.placement = interstitialPlacement
+      }
+    }
   }
 
   override fun setInterstitialAutoloadEnabled(enabled: Boolean) {
-    interstitialAd?.isAutoloadEnabled = enabled
+    CASHandler.main {
+      interstitialAutoloadEnabled = enabled
+
+      getInterstitialPool()?.forEachAd {
+        it.isAutoloadEnabled = enabled
+      }
+    }
   }
 
   override fun setInterstitialAutoshowEnabled(enabled: Boolean) {
-    interstitialAd?.isAutoshowEnabled = enabled
+    CASHandler.main {
+      interstitialAutoshowEnabled = enabled
+
+      getInterstitialPool()?.forEachAd {
+        it.isAutoshowEnabled = enabled
+      }
+    }
   }
 
   override fun setInterstitialMinInterval(seconds: Double) {
-    interstitialAd?.minInterval = seconds.toInt()
+    CASHandler.main {
+      interstitialMinInterval = seconds.toInt()
+
+      getInterstitialPool()?.forEachAd {
+        it.minInterval = seconds.toInt()
+      }
+    }
   }
 
   override fun restartInterstitialInterval() {
-    interstitialAd?.restartInterval()
+    CASHandler.main {
+      getInterstitialPool()?.forEachAd {
+        it.restartInterval()
+      }
+    }
   }
 
   override fun destroyInterstitial() {
-    interstitialAd?.destroy()
-    interstitialAd = null
+    CASHandler.main {
+      interstitialPool?.destroy()
+      interstitialPool = null
+    }
   }
 
   // MARK: Rewarded ads
 
-  override fun setRewardedPlacement(placement: String?) {
-    rewardedAd?.placement = placement
+  fun setRewardedPreloadedBufferSize(size: Double) {
+    CASHandler.main {
+      getRewardedPool()?.setTargetCount(size.toInt(), true)
+    }
+  }
+
+  fun getRewardedLoadedAdCount(promise: Promise) {
+    CASHandler.main {
+      promise.resolve(getRewardedPool()?.getLoadedAdCount() ?: 0)
+    }
   }
 
   override fun isRewardedAdLoaded(promise: Promise) {
-    promise.resolve(rewardedAd?.isLoaded == true)
+    CASHandler.main {
+      promise.resolve(getRewardedPool()?.isLoaded() == true)
+    }
   }
 
   override fun loadRewardedAd() {
-    rewardedAd?.load(reactApplicationContext)
-      ?: screenContentCallback.onAdFailedToLoad(AdFormat.REWARDED, AdError.NOT_INITIALIZED)
+    CASHandler.main {
+      val pool = getRewardedPool()
+
+      if (pool == null) {
+        screenContentCallback.onAdFailedToLoad(AdFormat.REWARDED, AdError.NOT_INITIALIZED)
+        return@main
+      }
+
+      val autoload = isAutoloadEnabled(rewardedAutoloadEnabled)
+      pool.setTargetCount(1, autoload)
+      pool.loadMissing()
+    }
   }
 
   override fun showRewardedAd() {
-    rewardedAd?.show(activity, screenContentCallback) ?: screenContentCallback.onAdFailedToShow(
-      AdFormat.REWARDED,
-      AdError.NOT_INITIALIZED
-    )
+    CASHandler.main {
+      val pool = getRewardedPool()
+
+      if (pool == null) {
+        screenContentCallback.onAdFailedToShow(AdFormat.REWARDED, AdError.NOT_INITIALIZED)
+        return@main
+      }
+
+      val ad = pool.getReadyAdToShow()
+
+      if (ad == null) {
+        screenContentCallback.onAdFailedToShow(AdFormat.REWARDED, AdError.NOT_READY)
+        return@main
+      }
+
+      Log.d("CAS.AI-RN", "Showing Rewarded. Loaded: ${pool.getLoadedAdCount()}, revenue: ${ad.contentInfo?.revenue}")
+      ad.placement = rewardedPlacement
+      ad.show(activity, screenContentCallback)
+    }
+  }
+
+  override fun setRewardedPlacement(placement: String?) {
+    CASHandler.main {
+      rewardedPlacement = placement?.takeIf { it.isNotEmpty() }
+
+      getRewardedPool()?.forEachAd {
+        it.placement = rewardedPlacement
+      }
+    }
   }
 
   override fun setRewardedAutoloadEnabled(enabled: Boolean) {
-    rewardedAd?.isAutoloadEnabled = enabled
+    CASHandler.main {
+      rewardedAutoloadEnabled = enabled
+
+      getRewardedPool()?.forEachAd {
+        it.isAutoloadEnabled = enabled
+      }
+    }
   }
 
   override fun setRewardedSSVerificationData(data: String?) {
-    rewardedAd?.serverSideVerificationData = data
+    CASHandler.main {
+      rewardedSSVData = data
+
+      getRewardedPool()?.forEachAd {
+        it.serverSideVerificationData = data
+      }
+    }
   }
 
   override fun destroyRewarded() {
-    rewardedAd?.destroy()
-    rewardedAd = null
+    CASHandler.main {
+      rewardedPool?.destroy()
+      rewardedPool = null
+    }
   }
 
   // MARK: AppOpen ads
 
-  override fun setAppOpenPlacement(placement: String?) {
-    appOpenAd?.placement = placement
+  fun setAppOpenPreloadedBufferSize(size: Double) {
+    CASHandler.main {
+      getAppOpenPool()?.setTargetCount(size.toInt(), true)
+    }
+  }
+
+  fun getAppOpenLoadedAdCount(promise: Promise) {
+    CASHandler.main {
+      promise.resolve(getAppOpenPool()?.getLoadedAdCount() ?: 0)
+    }
   }
 
   override fun isAppOpenAdLoaded(promise: Promise) {
-    promise.resolve(appOpenAd?.isLoaded == true)
+    CASHandler.main {
+      promise.resolve(getAppOpenPool()?.isLoaded() == true)
+    }
   }
 
   override fun loadAppOpenAd() {
-    appOpenAd?.load(reactApplicationContext)
-      ?: screenContentCallback.onAdFailedToLoad(AdFormat.APP_OPEN, AdError.NOT_INITIALIZED)
+    CASHandler.main {
+      val pool = getAppOpenPool()
+
+      if (pool == null) {
+        screenContentCallback.onAdFailedToLoad(AdFormat.APP_OPEN, AdError.NOT_INITIALIZED)
+        return@main
+      }
+
+      val autoload = isAutoloadEnabled(appOpenAutoloadEnabled, appOpen = true)
+
+      pool.setTargetCount(1, autoload)
+      pool.loadMissing()
+    }
   }
 
   override fun showAppOpenAd() {
-    appOpenAd?.show(activity) ?: screenContentCallback.onAdFailedToShow(
-      AdFormat.APP_OPEN,
-      AdError.NOT_INITIALIZED
-    )
+    CASHandler.main {
+      val pool = getAppOpenPool()
+
+      if (pool == null) {
+        screenContentCallback.onAdFailedToShow(AdFormat.APP_OPEN, AdError.NOT_INITIALIZED)
+        return@main
+      }
+
+      val ad = pool.getReadyAdToShow()
+
+      if (ad == null) {
+        screenContentCallback.onAdFailedToShow(AdFormat.APP_OPEN, AdError.NOT_READY)
+        return@main
+      }
+
+      Log.d("CAS.AI-RN", "Showing AppOpen. Loaded: ${pool.getLoadedAdCount()}, revenue: ${ad.contentInfo?.revenue}")
+      ad.placement = appOpenPlacement
+      ad.show(activity)
+    }
+  }
+
+  override fun setAppOpenPlacement(placement: String?) {
+    CASHandler.main {
+      appOpenPlacement = placement?.takeIf { it.isNotEmpty() }
+
+      getAppOpenPool()?.forEachAd {
+        it.placement = appOpenPlacement
+      }
+    }
   }
 
   override fun setAppOpenAutoloadEnabled(enabled: Boolean) {
-    appOpenAd?.isAutoloadEnabled = enabled
+    CASHandler.main {
+      appOpenAutoloadEnabled = enabled
+
+      getAppOpenPool()?.forEachAd {
+        it.isAutoloadEnabled = enabled
+      }
+    }
   }
 
   override fun setAppOpenAutoshowEnabled(enabled: Boolean) {
-    appOpenAd?.isAutoshowEnabled = enabled
+    CASHandler.main {
+      appOpenAutoshowEnabled = enabled
+
+      getAppOpenPool()?.forEachAd {
+        it.isAutoshowEnabled = enabled
+      }
+    }
   }
 
   override fun destroyAppOpen() {
-    appOpenAd?.destroy()
-    appOpenAd = null
+    CASHandler.main {
+      appOpenPool?.destroy()
+      appOpenPool = null
+    }
   }
 
   // MARK: Native ads
