@@ -30,6 +30,8 @@ const enum AppOpenAdEvent {
 
 export const AppOpenAd: AppOpenAdType = {
   isAdLoaded: CASMobileAdsNative.isAppOpenAdLoaded,
+  getLoadedAdCount: CASMobileAdsNative.getAppOpenLoadedAdCount,
+  setPreloadedBufferSize: CASMobileAdsNative.setAppOpenPreloadedBufferSize,
   loadAd: CASMobileAdsNative.loadAppOpenAd,
   showAd: CASMobileAdsNative.showAppOpenAd,
   setPlacement: CASMobileAdsNative.setAppOpenPlacement,

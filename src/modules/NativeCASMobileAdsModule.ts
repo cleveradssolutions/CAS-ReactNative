@@ -49,6 +49,8 @@ export interface Spec extends TurboModule {
 
   // Interstitial
   isInterstitialAdLoaded(): Promise<boolean>;
+  getInterstitialLoadedAdCount(): Promise<number>;
+  setInterstitialPreloadedBufferSize(count: Int32): void;
   loadInterstitialAd(): void;
   showInterstitialAd(): void;
   setInterstitialPlacement(placement: string | null): void;
@@ -60,6 +62,8 @@ export interface Spec extends TurboModule {
 
   // Rewarded
   isRewardedAdLoaded(): Promise<boolean>;
+  getRewardedLoadedAdCount(): Promise<number>;
+  setRewardedPreloadedBufferSize(count: Int32): void;
   loadRewardedAd(): void;
   showRewardedAd(): void;
   setRewardedPlacement(placement: string | null): void;
@@ -69,6 +73,8 @@ export interface Spec extends TurboModule {
 
   // App Open
   isAppOpenAdLoaded(): Promise<boolean>;
+  getAppOpenLoadedAdCount(): Promise<number>;
+  setAppOpenPreloadedBufferSize(count: Int32): void;
   loadAppOpenAd(): void;
   showAppOpenAd(): void;
   setAppOpenPlacement(placement: string | null): void;

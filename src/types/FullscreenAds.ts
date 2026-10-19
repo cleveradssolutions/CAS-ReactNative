@@ -42,18 +42,39 @@ export type FullscreenAdBase = {
   setAutoloadEnabled(enabled: boolean): void;
 
   /**
-   * Indicates whether the ad is currently loaded and ready to be shown.
+   * Indicates whether at least one ad is loaded and ready to be shown.
    */
   isAdLoaded(): Promise<boolean>;
 
   /**
+   * Sets the number of ads of this format kept in the preloaded buffer.
+   *
+   * The value is clamped to the range 1...4. Default: 1.
+   * Surplus ads are destroyed, even if loaded. New ads get the current options
+   * (placement, autoload, ...).
+   *
+   * New ads start loading right away when autoload is enabled (`setAutoloadEnabled(true)`).
+   * Otherwise call `loadAd()` to load them.
+   *
+   * `addAdLoadedEventListener` is called for every loaded ad of the buffer.
+   */
+  setPreloadedBufferSize(count: number): void;
+
+  /**
+   * Number of loaded ads ready to be shown, 0...4.
+   */
+  getLoadedAdCount(): Promise<number>;
+
+  /**
    * Manual retry to load the ad.
+   * Requests content for every ad of the preloaded buffer.
    * If autoload is enabled, loading/retry happens automatically when needed.
    */
   loadAd(): void;
 
   /**
    * Display this ad on top of the application.
+   * The loaded ad with the highest revenue of the preloaded buffer is shown.
    * Register event listeners before calling to get lifecycle callbacks.
    */
   showAd(): void;

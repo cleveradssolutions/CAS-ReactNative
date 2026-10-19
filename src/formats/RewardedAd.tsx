@@ -31,6 +31,8 @@ const enum RewardedAdEvent {
 
 export const RewardedAd: RewardedAdType = {
   isAdLoaded: CASMobileAdsNative.isRewardedAdLoaded,
+  getLoadedAdCount: CASMobileAdsNative.getRewardedLoadedAdCount,
+  setPreloadedBufferSize: CASMobileAdsNative.setRewardedPreloadedBufferSize,
   loadAd: CASMobileAdsNative.loadRewardedAd,
   showAd: CASMobileAdsNative.showRewardedAd,
   setAutoloadEnabled: CASMobileAdsNative.setRewardedAutoloadEnabled,

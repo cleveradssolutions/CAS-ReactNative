@@ -6,14 +6,20 @@
 #ifdef RCT_NEW_ARCH_ENABLED
 #import <RNCASMobileAdsSpec/RNCASMobileAdsSpec.h>
 
-@interface CASMobileAds : RCTEventEmitter <NativeCASMobileAdsModuleSpec, CASScreenContentDelegate, CASImpressionDelegate, CASNativeLoaderDelegate, CASNativeAdContentDelegate>
+@interface CASMobileAds : RCTEventEmitter <NativeCASMobileAdsModuleSpec, CASImpressionDelegate, CASNativeLoaderDelegate, CASNativeAdContentDelegate>
 #else
 #import <React/RCTBridgeModule.h>
 
-@interface CASMobileAds : RCTEventEmitter <RCTBridgeModule, CASScreenContentDelegate, CASImpressionDelegate, CASNativeLoaderDelegate, CASNativeAdContentDelegate>
+@interface CASMobileAds : RCTEventEmitter <RCTBridgeModule, CASImpressionDelegate, CASNativeLoaderDelegate, CASNativeAdContentDelegate>
 #endif
 
 @property (class, readonly, copy) NSString *casIdendifier;
+
+/// Sends the event to JS when there are listeners. Body may be nil.
+- (void)sendAdEvent:(NSString *)event body:(id)body;
+
+/// Sends the error event `{code, message}` to JS when there are listeners.
+- (void)sendAdEvent:(NSString *)event withError:(CASError *)error;
 
 @end
 

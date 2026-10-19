@@ -30,6 +30,8 @@ const enum InterstitialAdEvent {
 
 export const InterstitialAd: InterstitialAdType = {
   isAdLoaded: CASMobileAdsNative.isInterstitialAdLoaded,
+  getLoadedAdCount: CASMobileAdsNative.getInterstitialLoadedAdCount,
+  setPreloadedBufferSize: CASMobileAdsNative.setInterstitialPreloadedBufferSize,
   loadAd: CASMobileAdsNative.loadInterstitialAd,
   showAd: CASMobileAdsNative.showInterstitialAd,
 
