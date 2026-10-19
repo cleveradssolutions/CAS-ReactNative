@@ -5,14 +5,25 @@ import { InterstitialAd, type AdError, type AdContentInfo } from 'react-native-c
 
 const isAutoloadEnabled = false;
 
+// Number of ads kept loaded, 1...4. Default 1.
+// Out of range values are clamped by the plugin, see the [CAS.AI-RN] log.
+const preloadedBufferSize = 2;
+
 export default function InterstitialExample() {
-  const [loaded, setLoaded] = useState(false);
+  const [loadedCount, setLoadedCount] = useState(0);
   const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    const refreshLoadedCount = () => {
+      InterstitialAd.getLoadedAdCount().then(count => {
+        console.log('Interstitial Ad loaded count:', count);
+        setLoadedCount(count);
+      });
+    };
+
     const unsubscribeLoaded = InterstitialAd.addAdLoadedEventListener(() => {
       console.log('Interstitial Ad loaded');
-      setLoaded(true);
+      refreshLoadedCount();
       if (retryTimer.current) {
         clearTimeout(retryTimer.current);
         retryTimer.current = null;
@@ -21,7 +32,7 @@ export default function InterstitialExample() {
 
     const unsubscribeLoadFailed = InterstitialAd.addAdFailedToLoadEventListener((e: AdError) => {
       console.log('Interstitial Ad failed to load', e);
-      setLoaded(false);
+      refreshLoadedCount();
       if (isAutoloadEnabled) {
         // just wait auto reload
       } else {
@@ -39,11 +50,12 @@ export default function InterstitialExample() {
 
     const unsubscribeShowed = InterstitialAd.addAdShowedEventListener(() => {
       console.log('Interstitial Ad showed');
+      refreshLoadedCount();
     });
 
     const unsubscribeFailShow = InterstitialAd.addAdFailedToShowEventListener((e: AdError) => {
       console.log('Interstitial Ad failed to show:', e);
-      setLoaded(false);
+      refreshLoadedCount();
       if (isAutoloadEnabled) {
         // just wait auto reload
       } else {
@@ -53,7 +65,7 @@ export default function InterstitialExample() {
 
     const unsubscribeDismissed = InterstitialAd.addAdDismissedEventListener(() => {
       console.log('Interstitial Ad dismissed');
-      setLoaded(false);
+      refreshLoadedCount();
       if (isAutoloadEnabled) {
         // just wait auto reload
       } else {
@@ -71,6 +83,7 @@ export default function InterstitialExample() {
     InterstitialAd.setMinInterval(0); // default 0 sec
     InterstitialAd.setAutoshowEnabled(false); // default false
     InterstitialAd.setAutoloadEnabled(isAutoloadEnabled); // default false
+    InterstitialAd.setPreloadedBufferSize(preloadedBufferSize); // default 1
     if (!isAutoloadEnabled) {
       InterstitialAd.loadAd();
     }
@@ -94,16 +107,16 @@ export default function InterstitialExample() {
   };
 
   const onPressShowButton = () => {
-    setLoaded(false);
     InterstitialAd.showAd();
   };
 
   return (
     <View style={S.screen}>
       <View style={S.card}>
+        <Text style={S.title}>Loaded: {loadedCount}</Text>
         <View style={S.row}>
           <AppButton title="Load" onPress={onPressLoadButton} />
-          <AppButton title="Show" onPress={onPressShowButton} enabled={loaded} />
+          <AppButton title="Show" onPress={onPressShowButton} enabled={loadedCount > 0} />
         </View>
       </View>
     </View>

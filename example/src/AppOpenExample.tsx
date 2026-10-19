@@ -5,14 +5,25 @@ import { AppOpenAd, type AdError, type AdContentInfo } from 'react-native-cas';
 
 const isAutoloadEnabled = false;
 
+// Number of ads kept loaded, 1...4. Default 1.
+// Out of range values are clamped by the plugin, see the [CAS.AI-RN] log.
+const preloadedBufferSize = 2;
+
 export default function AppOpenExample() {
-  const [loaded, setLoaded] = useState(false);
+  const [loadedCount, setLoadedCount] = useState(0);
   const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    const refreshLoadedCount = () => {
+      AppOpenAd.getLoadedAdCount().then(count => {
+        console.log('AppOpen Ad loaded count:', count);
+        setLoadedCount(count);
+      });
+    };
+
     const unsubscribeLoaded = AppOpenAd.addAdLoadedEventListener(() => {
       console.log('AppOpen Ad loaded');
-      setLoaded(true);
+      refreshLoadedCount();
       if (retryTimer.current) {
         clearTimeout(retryTimer.current);
         retryTimer.current = null;
@@ -21,7 +32,7 @@ export default function AppOpenExample() {
 
     const unsubscribeLoadFailed = AppOpenAd.addAdFailedToLoadEventListener((e: AdError) => {
       console.log('AppOpen Ad failed to load:', e);
-      setLoaded(false);
+      refreshLoadedCount();
       if (isAutoloadEnabled) {
         // just wait auto reload
       } else {
@@ -38,10 +49,11 @@ export default function AppOpenExample() {
     });
     const unsubscribeShowed = AppOpenAd.addAdShowedEventListener(() => {
       console.log('AppOpen Ad showed');
+      refreshLoadedCount();
     });
     const unsubscribeShowFailed = AppOpenAd.addAdFailedToShowEventListener((e: AdError) => {
       console.log('AppOpen Ad failed to show with error:', e);
-      setLoaded(false);
+      refreshLoadedCount();
       if (isAutoloadEnabled) {
         // just wait auto reload
       } else {
@@ -50,7 +62,7 @@ export default function AppOpenExample() {
     });
     const unsubscribeDismissed = AppOpenAd.addAdDismissedEventListener(() => {
       console.log('AppOpen Ad dismissed');
-      setLoaded(false);
+      refreshLoadedCount();
       if (isAutoloadEnabled) {
         // just wait auto reload
       } else {
@@ -64,6 +76,7 @@ export default function AppOpenExample() {
     AppOpenAd.setPlacement('TestPlace'); // optional
     AppOpenAd.setAutoshowEnabled(true); // default false
     AppOpenAd.setAutoloadEnabled(isAutoloadEnabled); // default false
+    AppOpenAd.setPreloadedBufferSize(preloadedBufferSize); // default 1
     if (!isAutoloadEnabled) {
       AppOpenAd.loadAd();
     }
@@ -85,16 +98,16 @@ export default function AppOpenExample() {
   };
 
   const onPressShowButton = () => {
-    setLoaded(false);
     AppOpenAd.showAd();
   };
 
   return (
     <View style={S.screen}>
       <View style={S.card}>
+        <Text style={S.title}>Loaded: {loadedCount}</Text>
         <View style={S.row}>
           <AppButton title="Load" onPress={onPressLoadButton} />
-          <AppButton title="Show" onPress={onPressShowButton} enabled={loaded} />
+          <AppButton title="Show" onPress={onPressShowButton} enabled={loadedCount > 0} />
         </View>
       </View>
     </View>

@@ -5,18 +5,29 @@ import { RewardedAd, type AdError, type AdContentInfo } from 'react-native-cas';
 
 const isAutoloadEnabled = true as const;
 
+// Number of ads kept loaded, 1...4. Default 1.
+// Out of range values are clamped by the plugin, see the [CAS.AI-RN] log.
+const preloadedBufferSize = 2;
+
 export default function RewardedExample() {
-  const [loaded, setLoaded] = useState(false);
+  const [loadedCount, setLoadedCount] = useState(0);
   const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    const refreshLoadedCount = () => {
+      RewardedAd.getLoadedAdCount().then(count => {
+        console.log('Rewarded Ad loaded count:', count);
+        setLoadedCount(count);
+      });
+    };
+
     const unsubscribeReward = RewardedAd.addAdUserEarnRewardEventListener(() => {
       console.log('Rewarded Ad gives a reward to the user');
     });
 
     const unsubscribeLoaded = RewardedAd.addAdLoadedEventListener(() => {
       console.log('Rewarded Ad loaded');
-      setLoaded(true);
+      refreshLoadedCount();
       if (retryTimer.current) {
         clearTimeout(retryTimer.current);
         retryTimer.current = null;
@@ -25,7 +36,7 @@ export default function RewardedExample() {
 
     const unsubscribeLoadFailed = RewardedAd.addAdFailedToLoadEventListener((e: AdError) => {
       console.log('Rewarded Ad failed to load:', e);
-      setLoaded(false);
+      refreshLoadedCount();
       if (isAutoloadEnabled) {
         // just wait auto reload
       } else {
@@ -43,11 +54,12 @@ export default function RewardedExample() {
 
     const unsubscribeShowed = RewardedAd.addAdShowedEventListener(() => {
       console.log('Rewarded Ad showed');
+      refreshLoadedCount();
     });
 
     const unsubscribeFailShow = RewardedAd.addAdFailedToShowEventListener((e: AdError) => {
       console.log('Rewarded Ad failed to show:', e);
-      setLoaded(false);
+      refreshLoadedCount();
       if (isAutoloadEnabled) {
         // just wait auto reload
       } else {
@@ -57,7 +69,7 @@ export default function RewardedExample() {
 
     const unsubscribeDismissed = RewardedAd.addAdDismissedEventListener(() => {
       console.log('Rewarded Ad dismissed');
-      setLoaded(false);
+      refreshLoadedCount();
       if (isAutoloadEnabled) {
         // just wait auto reload
       } else {
@@ -72,6 +84,7 @@ export default function RewardedExample() {
     RewardedAd.setPlacement('TestPlace'); // optional
     RewardedAd.setServerSideVerificationData('TestSSVData'); // optional
     RewardedAd.setAutoloadEnabled(isAutoloadEnabled); // default false
+    RewardedAd.setPreloadedBufferSize(preloadedBufferSize); // default 1
     if (!isAutoloadEnabled) {
       RewardedAd.loadAd();
     }
@@ -92,16 +105,16 @@ export default function RewardedExample() {
   const onPressLoadButton = () => RewardedAd.loadAd();
 
   const onPressShowButton = () => {
-    setLoaded(false);
     RewardedAd.showAd();
   };
 
   return (
     <View style={S.screen}>
       <View style={S.card}>
+        <Text style={S.title}>Loaded: {loadedCount}</Text>
         <View style={S.row}>
           <AppButton title="Load" onPress={onPressLoadButton} />
-          <AppButton title="Show" onPress={onPressShowButton} enabled={loaded} />
+          <AppButton title="Show" onPress={onPressShowButton} enabled={loadedCount > 0} />
         </View>
       </View>
     </View>
