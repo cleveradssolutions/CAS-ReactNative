@@ -45,7 +45,9 @@ typedef NS_ENUM(NSInteger, RNCASScreenAdFormat) {
 /// Number of slots with loaded content.
 @property(nonatomic, readonly) NSInteger loadedCount;
 
-/// Sets the number of slots, clamped to 1...kRNCASMaxPreloadedAdsPerFormat.
+/// Size 1...kRNCASMaxPreloadedAdsPerFormat preloads ads: sets the number of slots
+/// and enables autoload for every slot. Bigger values are clamped.
+/// Size < 1 turns preloading off: one slot with the autoload option set by the app.
 /// Surplus slots are destroyed from the end, new slots get the current options.
 - (void)setBufferSize:(NSInteger)size;
 
@@ -59,8 +61,8 @@ typedef NS_ENUM(NSInteger, RNCASScreenAdFormat) {
 - (void)setAutoloadEnabled:(BOOL)enabled;
 - (void)setPlacement:(nullable NSString *)placement;
 
-/// Interstitial and App Open only. Enabled on a single slot: the loaded one with
-/// the highest price, so the app return shows one ad at most.
+/// Interstitial and App Open only. Applied to every slot, the SDK decides
+/// which ad is shown on app return.
 - (void)setAutoshowEnabled:(BOOL)enabled;
 
 /// Interstitial only.

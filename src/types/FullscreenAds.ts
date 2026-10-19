@@ -47,14 +47,15 @@ export type FullscreenAdBase = {
   isAdLoaded(): Promise<boolean>;
 
   /**
-   * Sets the number of ads of this format kept in the preloaded buffer.
+   * Preloads up to `count` ads of this format, so they are ready to be shown.
    *
-   * The value is clamped to the range 1...4. Default: 1.
+   * - `count` 1...4: keeps `count` ads and enables automatic loading for every ad,
+   *   so the buffer refills by itself after each impression. Values above 4 are clamped to 4.
+   * - `count` 0 (or less): turns preloading off. One ad is kept with the autoload option
+   *   set by `setAutoloadEnabled()`. This is the default.
+   *
    * Surplus ads are destroyed, even if loaded. New ads get the current options
-   * (placement, autoload, ...).
-   *
-   * New ads start loading right away when autoload is enabled (`setAutoloadEnabled(true)`).
-   * Otherwise call `loadAd()` to load them.
+   * (placement, autoshow, ...).
    *
    * `addAdLoadedEventListener` is called for every loaded ad of the buffer.
    */
