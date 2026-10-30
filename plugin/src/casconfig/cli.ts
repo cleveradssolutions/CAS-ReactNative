@@ -16,6 +16,7 @@ import path from 'path';
 
 import { configureInfoPlist } from './infoPlist';
 import { readInfoPlist, writeInfoPlist, writeSettingsFile } from './plistFile';
+import { readPrebuildStamp } from './stamp';
 
 const colors = {
   error: (text: string) => `\u001b[31m${text}\u001b[0m`,
@@ -86,6 +87,15 @@ export async function main(argv: string[]): Promise<number> {
     } else {
       casId = argument;
     }
+  }
+
+  // A prebuild has just written everything this run would write, so there is nothing to do.
+  // The stamp carries the version it was written by, so an upgrade without a prebuild still
+  // refreshes the identifier lists from here.
+  const stamp = readPrebuildStamp(process.env.SRCROOT ?? process.cwd());
+  if (stamp.matchesInstalledVersion) {
+    console.log(colors.thin('Configured by the Expo prebuild, nothing to do.'));
+    return 0;
   }
 
   plistPath = plistPath ?? findInfoPlist();

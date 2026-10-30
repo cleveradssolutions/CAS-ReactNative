@@ -8,12 +8,15 @@ import {
   withXcodeProject,
 } from '@expo/config-plugins';
 import { type CASPluginParameters, CAS_NAMES_DIFF, CAS_VERSION } from './index';
-import { configureInfoPlist, writeSettingsFile } from './casconfig';
+import { configureInfoPlist, writePrebuildStamp, writeSettingsFile } from './casconfig';
 import path from 'path';
 import fs from 'fs';
 
 /** Name of the configuration file the last prebuild wrote, to register it in the project. */
 let settingsFileName: string | null = null;
+
+/** CAS Id the plist mod used, recorded in the stamp the build phase reads. */
+let casIdOfLastRun: string | null = null;
 
 function withCASIOSInfoPlist(config: any, props: CASPluginParameters) {
   return withInfoPlist(config, async config => {
@@ -37,6 +40,7 @@ function withCASIOSInfoPlist(config: any, props: CASPluginParameters) {
       console.log('[CAS.AI] Info.plist: ' + changes.join(', '));
     }
 
+    casIdOfLastRun = props.iosAppId ?? null;
     settingsFileName = settingsFile?.name ?? null;
     if (settingsFile != null) {
       // `withInfoPlist` holds the parsed plist, not its path, so the file that belongs beside it
@@ -60,17 +64,19 @@ function withCASIOSSettingsFile(config: any) {
   config = withDangerousMod(config, [
     'ios',
     async config => {
-      if (config.modRequest.introspect || pendingSettingsFile == null) return config;
+      if (config.modRequest.introspect) return config;
 
-      const plistPath = path.join(
-        config.modRequest.platformProjectRoot,
-        config.modRequest.projectName!,
-        'Info.plist',
-      );
-      const written = writeSettingsFile(plistPath, pendingSettingsFile);
-      if (written.changed) {
-        console.log('[CAS.AI] Configuration file: ' + path.basename(written.path));
+      const iosRoot = config.modRequest.platformProjectRoot;
+      if (pendingSettingsFile != null) {
+        const plistPath = path.join(iosRoot, config.modRequest.projectName!, 'Info.plist');
+        const written = writeSettingsFile(plistPath, pendingSettingsFile);
+        if (written.changed) {
+          console.log('[CAS.AI] Configuration file: ' + path.basename(written.path));
+        }
       }
+      // Tells the build phase that autolinking seats in the target that the project is already
+      // configured, so that it does not repeat this work on every build.
+      writePrebuildStamp(iosRoot, casIdOfLastRun ?? undefined);
       return config;
     },
   ]);
