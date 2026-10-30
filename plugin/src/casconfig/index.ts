@@ -4,3 +4,4 @@ export { loadAdAttributionIds, loadAppConfiguration, loadSKAdNetworkIds } from '
 export type { AppConfiguration } from './remote';
 export { readInfoPlist, writeInfoPlist, writeSettingsFile } from './plistFile';
 export { writePrebuildStamp, readPrebuildStamp } from './stamp';
+export { SCRIPT_VERSION } from './version';

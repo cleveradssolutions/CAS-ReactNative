@@ -17,6 +17,7 @@ import path from 'path';
 import { configureInfoPlist } from './infoPlist';
 import { readInfoPlist, writeInfoPlist, writeSettingsFile } from './plistFile';
 import { readPrebuildStamp } from './stamp';
+import { SCRIPT_VERSION } from './version';
 
 const colors = {
   error: (text: string) => `\u001b[31m${text}\u001b[0m`,
@@ -66,6 +67,8 @@ function printHelp(): void {
   console.log('        Leave the Google Mobile Ads keys out, for an app without AdMob');
   console.log(colors.success('    --clean'));
   console.log('        Replace the identifier lists instead of adding to them, ignoring the cache');
+  console.log(colors.success('    --version'));
+  console.log('        Print the version of this configuration and exit');
   console.log('');
 }
 
@@ -79,6 +82,9 @@ export async function main(argv: string[]): Promise<number> {
   for (const argument of argv) {
     if (argument === '--help') {
       printHelp();
+      return 0;
+    } else if (argument === '--version') {
+      console.log(SCRIPT_VERSION);
       return 0;
     } else if (argument === '--no-gad') {
       googleAds = false;
@@ -139,7 +145,7 @@ export async function main(argv: string[]): Promise<number> {
   for (const warning of warnings) console.log(colors.warning('- ' + warning));
 
   console.log('');
-  console.log(colors.thin('CAS.AI iOS configuration'));
+  console.log(colors.thin('CAS.AI iOS configuration ' + SCRIPT_VERSION));
   return 0;
 }
 
