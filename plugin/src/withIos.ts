@@ -5,15 +5,19 @@ import {
   WarningAggregator,
   withPodfile,
   withDangerousMod,
+  withXcodeProject,
 } from '@expo/config-plugins';
 import { type CASPluginParameters, CAS_NAMES_DIFF, CAS_VERSION } from './index';
+import { configureInfoPlist, writeSettingsFile } from './casconfig';
 import path from 'path';
 import fs from 'fs';
-const { spawnSync } = require('child_process');
+
+/** Name of the configuration file the last prebuild wrote, to register it in the project. */
+let settingsFileName: string | null = null;
 
 function withCASIOSInfoPlist(config: any, props: CASPluginParameters) {
-  return withInfoPlist(config, config => {
-    var plist: InfoPlist = config.modResults;
+  return withInfoPlist(config, async config => {
+    const plist: InfoPlist = config.modResults;
 
     if (props.iosAppId) {
       plist.CASAIAppIdentifier = props.iosAppId;
@@ -21,17 +25,89 @@ function withCASIOSInfoPlist(config: any, props: CASPluginParameters) {
       delete plist.CASAIAppIdentifier;
     }
 
-    if (props.userTrackingUsageDescription) {
-      plist.NSUserTrackingUsageDescription = props.userTrackingUsageDescription;
+    const { changes, warnings, settingsFile } = await configureInfoPlist(plist, {
+      casId: props.iosAppId,
+      trackingUsageDescription: props.userTrackingUsageDescription,
+    });
+
+    for (const warning of warnings) {
+      WarningAggregator.addWarningIOS('react-native-cas', warning);
+    }
+    if (changes.length > 0) {
+      console.log('[CAS.AI] Info.plist: ' + changes.join(', '));
     }
 
-    const ats: any = plist.NSAppTransportSecurity ?? {};
-    plist.NSAppTransportSecurity = {
-      ...ats,
-      NSAllowsArbitraryLoads: true,
-    };
+    settingsFileName = settingsFile?.name ?? null;
+    if (settingsFile != null) {
+      // `withInfoPlist` holds the parsed plist, not its path, so the file that belongs beside it
+      // is written in the dangerous mod below, where the project paths are known.
+      pendingSettingsFile = settingsFile;
+    }
 
     config.modResults = plist;
+    return config;
+  });
+}
+
+/** Configuration body waiting to be written beside `Info.plist`. */
+let pendingSettingsFile: { name: string; body: string } | null = null;
+
+/**
+ * Writes the configuration file CAS.AI holds for the app, which the SDK reads on the very first
+ * launch, and registers it in the application target so that it reaches the bundle.
+ */
+function withCASIOSSettingsFile(config: any) {
+  config = withDangerousMod(config, [
+    'ios',
+    async config => {
+      if (config.modRequest.introspect || pendingSettingsFile == null) return config;
+
+      const plistPath = path.join(
+        config.modRequest.platformProjectRoot,
+        config.modRequest.projectName!,
+        'Info.plist',
+      );
+      const written = writeSettingsFile(plistPath, pendingSettingsFile);
+      if (written.changed) {
+        console.log('[CAS.AI] Configuration file: ' + path.basename(written.path));
+      }
+      return config;
+    },
+  ]);
+
+  return withXcodeProject(config, config => {
+    if (settingsFileName == null) return config;
+
+    const project = config.modResults;
+    const group = config.modRequest.projectName!;
+    if (project.hasFile(`${group}/${settingsFileName}`)) return config;
+
+    project.addResourceFile(`${group}/${settingsFileName}`, {}, project.getFirstProject().firstProject.mainGroup);
+    return config;
+  });
+}
+
+/** Adapters ship Objective-C categories that the linker drops without `-ObjC`. */
+function withCASIOSLinkerFlags(config: any) {
+  return withXcodeProject(config, config => {
+    const project = config.modResults;
+    const configurations = project.pbxXCBuildConfigurationSection();
+
+    for (const key of Object.keys(configurations)) {
+      const buildSettings = configurations[key]?.buildSettings;
+      if (buildSettings == null || buildSettings.PRODUCT_NAME == null) continue;
+
+      const flags: string[] = Array.isArray(buildSettings.OTHER_LDFLAGS)
+        ? buildSettings.OTHER_LDFLAGS
+        : buildSettings.OTHER_LDFLAGS
+          ? [buildSettings.OTHER_LDFLAGS]
+          : ['"$(inherited)"'];
+
+      if (!flags.includes('"-ObjC"') && !flags.includes('-ObjC')) {
+        flags.push('"-ObjC"');
+        buildSettings.OTHER_LDFLAGS = flags;
+      }
+    }
     return config;
   });
 }
@@ -99,58 +175,13 @@ function withCASIOSPodfile(config: any, props: CASPluginParameters) {
   });
 }
 
-function withCASIOSConfigScript(config: any, props: CASPluginParameters) {
-  return withDangerousMod(config, [
-    'ios',
-    async config => {
-      if (config.modRequest.introspect) return config;
-
-      const iosRoot = config.modRequest.platformProjectRoot;
-      const xcodeproj = path.join(iosRoot, config.modRequest.projectName + `.xcodeproj`);
-      const rubyScript = path.join(__dirname, '..', 'casconfig.rb');
-
-      if (!fs.existsSync(rubyScript)) {
-        WarningAggregator.addWarningIOS(
-          'react-native-cas',
-          rubyScript + ' not found in package. Please reimport package',
-        );
-        return config;
-      }
-
-      const casId = props.iosAppId || 'demo';
-      const result = spawnSync('ruby', [rubyScript, casId, '--project=' + xcodeproj], {
-        encoding: 'utf8',
-      });
-
-      if (result.error) {
-        WarningAggregator.addWarningIOS(
-          'react-native-cas',
-          'Error spawning CAS Ruby script: ' + result.error,
-        );
-      } else {
-        //console.log('[CAS.AI] Configuration:', result.stdout);
-
-        if (result.stderr) {
-          console.error(result.stderr);
-        }
-        if (result.status != 0) {
-          WarningAggregator.addWarningIOS(
-            'react-native-cas',
-            'Ruby script error status: ' + result.status,
-          );
-        }
-      }
-      return config;
-    },
-  ]);
-}
-
 export const withReactNativeCASMobileAdsIOS: ConfigPlugin<CASPluginParameters> = (
   config,
   props,
 ) => {
   config = withCASIOSInfoPlist(config, props);
   config = withCASIOSPodfile(config, props);
-  config = withCASIOSConfigScript(config, props);
+  config = withCASIOSSettingsFile(config);
+  config = withCASIOSLinkerFlags(config);
   return config;
 };

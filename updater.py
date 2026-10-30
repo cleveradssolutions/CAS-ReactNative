@@ -92,12 +92,6 @@ update_version_in_file(
     prefix="export const CAS_VERSION: string = '",
     suffix=_CAS_VERSION + "';"
 )
-shutil.copy2(
-    src=os.path.join('..', 'CAS-Swift', 'PublicSamplesRepo',
-                     'Script XCodeConfig', 'casconfig.rb'),
-    dst=os.path.join("plugin", "casconfig.rb")
-)
-
 androidRNGeneratedSource = os.path.join(
     "android", "app", "build", "generated", "source", "codegen", "java", "com", "facebook", "react", "viewmanagers")
 androidRNGeneratedDest = os.path.join(
