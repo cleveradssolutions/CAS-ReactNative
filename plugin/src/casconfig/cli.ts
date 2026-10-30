@@ -48,10 +48,16 @@ function findInfoPlist(): string | null {
   return found.length === 1 ? found[0] : null;
 }
 
+/** `node casconfig.js` when run from the package, the file name alone when run as a binary. */
+function invocation(): string {
+  const name = path.basename(process.argv[1] ?? 'casconfig.js');
+  return name.endsWith('.js') ? 'node ' + name : name;
+}
+
 function printHelp(): void {
   console.log('');
   console.log(colors.warning('Usage:'));
-  console.log('   ' + colors.success('node casconfig.js <CAS Id> [options]'));
+  console.log('   ' + colors.success(invocation() + ' <CAS Id> [options]'));
   console.log('');
   console.log(colors.warning('Options:'));
   console.log(colors.success('    --plist=<path>'));
