@@ -17,6 +17,7 @@ import com.facebook.react.uimanager.BaseViewManager;
 import com.facebook.react.uimanager.BaseViewManagerDelegate;
 import com.facebook.react.uimanager.LayoutShadowNode;
 
+@SuppressWarnings("deprecation")
 public class CASNativeAdViewManagerDelegate<T extends View, U extends BaseViewManager<T, ? extends LayoutShadowNode> & CASNativeAdViewManagerInterface<T>> extends BaseViewManagerDelegate<T, U> {
   public CASNativeAdViewManagerDelegate(U viewManager) {
     super(viewManager);
@@ -63,7 +64,7 @@ public class CASNativeAdViewManagerDelegate<T extends View, U extends BaseViewMa
   }
 
   @Override
-  public void receiveCommand(T view, String commandName, @Nullable ReadableArray args) {
+  public void receiveCommand(T view, String commandName, ReadableArray args) {
     switch (commandName) {
       case "registerAsset":
         mViewManager.registerAsset(view, args.getInt(0), args.getInt(1));

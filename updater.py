@@ -1,8 +1,8 @@
 import os
 import shutil
 
-_PLUGIN_VERSION = "4.8.0"
-_CAS_VERSION = "4.8.0"
+_PLUGIN_VERSION = "4.8.3"
+_CAS_VERSION = "4.8.3"
 
 # Plugin publishing flow (from the project root):
 # python3 updater.py
@@ -36,7 +36,12 @@ def update_version_in_file(file_path, prefix, suffix):
     else:
         raise RuntimeError(f"Prefix {prefix} not found in file: {file_path}")
 
+
 def update_android_old_arch(source, destination):
+    if not os.path.exists(source):
+        print("Source path not exist: " + source)
+        return
+
     shutil.rmtree(destination, ignore_errors=True)
     os.makedirs(destination)
 
@@ -48,15 +53,19 @@ def update_android_old_arch(source, destination):
         with open(filepath, 'r', encoding='utf-8') as f:
             content = f.read()
 
-        content = content.replace('import com.facebook.react.uimanager.ViewManagerWithGeneratedInterface;', '')
-        content = content.replace(' extends ViewManagerWithGeneratedInterface', '')
-        content = content.replace('import com.facebook.react.turbomodule.core.interfaces.TurboModule;', '')
+        content = content.replace(
+            'import com.facebook.react.uimanager.ViewManagerWithGeneratedInterface;', '')
+        content = content.replace(
+            ' extends ViewManagerWithGeneratedInterface', '')
+        content = content.replace(
+            'import com.facebook.react.turbomodule.core.interfaces.TurboModule;', '')
         content = content.replace(' implements TurboModule', '')
 
         filepath = os.path.join(destination, filename)
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write(content)
         print("Copy to old android arch:" + filename)
+
 
 update_version_in_file(
     file_path=os.path.join("package.json"),
@@ -89,10 +98,14 @@ shutil.copy2(
     dst=os.path.join("plugin", "casconfig.rb")
 )
 
-androidRNGeneratedSource = os.path.join("android", "build", "generated", "source", "codegen", "java", "com", "facebook", "react", "viewmanagers")
-androidRNGeneratedDest = os.path.join("android", "src", "oldarch", "com", "facebook", "react", "viewmanagers")
+androidRNGeneratedSource = os.path.join(
+    "android", "app", "build", "generated", "source", "codegen", "java", "com", "facebook", "react", "viewmanagers")
+androidRNGeneratedDest = os.path.join(
+    "android", "src", "oldarch", "com", "facebook", "react", "viewmanagers")
 update_android_old_arch(androidRNGeneratedSource, androidRNGeneratedDest)
 
-androidRNGeneratedSource = os.path.join("android", "build", "generated", "source", "codegen", "java", "com", "cleveradssolutions", "plugin", "reactnative")
-androidRNGeneratedDest = os.path.join("android", "src", "oldarch", "com", "cleveradssolutions", "plugin", "reactnative")
+androidRNGeneratedSource = os.path.join("android", "app", "build", "generated",
+                                        "source", "codegen", "java", "com", "cleveradssolutions", "plugin", "reactnative")
+androidRNGeneratedDest = os.path.join(
+    "android", "src", "oldarch", "com", "cleveradssolutions", "plugin", "reactnative")
 update_android_old_arch(androidRNGeneratedSource, androidRNGeneratedDest)

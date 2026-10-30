@@ -17,6 +17,7 @@ import com.facebook.react.uimanager.BaseViewManager;
 import com.facebook.react.uimanager.BaseViewManagerDelegate;
 import com.facebook.react.uimanager.LayoutShadowNode;
 
+@SuppressWarnings("deprecation")
 public class CASAdViewManagerDelegate<T extends View, U extends BaseViewManager<T, ? extends LayoutShadowNode> & CASAdViewManagerInterface<T>> extends BaseViewManagerDelegate<T, U> {
   public CASAdViewManagerDelegate(U viewManager) {
     super(viewManager);
@@ -45,7 +46,7 @@ public class CASAdViewManagerDelegate<T extends View, U extends BaseViewManager<
   }
 
   @Override
-  public void receiveCommand(T view, String commandName, @Nullable ReadableArray args) {
+  public void receiveCommand(T view, String commandName, ReadableArray args) {
     switch (commandName) {
       case "loadAd":
         mViewManager.loadAd(view);

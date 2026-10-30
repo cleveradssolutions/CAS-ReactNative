@@ -2,7 +2,7 @@ plugins {
   id 'com.android.application'
   id 'org.jetbrains.kotlin.android'
   id 'com.facebook.react'
-  id 'com.cleveradssolutions.gradle-plugin' version '4.8.0'
+  id 'com.cleveradssolutions.gradle-plugin' version '4.8.3'
 }
 
 react {
@@ -83,6 +83,16 @@ repositories {
         name = "DisplayIOAdsRepo"
         url = uri("https://maven.display.io/")
         content { includeGroup("com.brandio.ads") }
+    }
+    maven {
+        name = "BidMachineAdsRepo"
+        url = uri("https://artifactory.bidmachine.io/bidmachine")
+        content {
+            includeGroup("io.bidmachine")
+            includeGroup("io.bidmachine.libs")
+            includeGroup("io.bidmachine.media3")
+            includeGroup("com.explorestack")
+        }
     }
 }
 
