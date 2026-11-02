@@ -47,6 +47,35 @@ export interface Spec extends TurboModule {
   setLocationCollectionEnabled(enabled: boolean): void;
   setTrialAdFreeInterval(interval: Int32): void;
 
+  // Purchases
+  reportPurchase(purchase: {
+    productId: string;
+    price: number;
+    currency: string;
+    quantity: Int32;
+    isSubscription: boolean;
+
+    // Google Play
+    googlePurchaseData: string | null;
+    googleDataSignature: string | null;
+    googlePurchaseToken: string | null;
+    googlePurchaseTime: number;
+
+    // Apple App Store
+    appleTransactionId: string | null;
+    appleJwsRepresentation: string | null;
+    appleReceiptData: string | null;
+
+    // Amazon Appstore
+    amazonReceipt: string | null;
+    amazonReceiptId: string | null;
+    amazonUserId: string | null;
+
+    // Xsolla
+    xsollaOrderId: string | null;
+    xsollaUserId: string | null;
+  }): void;
+
   // Interstitial
   isInterstitialAdLoaded(): Promise<boolean>;
   loadInterstitialAd(): void;
@@ -87,36 +116,6 @@ export interface Spec extends TurboModule {
   // EventEmitter bridge
   addListener(eventName: string): void;
   removeListeners(count: number): void;
-
-reportPurchase(
-  purchase: {
-    productId: string;
-    price: number;
-    currency: string;
-    quantity: Int32;
-    isSubscription: boolean;
-
-    // Google Play
-    googlePurchaseData: string | null;
-    googleDataSignature: string | null;
-    googlePurchaseToken: string | null;
-    googlePurchaseTime: number;
-
-    // Apple App Store
-    appleTransactionId: string | null;
-    appleJwsRepresentation: string | null;
-    appleReceiptData: string | null;
-
-    // Amazon Appstore
-    amazonReceipt: string | null;
-    amazonReceiptId: string | null;
-    amazonUserId: string | null;
-
-    // Xsolla
-    xsollaOrderId: string | null;
-    xsollaUserId: string | null;
-  },): void;
-
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('CASMobileAds');

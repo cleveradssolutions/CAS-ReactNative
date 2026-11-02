@@ -264,6 +264,110 @@ RCT_EXPORT_METHOD(setLocationCollectionEnabled : (BOOL)enabled) {
   CAS.targetingOptions.locationCollectionEnabled = enabled;
 }
 
+#pragma mark - Purchases
+
+#ifdef RCT_NEW_ARCH_ENABLED
+
+- (void)reportPurchase:(JS::NativeCASMobileAdsModule::SpecReportPurchasePurchase &)purchase {
+  // Only App Store and Xsolla fields are used on iOS.
+  // Nil values are not added to the dictionary.
+  NSMutableDictionary *map = [[NSMutableDictionary alloc] initWithCapacity:10];
+
+  map[@"productId"] = purchase.productId();
+  map[@"price"] = @(purchase.price());
+  map[@"currency"] = purchase.currency();
+  map[@"quantity"] = @(purchase.quantity());
+  map[@"isSubscription"] = @(purchase.isSubscription());
+
+  map[@"appleTransactionId"] = purchase.appleTransactionId();
+  map[@"appleJwsRepresentation"] = purchase.appleJwsRepresentation();
+  map[@"appleReceiptData"] = purchase.appleReceiptData();
+
+  map[@"xsollaOrderId"] = purchase.xsollaOrderId();
+  map[@"xsollaUserId"] = purchase.xsollaUserId();
+
+  [self internalReportPurchase:map];
+}
+
+#else /* ifdef RCT_NEW_ARCH_ENABLED */
+
+RCT_EXPORT_METHOD(reportPurchase : (NSDictionary *)purchase) {
+  [self internalReportPurchase:purchase];
+}
+
+#endif /* ifdef RCT_NEW_ARCH_ENABLED */
+
+/// Non-empty string or nil. JS null arrives as NSNull in the Old Architecture.
+static NSString *RNCASNonEmptyString(id value) {
+  if ([value isKindOfClass:[NSString class]] && [(NSString *)value length] > 0) {
+    return value;
+  }
+  return nil;
+}
+
+/// The purchase is validated in JS. Validation data priority, as in the Unity plugin:
+/// 1. Subscription on iOS 16+: StoreKit subscription validation.
+/// 2. App Store transaction id + StoreKit 2 JWS.
+/// 3. App Store transaction id + legacy receipt.
+/// 4. Xsolla order.
+/// Without validation data the purchase is reported as is.
+- (void)internalReportPurchase:(NSDictionary *)purchase {
+  NSString *productId = RNCASNonEmptyString(purchase[@"productId"]);
+  NSString *currency = RNCASNonEmptyString(purchase[@"currency"]);
+
+  if (!productId || !currency) {
+    NSLog(@"[CAS.AI-RN] reportPurchase: productId and currency are required");
+    return;
+  }
+
+  NSNumber *priceNumber = purchase[@"price"];
+  NSDecimalNumber *price = [NSDecimalNumber decimalNumberWithString:priceNumber.stringValue];
+
+  if ([price isEqualToNumber:[NSDecimalNumber notANumber]]) {
+    price = [NSDecimalNumber zero];
+  }
+
+  NSInteger quantity = MAX(1, [purchase[@"quantity"] integerValue]);
+
+  CASPurchaseInfo *info = [[CASPurchaseInfo alloc] initWithProductID:productId
+                                                               price:price
+                                                            currency:currency
+                                                            quantity:quantity];
+
+  if ([purchase[@"isSubscription"] boolValue]) {
+    if (@available(iOS 16.0, *)) {
+      [info setSubsValidationFromStoreKit];
+      [CAS reportPurchase:info];
+      return;
+    }
+  }
+
+  NSString *transactionId = RNCASNonEmptyString(purchase[@"appleTransactionId"]);
+  NSString *jwsRepresentation = RNCASNonEmptyString(purchase[@"appleJwsRepresentation"]);
+  NSString *receiptData = RNCASNonEmptyString(purchase[@"appleReceiptData"]);
+  NSString *xsollaOrderId = RNCASNonEmptyString(purchase[@"xsollaOrderId"]);
+
+  if (transactionId && jwsRepresentation) {
+    uint64_t identifier = strtoull(transactionId.UTF8String, NULL, 10);
+    [info setValidationWithTransactionID:identifier jwsRepresentation:jwsRepresentation];
+  } else if (transactionId && receiptData) {
+    NSData *receipt = [[NSData alloc] initWithBase64EncodedString:receiptData options:0];
+
+    if (receipt) {
+      [info setValidationWithTransactionID:transactionId receiptData:receipt];
+    } else {
+      NSLog(@"[CAS.AI-RN] reportPurchase: appleReceiptData is not a valid Base64 string");
+    }
+  } else if (xsollaOrderId) {
+    [info setXsollaValidationWithOrderID:xsollaOrderId
+                                  userID:RNCASNonEmptyString(purchase[@"xsollaUserId"])];
+  } else if (jwsRepresentation || receiptData) {
+    NSLog(@"[CAS.AI-RN] reportPurchase: appleTransactionId is required for App Store validation");
+  }
+
+  [CAS reportPurchase:info];
+}
+
 #pragma mark - Interstitial Ads
 
 - (BOOL)tryCreateInterstitialAds {
