@@ -32,6 +32,12 @@ using namespace facebook::react;
 
 - (instancetype)initWithFrame:(CGRect)frame {
   if (self = [super initWithFrame:frame]) {
+#ifdef RCT_NEW_ARCH_ENABLED
+    // Fabric expects _props of the component's own type before the first updateProps.
+    // The base class sets generic ViewProps, the same as RNCASNativeAdView and RNCASBannerAdView do.
+    static const auto defaultProps = std::make_shared<const CASNativeAssetViewProps>();
+    _props = defaultProps;
+#endif
     // self.clipsToBounds = YES;
   }
   return self;
