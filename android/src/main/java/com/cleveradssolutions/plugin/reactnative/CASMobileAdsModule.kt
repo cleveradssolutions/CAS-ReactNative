@@ -145,6 +145,9 @@ class CASMobileAdsModule(
     options.optIntOrNull("debugGeography")?.let {
       consent.debugGeography = it
     }
+    options.optStringOrNull("consentSyncId")?.let {
+      consent.consentSyncId = it
+    }
     builder.withConsentFlow(consent)
 
     options.optMap("mediationExtras")?.let { extras ->

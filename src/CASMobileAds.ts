@@ -38,6 +38,7 @@ class MobileAds implements MobileAdsModule {
       testDeviceIds: options.testDeviceIds,
       debugGeography:
         options.debugGeography !== undefined ? Number(options.debugGeography) : undefined,
+      consentSyncId: options.consentSyncId,
       mediationExtras: options.mediationExtras,
     });
   }

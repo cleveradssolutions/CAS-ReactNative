@@ -82,6 +82,13 @@ export type InitializationParams = {
   /** Sets the debug geography for testing purposes. (Only effective in test sessions.) */
   debugGeography?: PrivacyGeography;
 
+  /**
+   * (Optional) The consent sync ID used to sync the user consent status with the UMP SDK.
+   *
+   * Must be a UUID string matching `^[0-9a-zA-Z+.=/_-$,{}]{22,150}$` (22–150 characters).
+   */
+  consentSyncId?: string;
+
   /** Additional mediation settings. */
   mediationExtras?: { [key: string]: string };
 };

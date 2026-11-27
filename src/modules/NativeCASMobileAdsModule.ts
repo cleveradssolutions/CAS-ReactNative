@@ -29,6 +29,7 @@ export interface Spec extends TurboModule {
       forceTestAds: boolean;
       testDeviceIds?: string[];
       debugGeography?: Int32;
+      consentSyncId?: string;
       mediationExtras?: { [key: string]: string };
     },
   ): Promise<InitializationStatus>;

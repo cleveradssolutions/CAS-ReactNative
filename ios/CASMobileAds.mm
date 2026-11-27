@@ -132,6 +132,12 @@ RCT_EXPORT_METHOD(initialize : (NSString *)casId options : (NSDictionary *)optio
     consentFlow.debugGeography = (CASUserDebugGeography)[privacyGeo integerValue];
   }
 
+  NSString *consentSyncId = options[@"consentSyncId"];
+
+  if (consentSyncId != nil && [consentSyncId isKindOfClass:[NSString class]]) {
+    consentFlow.consentSyncId = consentSyncId;
+  }
+
   [builder withConsentFlow:consentFlow];
 
   [builder withFramework:@"ReactNative" version:options[@"reactNativeVersion"]];
